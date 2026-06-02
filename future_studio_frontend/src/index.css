@@ -44,9 +44,10 @@ a {
   letter-spacing: 0.05em;
   color: #111111;
 }
+
 .top-ticker {
   background-color: #ffb74d;
-  border-bottom: 2px solid #111111;
+  border-bottom: 1px solid #e0e0e0; /* SỬA: Đổi viền đen thành viền xám mảnh */
   overflow: hidden;
   white-space: nowrap;
   padding: 8px 0;
@@ -89,7 +90,7 @@ a {
   width: 100%;
   background-color: #f7f7f7;
   padding: 16px 72px;
-  box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.15);
+  box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.08); /* SỬA: Giảm độ đậm bóng đổ */
   animation: slideDownHeader 0.4s cubic-bezier(0.165, 0.84, 0.44, 1) forwards;
 }
 
@@ -130,8 +131,8 @@ a {
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   display: flex;
   align-items: center;
-  background: transparent;
-  border: 2px solid #111111;
+  background: #f5f5f5; /* SỬA: Thêm nền xám nhẹ để không cần dùng viền đen */
+  border: 1px solid #e0e0e0; /* SỬA: Đổi sang viền mảnh tinh tế */
   border-radius: 24px;
   padding: 8px 20px; 
   font-size: 15px;
@@ -142,8 +143,18 @@ a {
 }
 
 .search-bar:hover {
-  transform: scale(1.08);
-  box-shadow: 0px 0px 0px #111111;
+  transform: scale(1.04);
+  background-color: #e0e0e0;
+}
+
+/* Định dạng nút Đăng nhập */
+.nav-login {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  transition: opacity 0.2s;
+  color: #111111;
 }
 
 .nav-login:hover {
@@ -180,11 +191,11 @@ a {
 }
 
 .cart-status svg {
-  -webkit-text-stroke: 3px #111111;
-  text-stroke: 3px #111111;
+  -webkit-text-stroke: 1px #111111; /* SỬA: Làm nét giỏ hàng thanh mảnh hơn */
+  text-stroke: 1px #111111;
 }
 
-/* Nút Menu Burger */
+/* Nút Menu Hamburger */
 .menu-burger {
   display: flex;
   align-items: center;
@@ -201,11 +212,12 @@ a {
 /* =====================================================================
    HERO AREA (KHUNG BANNER CHÍNH THỨC)
    ===================================================================== */
+   
 .hero-full-container {
   width: 100%;
   background-color: #ffffff;
   padding: 24px 72px 60px 72px;
-  border-bottom: 2px solid #111111;
+  border-bottom: 2px solid #111111; /* 🔥 THÊM LẠI: Đường gạch đen dày dặn ở dưới */
   position: relative;
 }
 
@@ -225,6 +237,7 @@ a {
   max-height: none !important;
   aspect-ratio: 2573 / 1402 !important;
   border: none !important;
+  border-radius: 0px !important;
   overflow: hidden;
   background-color: #ffffff;
 }
@@ -242,12 +255,13 @@ a {
   z-index: 1;
 }
 
+/* NÚT ĐIỀU HƯỚNG BANNER */
 .hero-nav-btn {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  background: rgba(255, 255, 255, 0.7);
-  border: 2px solid #111111;
+  background: #ffffff;
+  border: 1px solid #e0e0e0; /* SỬA: Đổi viền đen thành viền xám mảnh */
   width: 48px;
   height: 48px;
   border-radius: 50%;
@@ -258,11 +272,13 @@ a {
   z-index: 20;
   transition: all 0.2s ease;
   color: #111111;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.05); /* SỬA: Thêm bóng đổ nhẹ tinh tế */
 }
 
 .hero-nav-btn:hover {
   background: #111111;
   color: #ffffff;
+  border-color: #111111;
 }
 
 .hero-slider-wrapper {
@@ -352,14 +368,6 @@ a {
 /* =====================================================================
    BODY SECTION
    ===================================================================== */
-body {
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  color: #111111;
-  background-color: #ffffff;
-  overflow-x: clip;
-  -webkit-font-smoothing: antialiased;
-}
-
 .section-header {
   text-align: center;
   padding: 80px 0 40px;
@@ -411,6 +419,12 @@ body {
     transform: translateY(0) scale(1) rotate(0deg);
   }
 }
+.customers-section {
+  background-color: #8ec4e9; /* Đổi từ xanh lơ sang màu xanh mint chuẩn gu báo chí */
+  padding-bottom: 40px;
+  padding-top: 1px;
+  border: none; /* Xóa sạch hoàn toàn viền đen trên dưới như anh yêu cầu */
+}
 
 .section-title {
   font-family: 'Titan One', cursive;
@@ -426,44 +440,8 @@ body {
   color: #333333;
 }
 
-.carousel-controls {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 24px;
-  margin-top: 50px;
-  margin-bottom: 80px;
-}
-
-.btn-arrow {
-  background: transparent;
-  border: 2px solid #111111;
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  font-size: 18px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 900;
-  transition: all 0.2s ease;
-}
-
-.btn-arrow:hover:not(:disabled) {
-  background-color: #111111;
-  color: #ffffff;
-  transform: scale(1.05);
-}
-
-.carousel-page {
-  font-size: 15px;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-}
-
 /* =====================================================================
-   1. WHAT'S NEW SECTION
+   1. WHAT'S NEW / ALL PRODUCTS SECTION
    ===================================================================== */
 .news-grid {
   display: grid;
@@ -482,7 +460,7 @@ body {
 .news-sidebar {
   position: relative;
   width: 28px;
-  border-left: 1px solid #111111;
+  border-left: 1px solid #e0e0e0; /* SỬA: Đổi thanh gạch dọc bên ngày tháng sang xám nhạt */
   border-right: none;
   flex-shrink: 0;
 }
@@ -494,7 +472,7 @@ body {
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.1em;
-  color: #111111;
+  color: #666666; /* SỬA: Đổi màu chữ ngày dọc thành xám đậm cho vừa mắt */
   white-space: nowrap;
   writing-mode: vertical-rl;
   transform: rotate(180deg);
@@ -512,6 +490,7 @@ body {
   aspect-ratio: 1 / 1;
   background-color: #f5f5f5;
   overflow: hidden;
+  border-radius: 4px; /* Thêm bo góc nhẹ cho ảnh hiện đại */
 }
 
 .news-image img {
@@ -534,9 +513,19 @@ body {
   margin: 0;
 }
 
+/* NÚT CHUYỂN TRANG (CAROUSEL CONTROLS) */
+.carousel-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 32px;
+  margin-top: 50px;
+  margin-bottom: 80px;
+}
+
 .btn-arrow {
   background: #ffffff;
-  border: 1px solid #111111;
+  border: 1px solid #e0e0e0; /* SỬA: Đổi viền đen nút mũi tên thành xám mảnh */
   width: 40px;
   height: 40px;
   border-radius: 8px;
@@ -553,6 +542,7 @@ body {
 .btn-arrow:hover:not(:disabled) {
   background-color: #111111;
   color: #ffffff;
+  border-color: #111111;
   transform: scale(1.05);
 }
 
@@ -677,10 +667,11 @@ body {
 }
 
 .comic-panel {
-  border: 2px solid #111111;
+  border: 1px solid #e0e0e0; /* SỬA: Đổi viền đen khung tranh thành xám mảnh */
   background-color: #ffffff;
   overflow: hidden;
   aspect-ratio: 1 / 1;
+  border-radius: 4px;
 }
 
 .comic-panel img {
@@ -711,17 +702,6 @@ body {
 .btn-primary-black:hover {
   background-color: #333333;
   transform: translateY(-2px);
-}
-
-/* =====================================================================
-   THÊM MỚI: CUSTOMERS SECTION (MÀU XANH GIỐNG PICKUP)
-   ===================================================================== */
-.customers-section {
-  background-color: #a5d8f3; /* Màu xanh lơ chuẩn của pickup cũ */
-  padding-bottom: 40px;
-  padding-top: 1px;
-  border-top: 2px solid #111111; /* Đường gạch ngang viền đen cứng cáp đúng style */
-  border-bottom: 2px solid #111111;
 }
 
 /* =====================================================================
@@ -852,40 +832,13 @@ body {
   height: 24px;
 }
 
-.payment-icon.amex {
-  background-color: #016fd0;
-  color: white;
-}
-
-.payment-icon.apple {
-  background-color: #ffffff;
-  color: #000000;
-}
-
-.payment-icon.gpay {
-  background-color: #ffffff;
-  color: #5f6368;
-}
-
-.payment-icon.jcb {
-  background-color: #ffffff;
-  color: #003a8f;
-}
-
-.payment-icon.master {
-  background-color: #ff5f00;
-  color: white;
-}
-
-.payment-icon.shop {
-  background-color: #5a31f4;
-  color: white;
-}
-
-.payment-icon.visa {
-  background-color: #ffffff;
-  color: #1a1f71;
-}
+.payment-icon.amex { background-color: #016fd0; color: white; }
+.payment-icon.apple { background-color: #ffffff; color: #000000; }
+.payment-icon.gpay { background-color: #ffffff; color: #5f6368; }
+.payment-icon.jcb { background-color: #ffffff; color: #003a8f; }
+.payment-icon.master { background-color: #ff5f00; color: white; }
+.payment-icon.shop { background-color: #5a31f4; color: white; }
+.payment-icon.visa { background-color: #ffffff; color: #1a1f71; }
 
 .footer-bottom {
   width: 100%;
@@ -896,7 +849,6 @@ body {
   font-weight: 700;
   color: #ffffff;
 }
-
 
 /* =====================================================================
    RESPONSIVE DESIGN (TỰ ĐỘNG CO GIÃN THEO MÀN HÌNH)
