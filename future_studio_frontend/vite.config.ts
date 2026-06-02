@@ -6,8 +6,9 @@ import { reactClickToComponent } from 'vite-plugin-react-click-to-component'
 export default defineConfig({
   plugins: [
     react(),
-    reactClickToComponent() // Thêm dòng này vào
+    reactClickToComponent(),
   ],
+  
   server: {
     port: 3000,
   }
