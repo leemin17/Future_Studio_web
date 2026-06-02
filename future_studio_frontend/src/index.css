@@ -34,7 +34,6 @@ a {
    ===================================================================== */
 
 .site-header-wrapper {
-  /* Xóa position và width cũ đi, đổi thành contents */
   display: contents;
 }
 
@@ -42,7 +41,7 @@ a {
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   font-size: 15px;
   font-weight: 700;
-  letter-spacing: 0.05em; /* Nằm ở đây nè anh */
+  letter-spacing: 0.05em;
   color: #111111;
 }
 .top-ticker {
@@ -67,26 +66,19 @@ a {
 }
 
 @keyframes ticker {
-  0% {
-    transform: translate3d(0, 0, 0);
-  }
-
-  100% {
-    transform: translate3d(-50%, 0, 0);
-  }
+  0% { transform: translate3d(0, 0, 0); }
+  100% { transform: translate3d(-50%, 0, 0); }
 }
 
-/* KHUNG HEADER CHÍNH (CỐ ĐỊNH KHI CUỘN) */
 /* KHUNG HEADER CHÍNH */
 .main-header {
   background-color: transparent;
-  /* Bỏ màu nền xanh #5ccba3 cũ, để nó trong suốt */
   border-bottom: none;
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
+  display: flex;
+  justify-content: space-between; 
   align-items: center;
-  padding: 0 0 24px 0;
-  /* Đổi padding: bỏ padding trên/trái/phải vì đã kế thừa từ container, giữ padding dưới */
+  padding: 0 0 20px 0;
+  width: 100%;
   z-index: 1000;
 }
 
@@ -95,22 +87,15 @@ a {
   top: 0;
   left: 0;
   width: 100%;
-  background-color: #20c287;
-  /* Bổ sung màu nền đồng bộ khi thanh menu trượt xuống lúc cuộn trang */
+  background-color: #f7f7f7;
   padding: 16px 72px;
-  /* Cấp lại padding để các nút không bị sát mép khi fixed */
   box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.15);
   animation: slideDownHeader 0.4s cubic-bezier(0.165, 0.84, 0.44, 1) forwards;
 }
 
 @keyframes slideDownHeader {
-  0% {
-    transform: translateY(-100%);
-  }
-
-  100% {
-    transform: translateY(0);
-  }
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(0); }
 }
 
 .header-left-logo {
@@ -120,7 +105,6 @@ a {
 
 .header-small-logo {
   height: 40px; 
-  /* Phóng to ảnh gấp 1.5 lần so với kích thước gốc của nó trên web */
   transform: scale(6.5);
 }
 
@@ -133,11 +117,12 @@ a {
 
 .header-nav {
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
   align-items: center;
-  gap: 28px;
-  font-size: 14px;
-  font-weight: 600;
+  gap: 24px;
+  width: auto;
+  padding: 0 20px;
+  margin-left: auto;
 }
 
 /* Tinh chỉnh thanh tìm kiếm */
@@ -145,7 +130,7 @@ a {
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   display: flex;
   align-items: center;
-  background: transparent; /* Xóa nền trắng, làm cho nó trong suốt */
+  background: transparent;
   border: 2px solid #111111;
   border-radius: 24px;
   padding: 8px 20px; 
@@ -153,39 +138,25 @@ a {
   font-weight: 700; 
   cursor: pointer;
   transition: all 0.2s ease;
+  margin-left: auto;
 }
 
-/* Hiệu ứng lún xuống khi bấm vào ô tìm kiếm */
 .search-bar:hover {
   transform: scale(1.08);
   box-shadow: 0px 0px 0px #111111;
-}
-
-/* Định dạng nút Đăng nhập */
-.nav-login {
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  font-size: 15px;
-  font-weight: 700;
-  letter-spacing: 0.05em;
-  transition: opacity 0.2s;
-  color: #111111;
 }
 
 .nav-login:hover {
   transform: scale(1.08);
 }
 
-
 /* Khu vực giỏ hàng */
-/* Khung mỏ neo bọc ngoài */
 .cart-status {
   position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  
-  /* Ép khung bọc ngoài vừa khít với kích thước size={24} của icon */
   width: 28px; 
   height: 28px;
 }
@@ -194,45 +165,33 @@ a {
   transform: scale(1.08);
 }
 
-/* Con số nằm bên trong (ĐÃ CẬP NHẬT ĐÚNG TÊN CLASS) */
 .cartCount {
   position: absolute;
-  
-  /* Tọa độ dành riêng cho icon CiShoppingCart */
-  top: 7px;   /* Đẩy xuống một chút */
-  left: 11px;  /* Đẩy sang phải cho lọt vào lòng giỏ */
-  
+  top: 7px;
+  left: 11px;
   font-size: 11px;
   font-weight: 800;
   color: #111111;
-  
-  /* Reset các thuộc tính nền cũ */
   background: transparent !important;
   width: auto !important;
   height: auto !important;
   border-radius: 0 !important;
   margin: 0 !important;
 }
-/* Nhắm trực tiếp vào thẻ SVG bên trong .cart-status */
+
 .cart-status svg {
-  /* Thêm một lớp viền cùng màu với icon để làm nét dày lên */
-  -webkit-text-stroke: 3px #111111; /* Độ dày viền 1px, màu đen */
-  text-stroke: 3px #111111; /* Viền tiêu chuẩn (phòng hờ) */
-  
-  /* Nếu thấy 1px vẫn chưa đủ dày, anh có thể tăng lên 1.2px hoặc 1.5px */
-}
-.cart-status hover svg {
-  transform: scale(1.08);
+  -webkit-text-stroke: 3px #111111;
+  text-stroke: 3px #111111;
 }
 
-/* Nút Menu Hamburger */
+/* Nút Menu Burger */
 .menu-burger {
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   transition: transform 0.2s ease;
-  color: #111111;
+  color: #000000;
 }
 
 .menu-burger:hover {
@@ -244,27 +203,19 @@ a {
    ===================================================================== */
 .hero-full-container {
   width: 100%;
-  background-color: #2bc98f;
-  /* Đảm bảo màu xanh đồng nhất */
-  /* Tăng padding-bottom (ví dụ lên 60px) để có đủ khoảng trống cho nút nằm bên trong */
+  background-color: #ffffff;
   padding: 24px 72px 60px 72px;
   border-bottom: 2px solid #111111;
   position: relative;
-  /* Gốc tọa độ cho nút */
 }
 
 .hero-bottom-action {
   position: absolute;
   bottom: 9px;
-  /* Nằm cách viền đen dưới cùng 16px */
   left: 50%;
-
-  /* CHỈ translate trục X để canh giữa, KHÔNG translate trục Y để tránh nút bị tràn viền */
   transform: translateX(-50%);
-
   z-index: 30;
 }
-
 
 .hero-frame {
   position: relative;
@@ -273,10 +224,7 @@ a {
   min-height: 0 !important;
   max-height: none !important;
   aspect-ratio: 2573 / 1402 !important;
-  /* Tỉ lệ chuẩn 100% theo ảnh */
   border: none !important;
-  /* Bỏ viền đen */
-  border-radius: 0px !important;
   overflow: hidden;
   background-color: #ffffff;
 }
@@ -288,19 +236,17 @@ a {
   width: 100%;
   height: 100%;
   background-size: 100% 100% !important;
-  /* Ép ảnh full màn */
   background-position: center;
   background-repeat: no-repeat;
   transition: opacity 1.2s ease-in-out;
   z-index: 1;
 }
 
-/* NÚT ĐIỀU HƯỚNG BANNER */
 .hero-nav-btn {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  background: rgba(201, 240, 201, 0.7);
+  background: rgba(255, 255, 255, 0.7);
   border: 2px solid #111111;
   width: 48px;
   height: 48px;
@@ -319,23 +265,14 @@ a {
   color: #ffffff;
 }
 
-/* 1. Thêm class mới này vào dưới phần HERO AREA */
 .hero-slider-wrapper {
   position: relative;
   width: 100%;
 }
 
-/* 2. Tìm class .hero-nav-btn.prev cũ và thay bằng: */
-.hero-nav-btn.prev {
-  left: -60px; /* Đẩy lùi ra ngoài phần nền xanh bên trái */
-}
+.hero-nav-btn.prev { left: -60px; }
+.hero-nav-btn.next { right: -60px; }
 
-/* 3. Tìm class .hero-nav-btn.next cũ và thay bằng: */
-.hero-nav-btn.next {
-  right: -60px; /* Đẩy lùi ra ngoài phần nền xanh bên phải */
-}
-
-/* LỚP PHỦ VÀ TIÊU ĐỀ BANNER */
 .hero-overlay {
   position: relative;
   z-index: 10;
@@ -343,11 +280,7 @@ a {
   flex-direction: column;
   align-items: center;
   justify-content: flex-end;
-  /* Đang đẩy nội dung xuống dưới cùng */
-
-  /* CẬP NHẬT: Giảm padding-bottom từ 80px xuống 20px (hoặc 0px nếu muốn chạm hẳn vào đáy) */
   padding-bottom: 20px;
-
   background: linear-gradient(to bottom, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0) 40%, rgba(0, 0, 0, 0.7) 100%);
   width: 100%;
   height: 100%;
@@ -369,17 +302,9 @@ a {
 }
 
 @keyframes liquidGradient {
-  0% {
-    background-position: 0% 50%;
-  }
-
-  50% {
-    background-position: 100% 50%;
-  }
-
-  100% {
-    background-position: 0% 50%;
-  }
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }
 
 .btn-dozo-about {
@@ -387,16 +312,11 @@ a {
   background-color: #111111;
   color: #ffffff;
   font-size: 13px;
-  /* Chữ nhỏ lại một chút cho giống nguyên bản */
   font-weight: 700;
   padding: 12px 60px;
-  /* Tăng padding ngang để nút dài ra hình viên thuốc */
   border-radius: 40px;
-  /* Bo góc tròn hoàn toàn */
   border: none;
   cursor: pointer;
-  box-shadow: none;
-  /* Bỏ viền/bóng đổ để nút trông phẳng giống ảnh */
   transition: all 0.2s ease;
 }
 
@@ -436,10 +356,7 @@ body {
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   color: #111111;
   background-color: #ffffff;
-
-  /* ĐÃ SỬA: Đổi từ hidden sang clip để không bị lỗi bám dính (sticky) */
   overflow-x: clip;
-
   -webkit-font-smoothing: antialiased;
 }
 
@@ -485,12 +402,10 @@ body {
     opacity: 0;
     transform: translateY(60px) scale(0.8) rotate(-5deg);
   }
-
   50% {
     opacity: 1;
     transform: translateY(-15px) scale(1.05) rotate(3deg);
   }
-
   100% {
     opacity: 1;
     transform: translateY(0) scale(1) rotate(0deg);
@@ -557,24 +472,18 @@ body {
   margin-bottom: 40px;
 }
 
-/* Thẻ tin tức: Bố cục Flexbox ngang */
 .news-card {
   display: flex;
   gap: 16px;
-  /* Khoảng cách giữa đường kẻ và ảnh */
   align-items: stretch;
   cursor: pointer;
 }
 
-/* Cột chứa ngày tháng và đường kẻ dọc */
 .news-sidebar {
   position: relative;
   width: 28px;
-  /* Tăng nhẹ chiều rộng để chữ có không gian thở */
   border-left: 1px solid #111111;
-  /* Đổi đường kẻ sang bên TRÁI */
   border-right: none;
-  /* Bỏ đường kẻ bên phải */
   flex-shrink: 0;
 }
 
@@ -582,28 +491,22 @@ body {
   position: absolute;
   top: 0;
   left: 10px;
-  /* Đẩy chữ từ trái (từ đường kẻ) vào phía trong 10px */
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.1em;
   color: #111111;
   white-space: nowrap;
-
-  /* Xoay chữ dọc từ dưới lên trên */
   writing-mode: vertical-rl;
   transform: rotate(180deg);
 }
 
-/* Cột chứa nội dung bên phải */
 .news-content {
   flex: 1;
   display: flex;
   flex-direction: column;
   gap: 12px;
-  /* Khoảng cách giữa ảnh và chữ */
 }
 
-/* Khung hình ảnh: Vuông vức, không viền giống ảnh gốc */
 .news-image {
   width: 100%;
   aspect-ratio: 1 / 1;
@@ -619,7 +522,6 @@ body {
   transition: transform 0.3s ease;
 }
 
-/* Hiệu ứng hover cho ảnh mượt mà hơn */
 .news-card:hover .news-image img {
   transform: scale(1.05);
 }
@@ -632,27 +534,12 @@ body {
   margin: 0;
 }
 
-/* =====================================================================
-   NÚT CHUYỂN TRANG (CAROUSEL CONTROLS)
-   ===================================================================== */
-.carousel-controls {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 32px;
-  margin-top: 50px;
-  margin-bottom: 80px;
-}
-
-/* Đổi nút tròn thành nút vuông bo góc giống dōzo */
 .btn-arrow {
   background: #ffffff;
   border: 1px solid #111111;
-  /* Viền mảnh hơn */
   width: 40px;
   height: 40px;
   border-radius: 8px;
-  /* Bo góc vuông vức */
   font-size: 18px;
   cursor: pointer;
   display: flex;
@@ -767,7 +654,7 @@ body {
 
 /* 3. How To Use */
 .how-to-use-section {
-  background-color: #eae8e8;
+  background-color: #a5d8f3;
   padding-bottom: 100px;
   padding-top: 1px;
 }
@@ -824,6 +711,17 @@ body {
 .btn-primary-black:hover {
   background-color: #333333;
   transform: translateY(-2px);
+}
+
+/* =====================================================================
+   THÊM MỚI: CUSTOMERS SECTION (MÀU XANH GIỐNG PICKUP)
+   ===================================================================== */
+.customers-section {
+  background-color: #a5d8f3; /* Màu xanh lơ chuẩn của pickup cũ */
+  padding-bottom: 40px;
+  padding-top: 1px;
+  border-top: 2px solid #111111; /* Đường gạch ngang viền đen cứng cáp đúng style */
+  border-bottom: 2px solid #111111;
 }
 
 /* =====================================================================
@@ -999,108 +897,91 @@ body {
   color: #ffffff;
 }
 
+
 /* =====================================================================
    RESPONSIVE DESIGN (TỰ ĐỘNG CO GIÃN THEO MÀN HÌNH)
    ===================================================================== */
 
-/* 1. DÀNH CHO TABLET (Màn hình dưới 992px) */
 @media (max-width: 992px) {
-  /* Giảm lề 2 bên của banner từ 120px xuống còn 40px */
   .hero-full-container {
     padding: 16px 40px 60px 40px; 
   }
   
-  /* Thu hẹp khoảng cách 2 nút bấm mũi tên để không bị rớt ra ngoài */
   .hero-nav-btn.prev { left: -20px; }
   .hero-nav-btn.next { right: -20px; }
 
-  /* Chuyển danh sách Sản phẩm, Tin tức từ 4 cột xuống còn 2 cột */
   .news-grid,
   .product-grid,
   .comic-grid {
     grid-template-columns: repeat(2, 1fr);
   }
 
-  /* Thu nhỏ chữ tiêu đề lớn */
   .hero-title {
     font-size: 3rem;
   }
 }
 
-/* 2. DÀNH CHO ĐIỆN THOẠI (Màn hình dưới 768px) */
 @media (max-width: 768px) {
-  /* 1. Đổi cấu trúc Header thành Flexbox để tự động đẩy 2 mép ra xa nhau */
   .main-header {
     display: flex;
-    justify-content: space-between; 
+    justify-content: space-between;
     align-items: center;
     width: 100%;
+    padding: 15px 30px;
   }
   
-  /* 2. Ẩn bớt logo hình ảnh để tiết kiệm diện tích */
   .header-left-logo {
     display: none; 
   }
 
-  /* 3. Thu nhỏ logo chữ lại một chút cho vừa vặn với điện thoại */
   .header-logo {
-    font-size: 26px; /* Thay vì 38px như trên máy tính */
+    font-size: 26px;
   }
 
-  /* Giấu bớt thanh tìm kiếm và chữ Đăng nhập (Giữ nguyên như anh đang có) */
   .search-bar,
   .nav-login {
     display: none; 
   }
-  /* Giảm lề banner xuống mức tối thiểu */
+  
   .hero-full-container {
     padding: 16px 20px 40px 20px; 
   }
 
-  /* Dấu 2 nút mũi tên đi cho đỡ vướng trên điện thoại (người dùng tự vuốt) */
   .hero-nav-btn {
     display: none; 
   }
 
-  /* Chuyển toàn bộ Sản phẩm, Tin tức thành 1 cột duy nhất (xếp dọc) */
   .news-grid,
   .product-grid,
   .comic-grid {
     grid-template-columns: repeat(1, 1fr);
   }
 
-  /* Chỉnh lại Footer cho gọn */
   .footer-primary-nav {
     flex-direction: column;
     align-items: center;
     gap: 16px;
   }
-  /* 1. THU NHỎ NÚT ĐEN TRONG BANNER */
-  /* (Anh nhớ thay .btn-black bằng đúng tên class của cái nút đó trong code của anh nhé) */
+  
   .btn-black {
-    padding: 12px 24px;   /* Giảm độ phình trên/dưới và trái/phải */
-    font-size: 14px;      /* Thu nhỏ chữ bên trong nút */
-    border-radius: 30px;  /* Bo góc vừa phải lại */
-    
-    /* Nếu nút đang dùng position: absolute để đè lên viền ảnh, 
-       anh có thể chỉnh nhẹ bottom để nó kéo lên trên một chút */
+    padding: 12px 24px;
+    font-size: 14px;
+    border-radius: 30px;
     bottom: -15px; 
   }
 
-  /* 2. THU NHỎ CỤM TIÊU ĐỀ BÊN DƯỚI */
-  /* (Thay tên class cho khớp với thẻ h2/h3 của anh) */
-  .section-title { /* Class của chữ "What's new?" */
-    font-size: 42px;      /* Bóp size nhỏ lại để vừa trên 1 dòng hoặc rớt 2 dòng đẹp hơn */
-    line-height: 1.1;     /* Ép khoảng cách giữa 2 dòng lại cho đỡ tốn chỗ */
+  .section-title {
+    font-size: 42px;
+    line-height: 1.1;
     margin: 16px 0;
   }
 
-  .section-subtitle { /* Class của chữ "A GIFT WITH A STORY" */
+  .section-subtitle {
     font-size: 12px;
     letter-spacing: 2px;
   }
 
-  .section-desc { /* Class của chữ "Tin tức & chủ đề mới nhất" */
+  .section-desc {
     font-size: 14px;
   }
 }

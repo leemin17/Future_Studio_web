@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { CiShoppingCart } from "react-icons/ci";
 import { CiMenuBurger } from "react-icons/ci";
+
 
 
 /* =====================================================================
@@ -23,6 +23,15 @@ interface ProductItem {
   imageUrl: string;
 }
 
+// Kiểu dữ liệu mới cho danh sách khách hàng vinh danh
+interface CustomerItem {
+  id: number;
+  date: string;
+  title: string;
+  imageUrl: string;
+}
+
+
 // Data cho Slider (Hero)
 const heroImages = [
   'images/_mainvisual-001.png',
@@ -42,7 +51,15 @@ const newsData: NewsItem[] = [
   { id: 8, date: '2024.01.20', title: 'Future Studio lọt top studio sáng tạo của năm!', imageUrl: 'images/jobiterview.jpg' }
 ];
 
-// Data cho Sản phẩm (Pick up)
+// Data mới cho Khách hàng (Our Customers)
+const customerData: CustomerItem[] = [
+  { id: 1, date: 'THANK YOU', title: 'Dự án quà tặng kỷ niệm ngày thành lập tập đoàn đối tác', imageUrl: 'images/logo.jpg' },
+  { id: 2, date: 'CREATIVE', title: 'Bộ quà tặng sáng tạo độc quyền thiết kế riêng cho khách hàng VIP', imageUrl: 'images/black_text_logo.png' },
+  { id: 3, date: 'STUDIO', title: 'Đơn hàng 500 set quà bàn giao thành công cho studio nghệ thuật', imageUrl: 'images/jobiterview.jpg' },
+  { id: 4, date: 'TRUSTED', title: 'Hợp tác sản xuất hộp quà cao cấp cùng thương hiệu Local Brand', imageUrl: 'images/logo.jpg' },
+  { id: 5, date: '2026', title: 'Sự kiện tri ân các khách hàng thân thiết đồng hành cùng Future Studio', imageUrl: 'images/jobiterview.jpg' }
+];
+
 // Data cho Sản phẩm (Pick up) - Đã thêm data để test chuyển trang
 const productData: ProductItem[] = [
   {
@@ -106,7 +123,6 @@ const comicImages = [
    2. COMPONENT HEADER
    ===================================================================== */
 const Header: React.FC = () => {
-  const [cartCount] = useState<number>(0);
   const [currentHeroSlide, setCurrentHeroSlide] = useState(0);
 
   // STATE MỚI: Quản lý việc hiện Header khi cuộn xuống Body
@@ -130,7 +146,6 @@ const Header: React.FC = () => {
   // HIỆU ỨNG MỚI: Bắt sự kiện cuộn chuột
   useEffect(() => {
     const handleScroll = () => {
-      // Khi cuộn qua khoảng 800px (đã lướt qua phần Banner), kích hoạt Header
       if (window.scrollY > 800) {
         setShowFixedHeader(true);
       } else {
@@ -151,9 +166,6 @@ const Header: React.FC = () => {
         {/* Đưa Main Nav vào đây, nằm ngay trên hero-frame */}
         <div className={`main-header ${showFixedHeader ? 'fixed-active' : ''}`}>
           <div className="header-logo">Future Studio</div>
-          <div className="header-left-logo">
-            <img src="images/black_text_logo.png" alt="Logo" className="header-small-logo" />
-          </div>
           
           <div className="header-nav">
             <div className="search-bar">
@@ -163,19 +175,13 @@ const Header: React.FC = () => {
               </svg>
               <span>Tìm kiếm</span>
             </div>
-            <a href="#login" className="nav-login">Đăng nhập</a>
-            <div className="cart-status">
-              <CiShoppingCart size={28} />
-              <span className="cartCount">{cartCount}</span>
-            </div>
             <div className="menu-burger">
-              <CiMenuBurger size={20} />
-            </div>
+              <CiMenuBurger size={24} />
+            </div> 
           </div>
         </div>
 
         {/* Khung chứa ảnh Banner */}
-        {/* Lớp bọc mới thêm vào */}
         <div className="hero-slider-wrapper">
           
           {/* Đưa nút Lùi ra đây */}
@@ -242,7 +248,20 @@ const Body: React.FC = () => {
   const formattedTotalPages = String(totalNewsPages).padStart(2, '0');
 
   // ----------------------------------------------------
-  // LOGIC PHÂN TRANG: PICK UP (THÊM MỚI)
+  // LOGIC PHÂN TRANG: VINH DANH KHÁCH HÀNG (MỚI THÊM)
+  const [currentCustomerPage, setCurrentCustomerPage] = useState(1);
+  const customersPerPage = 4;
+  const totalCustomerPages = Math.ceil(customerData.length / customersPerPage);
+  const currentCustomers = customerData.slice((currentCustomerPage - 1) * customersPerPage, currentCustomerPage * customersPerPage);
+
+  const handlePrevCustomer = () => { if (currentCustomerPage > 1) setCurrentCustomerPage(currentCustomerPage - 1); };
+  const handleNextCustomer = () => { if (currentCustomerPage < totalCustomerPages) setCurrentCustomerPage(currentCustomerPage + 1); };
+
+  const formattedCustomerPage = String(currentCustomerPage).padStart(2, '0');
+  const formattedTotalCustomerPages = String(totalCustomerPages).padStart(2, '0');
+
+  // ----------------------------------------------------
+  // LOGIC PHÂN TRANG: PICK UP (TẠM ẨN GIAO DIỆN)
   const [currentProductPage, setCurrentProductPage] = useState(1);
   const productsPerPage = 4;
   const totalProductPages = Math.ceil(productData.length / productsPerPage);
@@ -255,7 +274,7 @@ const Body: React.FC = () => {
   const formattedTotalProductPages = String(totalProductPages).padStart(2, '0');
 
   // ----------------------------------------------------
-  // LOGIC PHÂN TRANG: HOW TO USE (THÊM MỚI)
+  // LOGIC PHÂN TRANG: HOW TO USE (TẠM ẨN GIAO DIỆN)
   const [currentComicPage, setCurrentComicPage] = useState(1);
   const comicsPerPage = 4;
   const totalComicPages = Math.ceil(comicImages.length / comicsPerPage);
@@ -286,12 +305,12 @@ const Body: React.FC = () => {
 
   return (
     <main>
-      {/* ================= SECTION: WHAT'S NEW ================= */}
+      {/* ================= SECTION: WHAT'S NEW / ALL PRODUCTS ================= */}
       <section className="container">
         <div className="section-header scroll-reveal">
           <span className="section-subtitle">A GIFT WITH A STORY</span>
-          <h2 className="section-title">What's new?</h2>
-          <p className="section-desc">Tin tức & chủ đề mới nhất</p>
+          <h2 className="section-title">All Products!</h2>
+          <p className="section-desc">Các sản phẩm nổi bật & mới nhất</p>
         </div>
 
         <div className="news-grid">
@@ -322,8 +341,43 @@ const Body: React.FC = () => {
         </div>
       </section>
 
-      {/* ================= SECTION: PICK UP ================= */}
-      <section className="pickup-section">
+      {/* ================= SECTION: OUR CUSTOMERS (MÀU XANH GIỐNG PICKUP) ================= */}
+      <section className="customers-section">
+        <div className="container">
+          <div className="section-header scroll-reveal">
+            <span className="section-subtitle">THANK YOU FOR CHOOSING US</span>
+            <h2 className="section-title">Our Customers!</h2>
+            <p className="section-desc">Vinh danh & tri ân những khách hàng đã tin tưởng Future Studio</p>
+          </div>
+
+          <div className="news-grid">
+            {currentCustomers.map((item) => (
+              <div key={item.id} className="news-card">
+                {/* Cột chữ dọc bên sườn */}
+                <div className="news-sidebar">
+                  <span className="vertical-date">{item.date}</span>
+                </div>
+                {/* Cột nội dung hình ảnh & chữ */}
+                <div className="news-content">
+                  <div className="news-image">
+                    <img src={item.imageUrl} alt={item.title} />
+                  </div>
+                  <p className="news-text">{item.title}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="carousel-controls" style={{ marginBottom: '0px', paddingBottom: '40px' }}>
+            <button className="btn-arrow" onClick={handlePrevCustomer} disabled={currentCustomerPage === 1} style={{ opacity: currentCustomerPage === 1 ? 0.3 : 1, cursor: currentCustomerPage === 1 ? 'not-allowed' : 'pointer' }}>←</button>
+            <span className="carousel-page">{formattedCustomerPage} — {formattedTotalCustomerPages}</span>
+            <button className="btn-arrow" onClick={handleNextCustomer} disabled={currentCustomerPage === totalCustomerPages} style={{ opacity: currentCustomerPage === totalCustomerPages ? 0.3 : 1, cursor: currentCustomerPage === totalCustomerPages ? 'not-allowed' : 'pointer' }}>→</button>
+          </div>
+        </div>
+      </section>
+
+      
+      {/* <section className="pickup-section">
         <div className="container">
           <div className="section-header scroll-reveal">
             <span className="section-subtitle">A GIFT WITH A STORY</span>
@@ -332,7 +386,6 @@ const Body: React.FC = () => {
           </div>
 
           <div className="product-grid">
-            {/* SỬA .map() thành mảng hiện tại: currentProducts */}
             {currentProducts.map((prod) => (
               <div key={prod.id} className="product-card">
                 <div className="image-container-square">
@@ -351,17 +404,16 @@ const Body: React.FC = () => {
             ))}
           </div>
 
-          {/* Cập nhật các nút bấm cho Pick Up */}
           <div className="carousel-controls">
             <button className="btn-arrow" onClick={handlePrevProduct} disabled={currentProductPage === 1} style={{ opacity: currentProductPage === 1 ? 0.3 : 1, cursor: currentProductPage === 1 ? 'not-allowed' : 'pointer' }}>←</button>
             <span className="carousel-page">{formattedProductPage} — {formattedTotalProductPages}</span>
             <button className="btn-arrow" onClick={handleNextProduct} disabled={currentProductPage === totalProductPages} style={{ opacity: currentProductPage === totalProductPages ? 0.3 : 1, cursor: currentProductPage === totalProductPages ? 'not-allowed' : 'pointer' }}>→</button>
           </div>
         </div>
-      </section>
+      </section> */}
 
       {/* ================= SECTION: HOW TO USE ================= */}
-      <section className="how-to-use-section">
+      {/* <section className="how-to-use-section">
         <div className="container">
           <div className="section-header scroll-reveal">
             <span className="section-subtitle">A GIFT WITH A STORY</span>
@@ -374,7 +426,6 @@ const Body: React.FC = () => {
           </div>
 
           <div className="comic-grid">
-            {/* SỬA .map() thành mảng hiện tại: currentComics */}
             {currentComics.map((img, idx) => (
               <div key={idx} className="comic-panel">
                 <img src={img} alt={`Comic panel ${idx + 1}`} />
@@ -382,7 +433,6 @@ const Body: React.FC = () => {
             ))}
           </div>
 
-          {/* Cập nhật các nút bấm cho How to use */}
           <div className="carousel-controls">
             <button className="btn-arrow" onClick={handlePrevComic} disabled={currentComicPage === 1} style={{ opacity: currentComicPage === 1 ? 0.3 : 1, cursor: currentComicPage === 1 ? 'not-allowed' : 'pointer' }}>←</button>
             <span className="carousel-page">{formattedComicPage} — {formattedTotalComicPages}</span>
@@ -390,10 +440,11 @@ const Body: React.FC = () => {
           </div>
 
           <div className="center-button-wrapper">
-            <button className="btn-primary-black">Cách sử dụng dozo</button>
+            <button className="btn-primary-black">Cách sử dụng Future Studio</button>
           </div>
         </div>
-      </section>
+      </section> */}
+
     </main>
   );
 };
