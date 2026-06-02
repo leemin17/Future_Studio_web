@@ -1,4 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import { CiShoppingCart } from "react-icons/ci";
+import { CiMenuBurger } from "react-icons/ci";
+
 
 /* =====================================================================
    1. KIỂU DỮ LIỆU & DỮ LIỆU TĨNH (CONST DATA)
@@ -23,20 +26,20 @@ interface ProductItem {
 // Data cho Slider (Hero)
 const heroImages = [
   'images/_mainvisual-001.png',
-  'images/logo.jpg',
+  'images/FINAL_COMP.png',
   'images/_mainvisual-001.png',
 ];
 
 // Data cho Tin tức (What's new)
 const newsData: NewsItem[] = [
-  { id: 1, date: '2024.04.05', title: 'Xin chào cuộc sống mới 🌸 Hãy hào hứng với việc đi...', imageUrl: 'images/3D.jpg' },
+  { id: 1, date: '2024.04.05', title: 'future team tuyển dụng thành viên cho team', imageUrl: 'images/black_text_logo.png' },
   { id: 2, date: '2024.03.26', title: 'Quà cưới cũng là quà tặng cho "chú rể" tốt nhất', imageUrl: 'images/logo.jpg' },
-  { id: 3, date: '2024.04.09', title: 'Mọi người dùng nó như thế nào? Cách người dùng có th...', imageUrl: 'images/news3.jpg' },
-  { id: 4, date: '2024.03.18', title: 'Nhìn! Future Studio GOD 👑 Giới thiệu hàng hóa dành riêng...', imageUrl: 'images/news4.jpg' },
-  { id: 5, date: '2024.03.10', title: 'Dự án phim hoạt hình mới chính thức bấm máy.', imageUrl: 'images/news5.jpg' },
-  { id: 6, date: '2024.02.28', title: 'Khai giảng khóa học 3D Animation cơ bản.', imageUrl: 'images/news6.jpg' },
-  { id: 7, date: '2024.02.15', title: 'Tham quan Studio: Hậu trường phía sau những thước phim.', imageUrl: 'images/news7.jpg' },
-  { id: 8, date: '2024.01.20', title: 'Future Studio lọt top studio sáng tạo của năm!', imageUrl: 'images/news8.jpg' }
+  { id: 3, date: '2024.04.09', title: 'Mọi người dùng nó như thế nào? Cách người dùng có th...', imageUrl: 'images/jobiterview.jpg' },
+  { id: 4, date: '2024.03.18', title: 'Nhìn! Future Studio GOD 👑 Giới thiệu hàng hóa dành riêng...', imageUrl: 'images/jobiterview.jpg' },
+  { id: 5, date: '2024.03.10', title: 'Dự án phim hoạt hình mới chính thức bấm máy.', imageUrl: 'images/jobiterview.jpg' },
+  { id: 6, date: '2024.02.28', title: 'Khai giảng khóa học 3D Animation cơ bản.', imageUrl: 'images/jobiterview.jpg' },
+  { id: 7, date: '2024.02.15', title: 'Tham quan Studio: Hậu trường phía sau những thước phim.', imageUrl: 'images/jobiterview.jpg' },
+  { id: 8, date: '2024.01.20', title: 'Future Studio lọt top studio sáng tạo của năm!', imageUrl: 'images/jobiterview.jpg' }
 ];
 
 // Data cho Sản phẩm (Pick up)
@@ -147,10 +150,11 @@ const Header: React.FC = () => {
 
         {/* Đưa Main Nav vào đây, nằm ngay trên hero-frame */}
         <div className={`main-header ${showFixedHeader ? 'fixed-active' : ''}`}>
-          <div className="header-left-logo">
-            <img src="images/logo.jpg" alt="Logo" className="header-small-logo" />
-          </div>
           <div className="header-logo">Future Studio</div>
+          <div className="header-left-logo">
+            <img src="images/black_text_logo.png" alt="Logo" className="header-small-logo" />
+          </div>
+          
           <div className="header-nav">
             <div className="search-bar">
               <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '6px' }}>
@@ -159,45 +163,58 @@ const Header: React.FC = () => {
               </svg>
               <span>Tìm kiếm</span>
             </div>
-            <a href="#login" style={{ letterSpacing: '0.05em' }}>Đăng nhập</a>
+            <a href="#login" className="nav-login">Đăng nhập</a>
             <div className="cart-status">
-              <span>🛒</span>
-              <span className="cart-count">{cartCount}</span>
+              <CiShoppingCart size={28} />
+              <span className="cartCount">{cartCount}</span>
             </div>
-            <div className="menu-burger">☰</div>
+            <div className="menu-burger">
+              <CiMenuBurger size={20} />
+            </div>
           </div>
         </div>
 
         {/* Khung chứa ảnh Banner */}
-        <div className="hero-frame">
-          {heroImages.map((img, index) => (
-            <div
-              key={index}
-              className="hero-slide"
-              style={{
-                backgroundImage: `url(${img})`,
-                opacity: index === currentHeroSlide ? 1 : 0
-              }}
-            />
-          ))}
-
+        {/* Lớp bọc mới thêm vào */}
+        <div className="hero-slider-wrapper">
+          
+          {/* Đưa nút Lùi ra đây */}
           <button className="hero-nav-btn prev" onClick={handlePrevHero}>
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
           </button>
+
+          {/* Khung chứa ảnh Banner vẫn giữ nguyên */}
+          <div className="hero-frame">
+            {heroImages.map((img, index) => (
+              <div
+                key={index}
+                className="hero-slide"
+                style={{
+                  backgroundImage: `url(${img})`,
+                  opacity: index === currentHeroSlide ? 1 : 0
+                }}
+              />
+            ))}
+
+            {/* Dấu chấm tròn vẫn nằm trong ảnh */}
+            <div className="hero-dots">
+              {heroImages.map((_, index) => (
+                <div
+                  key={index}
+                  onClick={() => setCurrentHeroSlide(index)}
+                  className={`hero-dot ${index === currentHeroSlide ? 'active' : ''}`}
+                />
+              ))}
+            </div>
+          </div>
+
+          {/* Đưa nút Tiến ra đây */}
           <button className="hero-nav-btn next" onClick={handleNextHero}>
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
           </button>
-
-          <div className="hero-dots">
-            {heroImages.map((_, index) => (
-              <div
-                key={index}
-                onClick={() => setCurrentHeroSlide(index)}
-                className={`hero-dot ${index === currentHeroSlide ? 'active' : ''}`}
-              />
-            ))}
-          </div>
+          
         </div>
+        
         <div className="hero-bottom-action">
           <button className="btn-dozo-about">Future Studio là gì?</button>
         </div>
