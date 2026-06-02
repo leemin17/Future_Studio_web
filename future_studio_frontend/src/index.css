@@ -1075,4 +1075,32 @@ body {
     align-items: center;
     gap: 16px;
   }
+  /* 1. THU NHỎ NÚT ĐEN TRONG BANNER */
+  /* (Anh nhớ thay .btn-black bằng đúng tên class của cái nút đó trong code của anh nhé) */
+  .btn-black {
+    padding: 12px 24px;   /* Giảm độ phình trên/dưới và trái/phải */
+    font-size: 14px;      /* Thu nhỏ chữ bên trong nút */
+    border-radius: 30px;  /* Bo góc vừa phải lại */
+    
+    /* Nếu nút đang dùng position: absolute để đè lên viền ảnh, 
+       anh có thể chỉnh nhẹ bottom để nó kéo lên trên một chút */
+    bottom: -15px; 
+  }
+
+  /* 2. THU NHỎ CỤM TIÊU ĐỀ BÊN DƯỚI */
+  /* (Thay tên class cho khớp với thẻ h2/h3 của anh) */
+  .section-title { /* Class của chữ "What's new?" */
+    font-size: 42px;      /* Bóp size nhỏ lại để vừa trên 1 dòng hoặc rớt 2 dòng đẹp hơn */
+    line-height: 1.1;     /* Ép khoảng cách giữa 2 dòng lại cho đỡ tốn chỗ */
+    margin: 16px 0;
+  }
+
+  .section-subtitle { /* Class của chữ "A GIFT WITH A STORY" */
+    font-size: 12px;
+    letter-spacing: 2px;
+  }
+
+  .section-desc { /* Class của chữ "Tin tức & chủ đề mới nhất" */
+    font-size: 14px;
+  }
 }
