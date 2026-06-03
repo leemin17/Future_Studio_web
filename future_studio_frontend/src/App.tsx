@@ -2,25 +2,63 @@ import React, { useState, useEffect } from 'react';
 import { CiMenuBurger } from "react-icons/ci";
 
 // 🔥 DÒNG MỚI THÊM: Kết nối và lấy thẳng dữ liệu từ kho lưu trữ riêng
-import { newsData, customerData, heroImages,type NewsItem } from './data/database';
+import { newsData, customerData, heroImages, type NewsItem } from './data/database';
 
 /* =====================================================================
-   2. COMPONENT HEADER
+   2. COMPONENT HEADER (Nhận diện trạng thái để đổi kiểu hiển thị)
    ===================================================================== */
 interface HeaderProps {
-  onHeroClick: (index: number | null) => void;
+  onLogoClick: () => void;
+  showFixedHeader: boolean;
+  isAtDetailPage: boolean; // 🔥 Nhận biết đang ở trang chủ hay trang phụ
 }
 
-const Header: React.FC<HeaderProps> = ({ onHeroClick }) => {
+const Header: React.FC<HeaderProps> = ({ onLogoClick, showFixedHeader, isAtDetailPage }) => {
+  // Xác định class CSS dựa trên vị trí cuộn và trang hiện tại
+  const headerClass = showFixedHeader
+    ? 'fixed-active'
+    : isAtDetailPage
+      ? 'sub-page-header'
+      : 'home-page-header';
+
+  return (
+    <div className={`main-header ${headerClass}`}>
+      <div className="header-logo" onClick={onLogoClick} style={{ cursor: 'pointer' }}>
+        Future Studio
+      </div>
+
+      <div className="header-nav">
+        <div className="search-bar">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '6px' }}>
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <span>Tìm kiếm</span>
+        </div>
+        <div className="menu-burger">
+          <CiMenuBurger size={24} />
+        </div>
+      </div>
+    </div>
+  );
+};
+
+/* =====================================================================
+   2.1. COMPONENT HERO SLIDER (Tách riêng biệt để dễ ẩn/hiện)
+   ===================================================================== */
+interface HeroSliderProps {
+  onHeroClick: (index: number) => void;
+}
+
+const HeroSlider: React.FC<HeroSliderProps> = ({ onHeroClick }) => {
   const [currentHeroSlide, setCurrentHeroSlide] = useState(0);
-  const [showFixedHeader, setShowFixedHeader] = useState(false);
 
   useEffect(() => {
     const heroInterval = setInterval(() => {
       setCurrentHeroSlide((prevIndex) => (prevIndex + 1) % heroImages.length);
     }, 4000);
     return () => clearInterval(heroInterval);
-  }, [currentHeroSlide]);
+  }, []);
 
   const handlePrevHero = () => {
     setCurrentHeroSlide((prev) => (prev === 0 ? heroImages.length - 1 : prev - 1));
@@ -30,92 +68,59 @@ const Header: React.FC<HeaderProps> = ({ onHeroClick }) => {
     setCurrentHeroSlide((prev) => (prev + 1) % heroImages.length);
   };
 
-  useEffect(() => {
-    const handleScroll = () => {
-      if (window.scrollY > 800) {
-        setShowFixedHeader(true);
-      } else {
-        setShowFixedHeader(false);
-      }
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
   return (
-    <header className="site-header-wrapper">
-      <div className="hero-full-container">
-        <div className={`main-header ${showFixedHeader ? 'fixed-active' : ''}`}>
-          <div className="header-logo" onClick={() => onHeroClick(null)} style={{ cursor: 'pointer' }}>
-            Future Studio
-          </div>
-          
-          <div className="header-nav">
-            <div className="search-bar">
-              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '6px' }}>
-                <circle cx="11" cy="11" r="8"></circle>
-                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-              </svg>
-              <span>Tìm kiếm</span>
-            </div>
-            <div className="menu-burger">
-              <CiMenuBurger size={24} />
-            </div> 
-          </div>
-        </div>
+    <div className="hero-full-container">
+      <div className="hero-slider-wrapper">
+        <button className="hero-nav-btn prev" onClick={handlePrevHero}>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+        </button>
 
-        <div className="hero-slider-wrapper">
-          <button className="hero-nav-btn prev" onClick={handlePrevHero}>
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
-          </button>
+        <div className="hero-frame">
+          {heroImages.map((img, index) => (
+            <div
+              key={index}
+              className="hero-slide"
+              style={{
+                backgroundImage: `url(${img})`,
+                opacity: index === currentHeroSlide ? 1 : 0,
+                cursor: 'pointer'
+              }}
+              onClick={() => onHeroClick(index)}
+            />
+          ))}
 
-          <div className="hero-frame">
-            {heroImages.map((img, index) => (
+          <div className="hero-dots">
+            {heroImages.map((_, index) => (
               <div
                 key={index}
-                className="hero-slide"
-                style={{
-                  backgroundImage: `url(${img})`,
-                  opacity: index === currentHeroSlide ? 1 : 0,
-                  cursor: 'pointer'
-                }}
-                onClick={() => onHeroClick(index)}
+                onClick={() => setCurrentHeroSlide(index)}
+                className={`hero-dot ${index === currentHeroSlide ? 'active' : ''}`}
               />
             ))}
-
-            <div className="hero-dots">
-              {heroImages.map((_, index) => (
-                <div
-                  key={index}
-                  onClick={() => setCurrentHeroSlide(index)}
-                  className={`hero-dot ${index === currentHeroSlide ? 'active' : ''}`}
-                />
-              ))}
-            </div>
           </div>
+        </div>
 
-          <button className="hero-nav-btn next" onClick={handleNextHero}>
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
-          </button>
-        </div>
-        
-        <div className="hero-bottom-action">
-          <button className="btn-dozo-about">Future Studio là gì?</button>
-        </div>
+        <button className="hero-nav-btn next" onClick={handleNextHero}>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+        </button>
       </div>
-    </header>
+
+      <div className="hero-bottom-action">
+        <button className="btn-dozo-about">Future Studio là gì?</button>
+      </div>
+    </div>
   );
 };
 
 
 /* =====================================================================
-   3. COMPONENT BODY
+   3. COMPONENT BODY (Nhận hàm điều hướng từ App chuyển xuống)
    ===================================================================== */
-const Body: React.FC = () => {
-  // State điều hướng nội bộ khi click xem chi tiết ảnh sản phẩm hoặc khách hàng
-  const [selectedProduct, setSelectedProduct] = useState<NewsItem | null>(null);
+interface BodyProps {
+  onSelectProduct: (item: NewsItem) => void;
+}
 
+const Body: React.FC<BodyProps> = ({ onSelectProduct }) => {
   // LOGIC PHÂN TRANG: ALL PRODUCTS
   const [currentNewsPage, setCurrentNewsPage] = useState(1);
   const itemsPerPage = 4;
@@ -142,7 +147,6 @@ const Body: React.FC = () => {
 
   // HIỆU ỨNG: Cuộn tới đâu bật animation tới đó
   useEffect(() => {
-    if (selectedProduct) return;
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
@@ -154,45 +158,7 @@ const Body: React.FC = () => {
     const elements = document.querySelectorAll('.scroll-reveal');
     elements.forEach(el => observer.observe(el));
     return () => observer.disconnect();
-  }, [selectedProduct]);
-
-  // GIAO DIỆN TRANG CHI TIẾT KHI CLICK VÀO ẢNH BẤT KỲ VỚI NÚT QUAY LẠI ĐỒNG BỘ
-  if (selectedProduct) {
-    return (
-      <section className="container" style={{ paddingTop: '60px', paddingBottom: '100px' }}>
-        <button 
-          onClick={() => setSelectedProduct(null)} 
-          className="btn-arrow" 
-          style={{ marginBottom: '40px', display: 'flex', alignItems: 'center', gap: '8px', width: 'auto', padding: '0 16px' }}
-        >
-          ← Quay lại trang chủ
-        </button>
-
-        <div style={{ display: 'flex', gap: '48px', flexWrap: 'wrap', alignItems: 'flex-start' }}>
-          <div style={{ width: '100%', maxWidth: '500px', backgroundColor: '#f5f5f5', overflow: 'hidden' }}>
-            <img src={selectedProduct.imageUrl} alt={selectedProduct.title} style={{ width: '100%', height: 'auto', display: 'block' }} />
-          </div>
-          <div style={{ flex: 1, minWidth: '300px' }}>
-            <span style={{ fontSize: '12px', fontWeight: '800', color: '#666666', display: 'block', marginBottom: '8px' }}>
-              PUBLISHED AT: {selectedProduct.date}
-            </span>
-            <h1 style={{ fontSize: '32px', fontWeight: '900', lineHeight: '1.4', marginBottom: '24px' }}>
-              {selectedProduct.title}
-            </h1>
-            <div style={{ fontSize: '15px', lineHeight: '1.8', color: '#444444', marginBottom: '32px' }}>
-              <p style={{ marginBottom: '16px' }}>
-                Đây là trang hiển thị thông tin chi tiết đầy đủ của nội dung thuộc hệ thống Future Studio. Tại đây, khách hàng có thể tìm hiểu sâu hơn về nguồn gốc, câu chuyện nghệ thuật ẩn sau sản phẩm và các quy trình chế tác tỉ mỉ.
-              </p>
-              <p>
-                Mọi chi tiết thiết kế đều được đội ngũ biên tập viên tuyển chọn kỹ càng nhằm đem lại trải nghiệm tinh tế và độc bản nhất dành riêng cho bạn.
-              </p>
-            </div>
-            <button className="btn-primary-black">Liên hệ Future Studio ngay</button>
-          </div>
-        </div>
-      </section>
-    );
-  }
+  }, []);
 
   return (
     <main>
@@ -206,7 +172,7 @@ const Body: React.FC = () => {
 
         <div className="news-grid">
           {currentNews.map((item) => (
-            <div key={item.id} className="news-card" onClick={() => setSelectedProduct(item)} style={{ cursor: 'pointer' }}>
+            <div key={item.id} className="news-card" onClick={() => onSelectProduct(item)} style={{ cursor: 'pointer' }}>
               <div className="news-sidebar">
                 <span className="vertical-date">{item.date}</span>
               </div>
@@ -238,7 +204,7 @@ const Body: React.FC = () => {
 
           <div className="news-grid">
             {currentCustomers.map((item) => (
-              <div key={item.id} className="news-card" onClick={() => setSelectedProduct(item)} style={{ cursor: 'pointer' }}>
+              <div key={item.id} className="news-card" onClick={() => onSelectProduct(item)} style={{ cursor: 'pointer' }}>
                 <div className="news-sidebar">
                   <span className="vertical-date">{item.date}</span>
                 </div>
@@ -300,25 +266,66 @@ const Footer: React.FC = () => {
 
 
 /* =====================================================================
-   5. COMPONENT GỐC (APP) LẮP RÁP TẤT CẢ
+   5. COMPONENT GỐC (APP) LẮP RÁP VÀ TRUYỀN BIẾN TRẠNG THÁI TRANG
    ===================================================================== */
 const App: React.FC = () => {
   const [selectedHeroIndex, setSelectedHeroIndex] = useState<number | null>(null);
+  const [selectedProduct, setSelectedProduct] = useState<NewsItem | null>(null);
+  const [showFixedHeader, setShowFixedHeader] = useState(false);
 
-  const handleHeroClick = (index: number | null) => {
-    setSelectedHeroIndex(index);
+  // Theo dõi thanh cuộn cho Header khi ở trang chủ
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 800) {
+        setShowFixedHeader(true);
+      } else {
+        setShowFixedHeader(false);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const handleResetHome = () => {
+    setSelectedHeroIndex(null);
+    setSelectedProduct(null);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const handleHeroClick = (index: number) => {
+    setSelectedHeroIndex(index);
+    setSelectedProduct(null);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleProductClick = (item: NewsItem) => {
+    setSelectedProduct(item);
+    setSelectedHeroIndex(null);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  // Biến kiểm tra xem có đang ở trang phụ (trang chi tiết) hay không
+  const isAtDetailPage = selectedHeroIndex !== null || selectedProduct !== null;
+
   return (
     <div>
-      <Header onHeroClick={handleHeroClick} />
-      
-      {selectedHeroIndex !== null ? (
+      {/* Truyền trạng thái trang isAtDetailPage vào Header */}
+      <Header
+        onLogoClick={handleResetHome}
+        showFixedHeader={showFixedHeader}
+        isAtDetailPage={isAtDetailPage}
+      />
+
+      {/* Chỉ khi ở Trang Chủ mới hiện Hero Container */}
+      {!isAtDetailPage && <HeroSlider onHeroClick={handleHeroClick} />}
+
+      {/* Trang phụ chi tiết Chiến dịch Hero */}
+      {selectedHeroIndex !== null && (
         <section className="container" style={{ paddingTop: '60px', paddingBottom: '100px' }}>
-          <button 
-            onClick={() => handleHeroClick(null)} 
-            className="btn-arrow" 
+          <button
+            onClick={handleResetHome}
+            className="btn-arrow"
             style={{ marginBottom: '40px', display: 'flex', alignItems: 'center', gap: '8px', width: 'auto', padding: '0 16px', borderRadius: '8px' }}
           >
             ← Quay lại trang chủ
@@ -348,10 +355,47 @@ const App: React.FC = () => {
             </div>
           </div>
         </section>
-      ) : (
-        <Body />
       )}
-      
+
+      {/* Trang phụ chi tiết Sản phẩm */}
+      {selectedProduct !== null && (
+        <section className="container" style={{ paddingTop: '60px', paddingBottom: '100px' }}>
+          <button
+            onClick={handleResetHome}
+            className="btn-arrow"
+            style={{ marginBottom: '40px', display: 'flex', alignItems: 'center', gap: '8px', width: 'auto', padding: '0 16px' }}
+          >
+            ← Quay lại trang chủ
+          </button>
+
+          <div style={{ display: 'flex', gap: '48px', flexWrap: 'wrap', alignItems: 'flex-start' }}>
+            <div style={{ width: '100%', maxWidth: '500px', backgroundColor: '#f5f5f5', overflow: 'hidden' }}>
+              <img src={selectedProduct.imageUrl} alt={selectedProduct.title} style={{ width: '100%', height: 'auto', display: 'block' }} />
+            </div>
+            <div style={{ flex: 1, minWidth: '300px' }}>
+              <span style={{ fontSize: '12px', fontWeight: '800', color: '#666666', display: 'block', marginBottom: '8px' }}>
+                PUBLISHED AT: {selectedProduct.date}
+              </span>
+              <h1 style={{ fontSize: '32px', fontWeight: '900', lineHeight: '1.4', marginBottom: '24px' }}>
+                {selectedProduct.title}
+              </h1>
+              <div style={{ fontSize: '15px', lineHeight: '1.8', color: '#444444', marginBottom: '32px' }}>
+                <p style={{ marginBottom: '16px' }}>
+                  Đây là trang hiển thị thông tin chi tiết đầy đủ của nội dung thuộc hệ thống Future Studio. Tại đây, khách hàng có thể tìm hiểu sâu hơn về nguồn gốc, câu chuyện nghệ thuật ẩn sau sản phẩm và các quy trình chế tác tỉ mỉ.
+                </p>
+                <p>
+                  Mọi chi tiết thiết kế đều được đội ngũ biên tập viên tuyển chọn kỹ càng nhằm đem lại trải nghiệm tinh tế và độc bản nhất dành riêng cho bạn.
+                </p>
+              </div>
+              <button className="btn-primary-black">Liên hệ Future Studio ngay</button>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Nếu không ở trang nào thì hiện Body trang chủ như bình thường */}
+      {!selectedHeroIndex && !selectedProduct && <Body onSelectProduct={handleProductClick} />}
+
       <Footer />
     </div>
   );

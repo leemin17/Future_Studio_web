@@ -47,7 +47,8 @@ a {
 
 .top-ticker {
   background-color: #ffb74d;
-  border-bottom: 1px solid #e0e0e0; /* SỬA: Đổi viền đen thành viền xám mảnh */
+  border-bottom: 1px solid #e0e0e0;
+  /* SỬA: Đổi viền đen thành viền xám mảnh */
   overflow: hidden;
   white-space: nowrap;
   padding: 8px 0;
@@ -67,22 +68,46 @@ a {
 }
 
 @keyframes ticker {
-  0% { transform: translate3d(0, 0, 0); }
-  100% { transform: translate3d(-50%, 0, 0); }
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+
+  100% {
+    transform: translate3d(-50%, 0, 0);
+  }
 }
 
-/* KHUNG HEADER CHÍNH */
+/* --- KHUNG HEADER CHỦ ĐẠO --- */
 .main-header {
-  background-color: transparent;
-  border-bottom: none;
   display: flex;
-  justify-content: space-between; 
+  justify-content: space-between;
   align-items: center;
-  padding: 0 0 20px 0;
   width: 100%;
   z-index: 1000;
+  background-color: #ffffff;
+  /* Mặc định giữ nền trắng sạch sẽ */
+  transition: padding 0.3s ease, background-color 0.3s ease;
 }
 
+/* 1. KHI Ở TRANG CHỦ: Không có dấu gạch dưới, đẩy sát vào khối banner */
+.main-header.home-page-header {
+  position: relative;
+  /* Trả về hiển thị khối mặc định, KHÔNG ĐÈ LÊN ẢNH */
+  border-bottom: none;
+  /* Bỏ hoàn toàn dấu gạch dưới như anh muốn */
+  padding: 24px 72px 16px 72px;
+  /* Căn lề đều đặn mượt mà với banner */
+}
+
+/* 2. KHI SANG TRANG PHỤ: Xuất hiện dấu gạch dưới ngăn cách */
+.main-header.sub-page-header {
+  position: relative;
+  border-bottom: 1px solid #e0e0e0;
+  /* Dấu gạch xuất hiện ngăn cách nội dung phụ */
+  padding: 20px 72px;
+}
+
+/* 3. KHI CUỘN XUỐNG SÂU (HEADER CỐ ĐỊNH CHẠY THEO MÀN HÌNH) */
 .main-header.fixed-active {
   position: fixed;
   top: 0;
@@ -90,13 +115,33 @@ a {
   width: 100%;
   background-color: #f7f7f7;
   padding: 16px 72px;
-  box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.08); /* SỬA: Giảm độ đậm bóng đổ */
+  box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.08);
+  border-bottom: 1px solid #e0e0e0;
   animation: slideDownHeader 0.4s cubic-bezier(0.165, 0.84, 0.44, 1) forwards;
 }
 
+/* --- ĐỒNG BỘ LẠI KHUNG BANNER --- */
+.hero-full-container {
+  width: 100%;
+  background-color: #ffffff;
+  padding: 0px 72px 60px 72px;
+  /* Không cần padding-top nữa vì header đã xếp ngay ngắn phía trên */
+  border-bottom: 2px solid #111111;
+  position: relative;
+}
+
+
+/* --- CẬP NHẬT LẠI KHU VỰC HERO CONTAINER --- */
+
+
 @keyframes slideDownHeader {
-  0% { transform: translateY(-100%); }
-  100% { transform: translateY(0); }
+  0% {
+    transform: translateY(-100%);
+  }
+
+  100% {
+    transform: translateY(0);
+  }
 }
 
 .header-left-logo {
@@ -105,7 +150,7 @@ a {
 }
 
 .header-small-logo {
-  height: 40px; 
+  height: 40px;
   transform: scale(6.5);
 }
 
@@ -131,12 +176,14 @@ a {
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   display: flex;
   align-items: center;
-  background: #f5f5f5; /* SỬA: Thêm nền xám nhẹ để không cần dùng viền đen */
-  border: 1px solid #e0e0e0; /* SỬA: Đổi sang viền mảnh tinh tế */
+  background: #f5f5f5;
+  /* SỬA: Thêm nền xám nhẹ để không cần dùng viền đen */
+  border: 1px solid #e0e0e0;
+  /* SỬA: Đổi sang viền mảnh tinh tế */
   border-radius: 24px;
-  padding: 8px 20px; 
+  padding: 8px 20px;
   font-size: 15px;
-  font-weight: 700; 
+  font-weight: 700;
   cursor: pointer;
   transition: all 0.2s ease;
   margin-left: auto;
@@ -168,7 +215,7 @@ a {
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  width: 28px; 
+  width: 28px;
   height: 28px;
 }
 
@@ -191,7 +238,8 @@ a {
 }
 
 .cart-status svg {
-  -webkit-text-stroke: 1px #111111; /* SỬA: Làm nét giỏ hàng thanh mảnh hơn */
+  -webkit-text-stroke: 1px #111111;
+  /* SỬA: Làm nét giỏ hàng thanh mảnh hơn */
   text-stroke: 1px #111111;
 }
 
@@ -212,14 +260,6 @@ a {
 /* =====================================================================
    HERO AREA (KHUNG BANNER CHÍNH THỨC)
    ===================================================================== */
-   
-.hero-full-container {
-  width: 100%;
-  background-color: #ffffff;
-  padding: 24px 72px 60px 72px;
-  border-bottom: 2px solid #111111; /* 🔥 THÊM LẠI: Đường gạch đen dày dặn ở dưới */
-  position: relative;
-}
 
 .hero-bottom-action {
   position: absolute;
@@ -261,7 +301,8 @@ a {
   top: 50%;
   transform: translateY(-50%);
   background: #ffffff;
-  border: 1px solid #e0e0e0; /* SỬA: Đổi viền đen thành viền xám mảnh */
+  border: 1px solid #e0e0e0;
+  /* SỬA: Đổi viền đen thành viền xám mảnh */
   width: 48px;
   height: 48px;
   border-radius: 50%;
@@ -272,7 +313,8 @@ a {
   z-index: 20;
   transition: all 0.2s ease;
   color: #111111;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.05); /* SỬA: Thêm bóng đổ nhẹ tinh tế */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  /* SỬA: Thêm bóng đổ nhẹ tinh tế */
 }
 
 .hero-nav-btn:hover {
@@ -286,8 +328,13 @@ a {
   width: 100%;
 }
 
-.hero-nav-btn.prev { left: -60px; }
-.hero-nav-btn.next { right: -60px; }
+.hero-nav-btn.prev {
+  left: -60px;
+}
+
+.hero-nav-btn.next {
+  right: -60px;
+}
 
 .hero-overlay {
   position: relative;
@@ -318,9 +365,17 @@ a {
 }
 
 @keyframes liquidGradient {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
 }
 
 .btn-dozo-about {
@@ -410,20 +465,25 @@ a {
     opacity: 0;
     transform: translateY(60px) scale(0.8) rotate(-5deg);
   }
+
   50% {
     opacity: 1;
     transform: translateY(-15px) scale(1.05) rotate(3deg);
   }
+
   100% {
     opacity: 1;
     transform: translateY(0) scale(1) rotate(0deg);
   }
 }
+
 .customers-section {
-  background-color: #8ec4e9; /* Đổi từ xanh lơ sang màu xanh mint chuẩn gu báo chí */
+  background-color: #8ec4e9;
+  /* Đổi từ xanh lơ sang màu xanh mint chuẩn gu báo chí */
   padding-bottom: 40px;
   padding-top: 1px;
-  border: none; /* Xóa sạch hoàn toàn viền đen trên dưới như anh yêu cầu */
+  border: none;
+  /* Xóa sạch hoàn toàn viền đen trên dưới như anh yêu cầu */
 }
 
 .section-title {
@@ -460,7 +520,8 @@ a {
 .news-sidebar {
   position: relative;
   width: 28px;
-  border-left: 1px solid #e0e0e0; /* SỬA: Đổi thanh gạch dọc bên ngày tháng sang xám nhạt */
+  border-left: 1px solid #e0e0e0;
+  /* SỬA: Đổi thanh gạch dọc bên ngày tháng sang xám nhạt */
   border-right: none;
   flex-shrink: 0;
 }
@@ -472,7 +533,8 @@ a {
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.1em;
-  color: #666666; /* SỬA: Đổi màu chữ ngày dọc thành xám đậm cho vừa mắt */
+  color: #666666;
+  /* SỬA: Đổi màu chữ ngày dọc thành xám đậm cho vừa mắt */
   white-space: nowrap;
   writing-mode: vertical-rl;
   transform: rotate(180deg);
@@ -490,7 +552,8 @@ a {
   aspect-ratio: 1 / 1;
   background-color: #f5f5f5;
   overflow: hidden;
-  border-radius: 4px; /* Thêm bo góc nhẹ cho ảnh hiện đại */
+  border-radius: 4px;
+  /* Thêm bo góc nhẹ cho ảnh hiện đại */
 }
 
 .news-image img {
@@ -525,7 +588,8 @@ a {
 
 .btn-arrow {
   background: #ffffff;
-  border: 1px solid #e0e0e0; /* SỬA: Đổi viền đen nút mũi tên thành xám mảnh */
+  border: 1px solid #e0e0e0;
+  /* SỬA: Đổi viền đen nút mũi tên thành xám mảnh */
   width: 40px;
   height: 40px;
   border-radius: 8px;
@@ -667,7 +731,8 @@ a {
 }
 
 .comic-panel {
-  border: 1px solid #e0e0e0; /* SỬA: Đổi viền đen khung tranh thành xám mảnh */
+  border: 1px solid #e0e0e0;
+  /* SỬA: Đổi viền đen khung tranh thành xám mảnh */
   background-color: #ffffff;
   overflow: hidden;
   aspect-ratio: 1 / 1;
@@ -832,13 +897,40 @@ a {
   height: 24px;
 }
 
-.payment-icon.amex { background-color: #016fd0; color: white; }
-.payment-icon.apple { background-color: #ffffff; color: #000000; }
-.payment-icon.gpay { background-color: #ffffff; color: #5f6368; }
-.payment-icon.jcb { background-color: #ffffff; color: #003a8f; }
-.payment-icon.master { background-color: #ff5f00; color: white; }
-.payment-icon.shop { background-color: #5a31f4; color: white; }
-.payment-icon.visa { background-color: #ffffff; color: #1a1f71; }
+.payment-icon.amex {
+  background-color: #016fd0;
+  color: white;
+}
+
+.payment-icon.apple {
+  background-color: #ffffff;
+  color: #000000;
+}
+
+.payment-icon.gpay {
+  background-color: #ffffff;
+  color: #5f6368;
+}
+
+.payment-icon.jcb {
+  background-color: #ffffff;
+  color: #003a8f;
+}
+
+.payment-icon.master {
+  background-color: #ff5f00;
+  color: white;
+}
+
+.payment-icon.shop {
+  background-color: #5a31f4;
+  color: white;
+}
+
+.payment-icon.visa {
+  background-color: #ffffff;
+  color: #1a1f71;
+}
 
 .footer-bottom {
   width: 100%;
@@ -856,11 +948,16 @@ a {
 
 @media (max-width: 992px) {
   .hero-full-container {
-    padding: 16px 40px 60px 40px; 
+    padding: 16px 40px 60px 40px;
   }
-  
-  .hero-nav-btn.prev { left: -20px; }
-  .hero-nav-btn.next { right: -20px; }
+
+  .hero-nav-btn.prev {
+    left: -20px;
+  }
+
+  .hero-nav-btn.next {
+    right: -20px;
+  }
 
   .news-grid,
   .product-grid,
@@ -881,9 +978,9 @@ a {
     width: 100%;
     padding: 15px 30px;
   }
-  
+
   .header-left-logo {
-    display: none; 
+    display: none;
   }
 
   .header-logo {
@@ -892,15 +989,15 @@ a {
 
   .search-bar,
   .nav-login {
-    display: none; 
+    display: none;
   }
-  
+
   .hero-full-container {
-    padding: 16px 20px 40px 20px; 
+    padding: 16px 20px 40px 20px;
   }
 
   .hero-nav-btn {
-    display: none; 
+    display: none;
   }
 
   .news-grid,
@@ -914,12 +1011,12 @@ a {
     align-items: center;
     gap: 16px;
   }
-  
+
   .btn-black {
     padding: 12px 24px;
     font-size: 14px;
     border-radius: 30px;
-    bottom: -15px; 
+    bottom: -15px;
   }
 
   .section-title {
