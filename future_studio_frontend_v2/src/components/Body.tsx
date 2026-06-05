@@ -73,7 +73,19 @@ const Body: React.FC<BodyProps> = ({ onSelectProduct }) => {
               </div>
               <div className="news-content">
                 <div className="news-image">
-                  <img src={item.imageUrl} alt={item.title} />
+                  {item.videoUrl ? (
+                    <video
+                      src={`/${item.videoUrl}`}
+                      poster={`/${item.imageUrl}`}
+                      muted
+                      autoPlay
+                      loop
+                      playsInline
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                    />
+                  ) : (
+                    <img src={`/${item.imageUrl}`} alt={item.title} />
+                  )}
                 </div>
                 <p className="news-text">{item.title}</p>
               </div>

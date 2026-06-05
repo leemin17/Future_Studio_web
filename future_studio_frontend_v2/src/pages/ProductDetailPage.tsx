@@ -42,7 +42,17 @@ const ProductDetailPage: React.FC = () => {
         {/* CỘT TRÁI: Nội dung chính */}
         <div style={{ flex: '1 1 calc(100% - 360px)', minWidth: '320px', display: 'flex', gap: '40px', flexWrap: 'wrap' }}>
           <div style={{ width: '100%', maxWidth: '500px', backgroundColor: '#f5f5f5', overflow: 'hidden' }}>
-            <img src={`/${selectedProduct.imageUrl}`} alt={selectedProduct.title} style={{ width: '100%', height: 'auto', display: 'block' }} />
+            {selectedProduct.videoUrl ? (
+              <video
+                src={`/${selectedProduct.videoUrl}`}
+                poster={`/${selectedProduct.imageUrl}`}
+                controls
+                autoPlay
+                style={{ width: '100%', height: 'auto', display: 'block' }}
+              />
+            ) : (
+              <img src={`/${selectedProduct.imageUrl}`} alt={selectedProduct.title} style={{ width: '100%', height: 'auto', display: 'block' }} />
+            )}
           </div>
           <div style={{ flex: 1, minWidth: '300px' }}>
             <span style={{ fontSize: '12px', fontWeight: '800', color: '#666666', display: 'block', marginBottom: '8px' }}>
