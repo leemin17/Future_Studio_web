@@ -943,94 +943,131 @@ a {
 }
 
 /* =====================================================================
-   RESPONSIVE DESIGN (TỰ ĐỘNG CO GIÃN THEO MÀN HÌNH)
+   RESPONSIVE DESIGN (CHUẨN ÔNG LỚN - 4 BREAKPOINTS)
    ===================================================================== */
 
-@media (max-width: 992px) {
-  .hero-full-container {
-    padding: 16px 40px 60px 40px;
-  }
-
-  .hero-nav-btn.prev {
-    left: -20px;
-  }
-
-  .hero-nav-btn.next {
-    right: -20px;
-  }
-
+/* 1. Màn hình Laptop/Desktop nhỏ (Dưới 1200px) */
+@media (max-width: 1200px) {
   .news-grid,
   .product-grid,
   .comic-grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(3, 1fr); /* Giảm mượt mà từ 4 xuống 3 cột */
   }
-
-  .hero-title {
-    font-size: 3rem;
+  .main-header.home-page-header,
+  .main-header.sub-page-header {
+    padding-left: 40px;
+    padding-right: 40px;
+  }
+  .hero-full-container {
+    padding: 0 40px 50px 40px;
   }
 }
 
-@media (max-width: 768px) {
-  .main-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
-    padding: 15px 30px;
-  }
-
-  .header-left-logo {
-    display: none;
-  }
-
-  .header-logo {
-    font-size: 26px;
-  }
-
-  .search-bar,
-  .nav-login {
-    display: none;
-  }
-
-  .hero-full-container {
-    padding: 16px 20px 40px 20px;
-  }
-
-  .hero-nav-btn {
-    display: none;
-  }
-
+/* 2. Màn hình Tablet nằm ngang (Dưới 992px) */
+@media (max-width: 992px) {
   .news-grid,
   .product-grid,
   .comic-grid {
-    grid-template-columns: repeat(1, 1fr);
+    grid-template-columns: repeat(2, 1fr); /* Từ 3 xuống 2 cột */
   }
+  .main-header.home-page-header,
+  .main-header.sub-page-header,
+  .main-header.fixed-active {
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+  .hero-full-container {
+    padding: 0 24px 40px 24px;
+  }
+  .hero-nav-btn.prev {
+    left: 0px;
+  }
+  .hero-nav-btn.next {
+    right: 0px;
+  }
+  .section-title {
+    font-size: 48px;
+  }
+}
 
+/* 3. Màn hình Tablet nằm dọc & Mobile lớn (Dưới 768px) */
+@media (max-width: 768px) {
+  .main-header {
+    padding: 16px 20px !important;
+  }
+  .header-logo {
+    font-size: 28px;
+  }
+  .search-bar,
+  .nav-login {
+    display: none; /* Mobile ẩn các nút không cần thiết để tập trung */
+  }
+  .hero-full-container {
+    padding: 0 16px 40px 16px;
+  }
+  .hero-nav-btn {
+    display: none; /* Trải nghiệm mobile dùng vuốt là chính */
+  }
+  .section-title {
+    font-size: 36px;
+    margin-bottom: 12px;
+  }
+  .section-header {
+    padding: 50px 0 20px;
+  }
   .footer-primary-nav {
     flex-direction: column;
     align-items: center;
     gap: 16px;
   }
+}
 
-  .btn-black {
-    padding: 12px 24px;
-    font-size: 14px;
-    border-radius: 30px;
-    bottom: -15px;
+/* 4. Màn hình Điện thoại (Dưới 576px) */
+@media (max-width: 576px) {
+  .container {
+    padding: 0 16px;
   }
-
+  .header-logo {
+    font-size: 24px;
+  }
   .section-title {
-    font-size: 42px;
-    line-height: 1.1;
-    margin: 16px 0;
+    font-size: 28px;
   }
-
-  .section-subtitle {
+  .btn-dozo-about {
+    padding: 10px 30px;
     font-size: 12px;
-    letter-spacing: 2px;
   }
-
-  .section-desc {
-    font-size: 14px;
+  .news-grid,
+  .product-grid,
+  .comic-grid {
+    grid-template-columns: repeat(1, 1fr); /* 1 cột to, rõ ảnh trên màn hình bé */
+    gap: 20px;
+  }
+  /* Quan trọng: Card đổi từ xếp ngang (row) sang xếp dọc (column) cho mobile */
+  .news-card {
+    flex-direction: column;
+    background: #fdfdfd;
+    border: 1px solid #f0f0f0;
+    padding: 16px;
+    border-radius: 8px;
+    gap: 12px;
+  }
+  .news-sidebar {
+    width: 100%;
+    border-left: none;
+    border-bottom: 1px solid #e0e0e0;
+    padding-bottom: 8px;
+  }
+  .vertical-date {
+    position: static;
+    writing-mode: horizontal-tb;
+    transform: none;
+    font-size: 12px;
+    color: #888;
+  }
+  .carousel-controls {
+    gap: 12px;
+    margin-top: 24px;
+    margin-bottom: 40px;
   }
 }
