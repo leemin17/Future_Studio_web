@@ -30,7 +30,7 @@ export const heroImages = [
 
 // Data cho Tin tức (What's new / All Products!)
 export const newsData: NewsItem[] = [
-  { id: 1, date: '2024.04.26', title: 'Future Studio thông báo chính thức nghỉ lễ từ 26/4 đến 3/5', imageUrl: 'images/nghile.jpg' },
+  { id: 1, date: '2026.04.26', title: 'Future Studio thông báo chính thức nghỉ lễ từ 26/4 đến 3/5', imageUrl: 'images/nghile.jpg' },
   { id: 2, date: '2024.03.26', title: 'Quà cưới cũng là quà tặng cho "chú rể" tốt nhất', imageUrl: 'images/logo.jpg' },
   { id: 3, date: '2026.04.05', title: 'future team tuyển dụng thành viên cho team', imageUrl: 'images/black_text_logo.png' },
   { id: 4, date: '2024.03.18', title: 'Nhìn! Future Studio GOD 👑 Giới thiệu hàng hóa dành riêng...', imageUrl: 'images/jobiterview.jpg' },
