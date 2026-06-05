@@ -1,9 +1,9 @@
 {
-  "name": "future_studio_frontend",
+  "name": "future_studio_frontend_v2",
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "homepage": "https://leemin17.github.io/future_studio_frontend/",
+  "homepage": "https://leemin17.github.io/future_studio_frontend_v2/",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
