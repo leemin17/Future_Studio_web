@@ -8,8 +8,13 @@ const CustomerPage: React.FC = () => {
   // Logic for pagination
   const [currentCustomerPage, setCurrentCustomerPage] = useState(1);
   const customersPerPage = 8; // Hiển thị nhiều mục hơn trên một trang riêng
-  const totalCustomerPages = Math.ceil(customerData.length / customersPerPage);
-  const currentCustomers = customerData.slice(
+
+  // Sắp xếp khách hàng theo ngày mới nhất
+  const sortedCustomerData = [...customerData].sort((a, b) => {
+    return new Date(b.date.replace(/\./g, '-')).getTime() - new Date(a.date.replace(/\./g, '-')).getTime();
+  });
+  const totalCustomerPages = Math.ceil(sortedCustomerData.length / customersPerPage);
+  const currentCustomers = sortedCustomerData.slice(
     (currentCustomerPage - 1) * customersPerPage,
     currentCustomerPage * customersPerPage
   );

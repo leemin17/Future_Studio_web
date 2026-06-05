@@ -23,6 +23,11 @@ const ProductDetailPage: React.FC = () => {
     return <div style={{ paddingTop: '100px', textAlign: 'center' }}>Sản phẩm không tồn tại.</div>;
   }
 
+  // Sắp xếp bài viết bên cột phải theo ngày mới nhất
+  const sortedNewsData = [...newsData].sort((a, b) => {
+    return new Date(b.date.replace(/\./g, '-')).getTime() - new Date(a.date.replace(/\./g, '-')).getTime();
+  });
+
   return (
     <section className="container" style={{ paddingTop: '60px', paddingBottom: '100px' }}>
       <button
@@ -64,7 +69,7 @@ const ProductDetailPage: React.FC = () => {
             Bài viết mới nhất
           </h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-            {newsData.filter(item => item.id !== selectedProduct.id).slice(0, 5).map((item) => (
+          {sortedNewsData.filter(item => item.id !== selectedProduct.id).slice(0, 5).map((item) => (
               <div key={item.id} onClick={() => handleProductClick(item)} style={{ display: 'flex', gap: '16px', cursor: 'pointer', alignItems: 'center' }}>
                 <div style={{ width: '72px', height: '72px', flexShrink: 0, backgroundColor: '#eaeaea', borderRadius: '8px', overflow: 'hidden' }}>
                   <img src={`/${item.imageUrl}`} alt={item.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
