@@ -48,3 +48,23 @@ export const customerData: NewsItem[] = [
   { id: 4, date: 'TRUSTED', title: 'Hợp tác sản xuất hộp quà cao cấp cùng thương hiệu Local Brand', imageUrl: 'images/logo.jpg' },
   { id: 5, date: '2026', title: 'Sự kiện tri ân các khách hàng thân thiết đồng hành cùng Future Studio', imageUrl: 'images/jobiterview.jpg' }
 ];
+export const heroDetails = [
+  {
+    subtitle: 'FUTURE STUDIO — CHIẾN DỊCH 01',
+    title: 'Khám phá Bộ sưu tập Mới: Giao Thoa Nghệ Thuật',
+    description1: 'Chiến dịch đầu tiên mang đến cái nhìn sâu sắc về sự kết hợp giữa nghệ thuật truyền thống và công nghệ 3D hiện đại.',
+    description2: 'Mỗi chi tiết đều được đội ngũ của chúng tôi chăm chút tỉ mỉ để tạo ra trải nghiệm thị giác đột phá, định hình lại ranh giới của sự sáng tạo.'
+  },
+  {
+    subtitle: 'FUTURE STUDIO — DỰ ÁN 02',
+    title: 'Hậu trường Đằng sau những Thước phim Hoạt hình',
+    description1: 'Cùng Future Studio bước vào thế giới đằng sau ống kính, nơi những nhân vật hoạt hình 3D sống động được tạo ra từ hàng ngàn giờ làm việc miệt mài.',
+    description2: 'Tìm hiểu quy trình từ kịch bản, thiết kế nhân vật đến rigging và animation qua góc nhìn của các nghệ sĩ dày dạn kinh nghiệm.'
+  },
+  {
+    subtitle: 'FUTURE STUDIO — SỰ KIỆN 03',
+    title: 'Tri ân Khách hàng & Ra mắt Sản phẩm Giới hạn',
+    description1: 'Đánh dấu chặng đường phát triển, Future Studio tổ chức sự kiện đặc biệt để gửi lời cảm ơn sâu sắc tới những người đã luôn đồng hành.',
+    description2: 'Nhiều phần quà hấp dẫn cùng dòng sản phẩm giới hạn được chế tác độc quyền sẽ chính thức lộ diện. Hãy là những người đầu tiên sở hữu!'
+  }
+];

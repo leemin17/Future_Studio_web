@@ -1,6 +1,6 @@
 import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { heroImages, newsData, type NewsItem } from '../data/database';
+import { heroImages, newsData, heroDetails, type NewsItem } from '../data/database';
 
 const HeroDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -21,6 +21,9 @@ const HeroDetailPage: React.FC = () => {
     return <div style={{ paddingTop: '100px', textAlign: 'center' }}>Chiến dịch không tồn tại.</div>;
   }
 
+  // Lấy dữ liệu nội dung tương ứng với ảnh hoặc mặc định nếu vượt số lượng
+  const detailContent = heroDetails[selectedHeroIndex] || heroDetails[0];
+
   return (
     <section className="container" style={{ paddingTop: '60px', paddingBottom: '100px' }}>
       <button
@@ -40,17 +43,17 @@ const HeroDetailPage: React.FC = () => {
 
           <div style={{ flex: 1, minWidth: '300px' }}>
             <span style={{ fontSize: '12px', fontWeight: '800', color: '#666666', display: 'block', marginBottom: '8px', letterSpacing: '0.1em' }}>
-              FUTURE STUDIO — HERO EVENT #{selectedHeroIndex + 1}
+              {detailContent.subtitle}
             </span>
             <h1 style={{ fontSize: '32px', fontWeight: '900', lineHeight: '1.4', marginBottom: '24px', color: '#111111' }}>
-              Chi tiết chiến dịch cốt truyện & Bộ sưu tập độc quyền {selectedHeroIndex + 1}
+              {detailContent.title}
             </h1>
             <div style={{ fontSize: '15px', lineHeight: '1.8', color: '#444444', marginBottom: '32px' }}>
               <p style={{ marginBottom: '16px' }}>
-                Chào mừng bạn đến với trang thông tin đặc biệt được liên kết trực tiếp từ ảnh quảng cáo trang đầu của Future Studio. Mỗi banner đại diện cho một chiến dịch truyền thông lớn hoặc một chương câu chuyện nghệ thuật riêng biệt mà studio muốn truyền tải đến khách hàng.
+                {detailContent.description1}
               </p>
               <p>
-                Tại không gian này, bạn có thể thoải mái đọc thêm nội dung giới thiệu chi tiết các dòng sản phẩm giới hạn đi kèm, các chương trình tri ân hoặc định hướng thiết kế của bộ ảnh visual tương ứng.
+                {detailContent.description2}
               </p>
             </div>
             <button className="btn-primary-black">Tham gia sự kiện ngay</button>

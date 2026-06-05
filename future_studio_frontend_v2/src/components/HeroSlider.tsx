@@ -38,7 +38,10 @@ const HeroSlider: React.FC<HeroSliderProps> = ({ onHeroClick }) => {
               style={{
                 backgroundImage: `url(${img})`,
                 opacity: index === currentHeroSlide ? 1 : 0,
-                cursor: 'pointer'
+                cursor: 'pointer',
+                
+                pointerEvents: index === currentHeroSlide ? 'auto' : 'none',
+                zIndex: index === currentHeroSlide ? 2 : 1
               }}
               onClick={() => onHeroClick(index)}
             />
