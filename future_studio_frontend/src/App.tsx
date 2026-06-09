@@ -77,7 +77,7 @@ const App: React.FC = () => {
             {/* CỘT TRÁI: Nội dung chính */}
             <div style={{ flex: '1 1 calc(100% - 360px)', minWidth: '320px', display: 'flex', gap: '40px', flexWrap: 'wrap' }}>
               <div style={{ width: '100%', maxWidth: '600px', backgroundColor: '#f5f5f5', overflow: 'hidden', borderRadius: '8px' }}>
-                <img src={heroImages[selectedHeroIndex]} alt={`Banner event ${selectedHeroIndex + 1}`} style={{ width: '100%', height: 'auto', display: 'block' }} />
+                <img src={`/${heroImages[selectedHeroIndex]}`} alt={`Banner event ${selectedHeroIndex + 1}`} style={{ width: '100%', height: 'auto', display: 'block' }} />
               </div>
 
               <div style={{ flex: 1, minWidth: '300px' }}>
@@ -108,7 +108,7 @@ const App: React.FC = () => {
                 {newsData.slice(0, 4).map((item) => (
                   <div key={item.id} onClick={() => handleProductClick(item)} style={{ display: 'flex', gap: '16px', cursor: 'pointer', alignItems: 'center' }}>
                     <div style={{ width: '72px', height: '72px', flexShrink: 0, backgroundColor: '#eaeaea', borderRadius: '8px', overflow: 'hidden' }}>
-                      <img src={item.imageUrl} alt={item.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      <img src={`/${item.imageUrl}`} alt={item.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                     </div>
                     <div>
                       <span style={{ fontSize: '11px', color: '#888', fontWeight: '700', marginBottom: '4px', display: 'block' }}>{item.date}</span>
@@ -139,7 +139,7 @@ const App: React.FC = () => {
             {/* CỘT TRÁI: Nội dung chính */}
             <div style={{ flex: '1 1 calc(100% - 360px)', minWidth: '320px', display: 'flex', gap: '40px', flexWrap: 'wrap' }}>
               <div style={{ width: '100%', maxWidth: '500px', backgroundColor: '#f5f5f5', overflow: 'hidden' }}>
-                <img src={selectedProduct.imageUrl} alt={selectedProduct.title} style={{ width: '100%', height: 'auto', display: 'block' }} />
+                <img src={`/${selectedProduct.imageUrl}`} alt={selectedProduct.title} style={{ width: '100%', height: 'auto', display: 'block' }} />
               </div>
               <div style={{ flex: 1, minWidth: '300px' }}>
                 <span style={{ fontSize: '12px', fontWeight: '800', color: '#666666', display: 'block', marginBottom: '8px' }}>
@@ -169,7 +169,7 @@ const App: React.FC = () => {
                 {newsData.filter(item => item.id !== selectedProduct.id).slice(0, 5).map((item) => (
                   <div key={item.id} onClick={() => handleProductClick(item)} style={{ display: 'flex', gap: '16px', cursor: 'pointer', alignItems: 'center' }}>
                     <div style={{ width: '72px', height: '72px', flexShrink: 0, backgroundColor: '#eaeaea', borderRadius: '8px', overflow: 'hidden' }}>
-                      <img src={item.imageUrl} alt={item.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      <img src={`/${item.imageUrl}`} alt={item.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                     </div>
                     <div>
                       <span style={{ fontSize: '11px', color: '#888', fontWeight: '700', marginBottom: '4px', display: 'block' }}>{item.date}</span>
