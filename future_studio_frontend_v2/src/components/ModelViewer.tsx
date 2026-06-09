@@ -22,7 +22,7 @@ interface ModelViewerProps {
 
 const ModelViewer: React.FC<ModelViewerProps> = ({ modelUrl }) => {
   return (
-    <div style={{ position: 'relative', width: '100%', height: '100%', flex: 1, backgroundColor: '#d1a5a5', borderRadius: '8px', cursor: 'grab', overflow: 'hidden', display: 'flex' }}>
+    <div style={{ position: 'relative', width: '100%', height: '100%', flex: 1, backgroundColor: '#f5f5f5', borderRadius: '8px', cursor: 'grab', overflow: 'hidden', display: 'flex' }}>
       {/* Môi trường không gian Canvas 3D */}
       <Canvas shadows camera={{ position: [0, 0, 4], fov: 50, near: 0.01, far: 2000 }}>
         <Suspense fallback={null}>

@@ -18,6 +18,11 @@ const Header: React.FC<HeaderProps> = ({ onLogoClick, showFixedHeader, isAtDetai
 
   return (
     <div className={`main-header ${headerClass}`}>
+      {/* Khối nhân vật chạy ẩn phía sau */}
+      <div className="running-character-container">
+        <div className="running-character"></div>
+      </div>
+
       <div className="header-logo" onClick={onLogoClick} style={{ cursor: 'pointer' }}>
         Future Studio
       </div>
