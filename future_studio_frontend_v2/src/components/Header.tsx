@@ -5,9 +5,10 @@ interface HeaderProps {
   onLogoClick: () => void;
   showFixedHeader: boolean;
   isAtDetailPage: boolean;
+  onSearchClick?: () => void;
 }
 
-const Header: React.FC<HeaderProps> = ({ onLogoClick, showFixedHeader, isAtDetailPage }) => {
+const Header: React.FC<HeaderProps> = ({ onLogoClick, showFixedHeader, isAtDetailPage, onSearchClick }) => {
   // Xác định class CSS dựa trên vị trí cuộn và trang hiện tại
   const headerClass = showFixedHeader
     ? 'fixed-active'
@@ -22,7 +23,7 @@ const Header: React.FC<HeaderProps> = ({ onLogoClick, showFixedHeader, isAtDetai
       </div>
 
       <div className="header-nav">
-        <div className="search-bar">
+        <div className="search-bar" onClick={onSearchClick}>
           <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '6px' }}>
             <circle cx="11" cy="11" r="8"></circle>
             <line x1="21" y1="21" x2="16.65" y2="16.65"></line>

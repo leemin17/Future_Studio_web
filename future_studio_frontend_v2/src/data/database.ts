@@ -7,6 +7,7 @@ export interface NewsItem {
   title: string;
   imageUrl: string;
   videoUrl?: string; // Thêm đường dẫn cho video (tùy chọn)
+  modelUrl?: string; // Thêm đường dẫn cho mô hình 3D (tùy chọn)
 }
 
 export interface ProductItem {
@@ -26,7 +27,7 @@ export interface ProductItem {
 export const heroImages = [
   'images/anhdep.jpg',
   'images/FINAL_COMP.png',
-  'images/_mainvisual-001.png',
+  'images/video.gif',
 ];
 
 // Data cho Tin tức (What's new / All Products!)
@@ -35,7 +36,7 @@ export const newsData: NewsItem[] = [
   { id: 2, date: '2024.03.26', title: 'Quà cưới cũng là quà tặng cho "chú rể" tốt nhất', imageUrl: 'images/logo.jpg' },
   { id: 3, date: '2026.04.05', title: 'future team tuyển dụng thành viên cho team', imageUrl: 'images/video.gif' },
   { id: 4, date: '2024.03.18', title: 'Nhìn! Future Studio GOD 👑 Giới thiệu hàng hóa dành riêng...', imageUrl: 'images/video.gif' },
-  { id: 5, date: '2024.03.10', title: 'Dự án phim hoạt hình mới chính thức bấm máy.', imageUrl: 'images/jobiterview.jpg' },
+  { id: 5, date: '2024.03.10', title: 'Dự án phim hoạt hình mới chính thức bấm máy.', imageUrl: 'images/jobiterview.jpg',modelUrl: 'models/Lipstick.glb' },
   { id: 6, date: '2024.02.28', title: 'Khai giảng khóa học 3D Animation cơ bản.', imageUrl: 'images/jobiterview.jpg' },
   { id: 7, date: '2024.02.15', title: 'Tham quan Studio: Hậu trường phía sau những thước phim.', imageUrl: 'images/jobiterview.jpg' },
   { id: 8, date: '2024.01.20', title: 'Future Studio lọt top studio sáng tạo của năm!', imageUrl: 'images/jobiterview.jpg' }

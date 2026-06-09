@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
+import { AnimatePresence } from 'framer-motion';
 
 import Header from './components/Header';
 import Footer from './components/Footer';
@@ -7,12 +8,16 @@ import HomePage from './pages/HomePage';
 import HeroDetailPage from './pages/HeroDetailPage';
 import ProductDetailPage from './pages/ProductDetailPage';
 import CustomerPage from './pages/CustomerPage';
+import AboutPage from './pages/AboutPage';
+import SearchOverlay from './components/SearchOverlay';
+import PageTransition from './components/PageTransition';
 
 /* =====================================================================
    5. COMPONENT GỐC (APP) LẮP RÁP CÁC ROUTE
    ===================================================================== */
 const App: React.FC = () => {
   const [showFixedHeader, setShowFixedHeader] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -47,14 +52,21 @@ const App: React.FC = () => {
         onLogoClick={handleResetHome}
         showFixedHeader={showFixedHeader}
         isAtDetailPage={isAtDetailPage}
+        onSearchClick={() => setIsSearchOpen(true)}
       />
 
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/hero/:id" element={<HeroDetailPage />} />
-        <Route path="/product/:id" element={<ProductDetailPage />} />
-        <Route path="/customers" element={<CustomerPage />} />
-      </Routes>
+      {isSearchOpen && <SearchOverlay onClose={() => setIsSearchOpen(false)} />}
+
+      {/* mode="wait" đợi trang cũ biến mất hẳn rồi trang mới mới hiện ra */}
+      <AnimatePresence mode="wait">
+        <Routes location={location} key={location.pathname}>
+          <Route path="/" element={<PageTransition><HomePage /></PageTransition>} />
+          <Route path="/hero/:id" element={<PageTransition><HeroDetailPage /></PageTransition>} />
+          <Route path="/product/:id" element={<PageTransition><ProductDetailPage /></PageTransition>} />
+          <Route path="/customers" element={<PageTransition><CustomerPage /></PageTransition>} />
+          <Route path="/about" element={<PageTransition><AboutPage /></PageTransition>} />
+        </Routes>
+      </AnimatePresence>
 
       <Footer />
     </div>

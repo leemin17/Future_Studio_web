@@ -1,5 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import { motion } from 'framer-motion';
 import { newsData, customerData, type NewsItem } from '../data/database';
+import ScrollReveal from './ScrollReveal';
 
 interface BodyProps {
   onSelectProduct: (item: NewsItem) => void;
@@ -40,34 +42,27 @@ const Body: React.FC<BodyProps> = ({ onSelectProduct }) => {
   const formattedCustomerPage = String(currentCustomerPage).padStart(2, '0');
   const formattedTotalCustomerPages = String(totalCustomerPages).padStart(2, '0');
 
-  // HIỆU ỨNG: Cuộn tới đâu bật animation tới đó
-  useEffect(() => {
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('visible');
-        }
-      });
-    }, { threshold: 0.2 });
-
-    const elements = document.querySelectorAll('.scroll-reveal');
-    elements.forEach(el => observer.observe(el));
-    return () => observer.disconnect();
-  }, []);
-
   return (
     <main>
       {/* ================= SECTION: ALL PRODUCTS ================= */}
       <section className="container">
-        <div className="section-header scroll-reveal">
+        <ScrollReveal className="section-header">
           <span className="section-subtitle">A GIFT WITH A STORY</span>
           <h2 className="section-title">All Products!</h2>
           <p className="section-desc">Các sản phẩm nổi bật & mới nhất</p>
-        </div>
+        </ScrollReveal>
 
         <div className="news-grid">
           {currentNews.map((item) => (
-            <div key={item.id} className="news-card" onClick={() => onSelectProduct(item)} style={{ cursor: 'pointer' }}>
+            <motion.div
+              key={item.id}
+              className="news-card"
+              onClick={() => onSelectProduct(item)}
+              style={{ cursor: 'pointer' }}
+              whileHover={{ y: -8 }}
+              whileTap={{ scale: 0.97 }}
+              transition={{ type: "spring", stiffness: 400, damping: 17 }}
+            >
               <div className="news-sidebar">
                 <span className="vertical-date">{item.date}</span>
               </div>
@@ -75,8 +70,8 @@ const Body: React.FC<BodyProps> = ({ onSelectProduct }) => {
                 <div className="news-image">
                   {item.videoUrl ? (
                     <video
-                      src={`/${item.videoUrl}`}
-                      poster={`/${item.imageUrl}`}
+                      src={`${import.meta.env.BASE_URL}${item.videoUrl}`}
+                      poster={`${import.meta.env.BASE_URL}${item.imageUrl}`}
                       muted
                       autoPlay
                       loop
@@ -84,12 +79,12 @@ const Body: React.FC<BodyProps> = ({ onSelectProduct }) => {
                       style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                     />
                   ) : (
-                    <img src={`/${item.imageUrl}`} alt={item.title} />
+                    <img src={`${import.meta.env.BASE_URL}${item.imageUrl}`} alt={item.title} />
                   )}
                 </div>
                 <p className="news-text">{item.title}</p>
               </div>
-            </div>
+            </motion.div>
           ))}
         </div>
 
@@ -103,25 +98,33 @@ const Body: React.FC<BodyProps> = ({ onSelectProduct }) => {
       {/* ================= SECTION: OUR CUSTOMERS (MÀU XANH) ================= */}
       <section className="customers-section">
         <div className="container">
-          <div className="section-header scroll-reveal">
+          <ScrollReveal className="section-header">
             <span className="section-subtitle">THANK YOU FOR CHOOSING US</span>
             <h2 className="section-title">Our Customers!</h2>
             <p className="section-desc">Vinh danh & tri ân những khách hàng đã tin tưởng Future Studio</p>
-          </div>
+          </ScrollReveal>
 
           <div className="news-grid">
             {currentCustomers.map((item) => (
-              <div key={item.id} className="news-card" onClick={() => onSelectProduct(item)} style={{ cursor: 'pointer' }}>
+              <motion.div
+                key={item.id}
+                className="news-card"
+                onClick={() => onSelectProduct(item)}
+                style={{ cursor: 'pointer' }}
+                whileHover={{ y: -8 }}
+                whileTap={{ scale: 0.97 }}
+                transition={{ type: "spring", stiffness: 400, damping: 17 }}
+              >
                 <div className="news-sidebar">
                   <span className="vertical-date">{item.date}</span>
                 </div>
                 <div className="news-content">
                   <div className="news-image">
-                    <img src={`/${item.imageUrl}`} alt={item.title} />
+                    <img src={`${import.meta.env.BASE_URL}${item.imageUrl}`} alt={item.title} />
                   </div>
                   <p className="news-text">{item.title}</p>
                 </div>
-              </div>
+              </motion.div>
             ))}
           </div>
 

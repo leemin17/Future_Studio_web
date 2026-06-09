@@ -10,6 +10,10 @@
   box-sizing: border-box;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   color: #111111;
@@ -291,8 +295,15 @@ a {
   background-size: 100% 100% !important;
   background-position: center;
   background-repeat: no-repeat;
-  transition: opacity 1.2s ease-in-out;
+  transition: opacity 1.2s ease-in-out, transform 6s linear;
   z-index: 1;
+  transform: scale(1);
+}
+
+/* Hiệu ứng Ken Burns: Zoom chậm 5% khi slide hiển thị */
+.hero-slide.active {
+  opacity: 1;
+  transform: scale(1.05);
 }
 
 /* NÚT ĐIỀU HƯỚNG BANNER */
@@ -395,6 +406,10 @@ a {
   background-color: #333333;
 }
 
+.btn-dozo-about:active {
+  transform: scale(0.95);
+}
+
 .hero-dots {
   position: absolute;
   bottom: 30px;
@@ -418,6 +433,23 @@ a {
   background-color: #5ccba3;
   width: 32px;
   border-radius: 8px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Thanh tiến trình chạy trong 4s (tương ứng với thời gian auto play) */
+.hero-dot.active::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  height: 100%; width: 0%;
+  background-color: #ffffff;
+  animation: dotProgress 4s linear forwards;
+}
+
+@keyframes dotProgress {
+  0% { width: 0%; }
+  100% { width: 100%; }
 }
 
 /* =====================================================================
@@ -448,33 +480,6 @@ a {
   height: 3px;
   background-color: #111111;
   border-radius: 2px;
-}
-
-/* HIỆU ỨNG CUỘN (SCROLL REVEAL) */
-.scroll-reveal {
-  opacity: 0;
-  transform: translateY(60px) scale(0.8) rotate(-5deg);
-}
-
-.scroll-reveal.visible {
-  animation: cartoonPop 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-}
-
-@keyframes cartoonPop {
-  0% {
-    opacity: 0;
-    transform: translateY(60px) scale(0.8) rotate(-5deg);
-  }
-
-  50% {
-    opacity: 1;
-    transform: translateY(-15px) scale(1.05) rotate(3deg);
-  }
-
-  100% {
-    opacity: 1;
-    transform: translateY(0) scale(1) rotate(0deg);
-  }
 }
 
 .customers-section {
@@ -515,6 +520,11 @@ a {
   gap: 16px;
   align-items: stretch;
   cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+.news-card:hover {
+  transform: translateY(-6px);
 }
 
 .news-sidebar {
@@ -610,6 +620,10 @@ a {
   transform: scale(1.05);
 }
 
+.btn-arrow:active:not(:disabled) {
+  transform: scale(0.95) !important;
+}
+
 .carousel-page {
   font-size: 14px;
   font-weight: 600;
@@ -635,10 +649,31 @@ a {
   cursor: pointer;
   display: flex;
   flex-direction: column;
+  transition: transform 0.3s ease;
+}
+
+.product-card:hover {
+  transform: translateY(-6px);
 }
 
 .product-card .image-container-square {
   background-color: #ffffff;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  border-radius: 4px;
+}
+
+.product-card .image-container-square img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.3s ease;
+}
+
+.product-card:hover .image-container-square img {
+  transform: scale(1.05);
 }
 
 .product-info-block {
@@ -706,6 +741,10 @@ a {
   background-color: #333333;
 }
 
+.btn-black-small:active {
+  transform: scale(0.95);
+}
+
 /* 3. How To Use */
 .how-to-use-section {
   background-color: #a5d8f3;
@@ -735,7 +774,7 @@ a {
   /* SỬA: Đổi viền đen khung tranh thành xám mảnh */
   background-color: #ffffff;
   overflow: hidden;
-  aspect-ratio: 1 / 1;
+  aspect-ratio: 3 / 4; /* Kéo dài khung thành hình chữ nhật dọc */
   border-radius: 4px;
 }
 
@@ -767,6 +806,10 @@ a {
 .btn-primary-black:hover {
   background-color: #333333;
   transform: translateY(-2px);
+}
+
+.btn-primary-black:active {
+  transform: translateY(0) scale(0.95);
 }
 
 /* =====================================================================
@@ -1033,4 +1076,223 @@ a {
   .section-desc {
     font-size: 14px;
   }
+}
+
+/* =====================================================================
+   SEARCH OVERLAY SECTION
+   ===================================================================== */
+.search-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(255, 255, 255, 0.85); /* Nền trắng hơi trong suốt */
+  backdrop-filter: blur(12px); /* Hiệu ứng làm mờ nền phía sau */
+  -webkit-backdrop-filter: blur(12px);
+  z-index: 9999; /* Đảm bảo luôn nằm trên cùng */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 100px;
+  animation: fadeInOverlay 0.3s cubic-bezier(0.165, 0.84, 0.44, 1) forwards;
+}
+
+@keyframes fadeInOverlay {
+  0% { opacity: 0; transform: translateY(-20px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+.search-overlay-close {
+  position: absolute;
+  top: 30px;
+  right: 50px;
+  font-size: 50px;
+  font-weight: 300;
+  line-height: 1;
+  background: none;
+  border: none;
+  color: #111111;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.search-overlay-close:hover {
+  transform: scale(1.1) rotate(90deg);
+}
+
+.search-overlay-content {
+  width: 100%;
+  max-width: 800px;
+  padding: 0 24px;
+}
+
+.search-overlay-input {
+  width: 100%;
+  font-size: 32px;
+  font-family: 'Inter', sans-serif;
+  font-weight: 800;
+  color: #111111;
+  background: transparent;
+  border: none;
+  border-bottom: 3px solid #111111;
+  padding: 16px 0;
+  outline: none;
+}
+
+.search-overlay-input::placeholder {
+  color: #aaaaaa;
+}
+
+.search-overlay-results {
+  margin-top: 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-height: calc(100vh - 250px);
+  overflow-y: auto;
+  padding-bottom: 40px;
+}
+
+/* Tùy chỉnh thanh cuộn cho kết quả tìm kiếm */
+.search-overlay-results::-webkit-scrollbar {
+  width: 6px;
+}
+.search-overlay-results::-webkit-scrollbar-thumb {
+  background: #cccccc;
+  border-radius: 4px;
+}
+
+.search-no-results {
+  font-size: 16px;
+  color: #666666;
+  font-weight: 600;
+  text-align: center;
+}
+
+.search-result-item {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 16px;
+  border-radius: 12px;
+  background-color: #ffffff;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+  transition: all 0.2s ease;
+  cursor: pointer;
+  opacity: 0;
+  transform: translateY(15px);
+  animation: fadeInResult 0.4s cubic-bezier(0.165, 0.84, 0.44, 1) forwards;
+}
+
+@keyframes fadeInResult {
+  0% { opacity: 0; transform: translateY(15px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+.search-result-item:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+}
+
+.search-result-image {
+  width: 72px;
+  height: 72px;
+  object-fit: cover;
+  border-radius: 8px;
+  background-color: #f5f5f5;
+}
+
+.search-result-info {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.search-result-type {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  color: #888888;
+  text-transform: uppercase;
+}
+
+.search-result-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #111111;
+  margin: 0;
+}
+
+@media (max-width: 768px) {
+  .search-overlay-input {
+    font-size: 24px;
+  }
+  .search-overlay-close {
+    top: 20px;
+    right: 20px;
+    font-size: 40px;
+  }
+}
+
+/* --- GỢI Ý TÌM KIẾM --- */
+.search-suggestions {
+  margin-top: 30px;
+  text-align: left;
+  width: 100%;
+}
+
+.search-suggestion-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #666666;
+  margin-bottom: 16px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.search-suggestion-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.search-suggestion-tag {
+  background-color: #f5f5f5;
+  border: 1px solid #e0e0e0;
+  color: #333333;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.search-suggestion-tag:hover {
+  background-color: #111111;
+  color: #ffffff;
+  border-color: #111111;
+}
+
+/* --- LOADING SPINNER CHO TÌM KIẾM --- */
+.search-loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px 0;
+}
+
+.search-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid #111111;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }

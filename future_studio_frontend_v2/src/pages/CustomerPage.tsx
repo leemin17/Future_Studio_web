@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { customerData, type NewsItem } from '../data/database';
+import ScrollReveal from '../components/ScrollReveal';
 
 const CustomerPage: React.FC = () => {
   const navigate = useNavigate();
@@ -34,25 +36,33 @@ const CustomerPage: React.FC = () => {
   return (
     <section className="customers-section">
       <div className="container">
-        <div className="section-header scroll-reveal visible" style={{ paddingTop: '60px' }}>
+        <ScrollReveal className="section-header" style={{ paddingTop: '60px' }}>
           <span className="section-subtitle">THANK YOU FOR CHOOSING US</span>
           <h2 className="section-title">Our Customers!</h2>
           <p className="section-desc">Vinh danh & tri ân những khách hàng đã tin tưởng Future Studio</p>
-        </div>
+        </ScrollReveal>
 
         <div className="news-grid">
           {currentCustomers.map((item) => (
-            <div key={item.id} className="news-card" onClick={() => handleProductClick(item)}>
+            <motion.div
+              key={item.id}
+              className="news-card"
+              onClick={() => handleProductClick(item)}
+              style={{ cursor: 'pointer' }}
+              whileHover={{ y: -8 }}
+              whileTap={{ scale: 0.97 }}
+              transition={{ type: "spring", stiffness: 400, damping: 17 }}
+            >
               <div className="news-sidebar">
                 <span className="vertical-date">{item.date}</span>
               </div>
               <div className="news-content">
                 <div className="news-image">
-                  <img src={`/${item.imageUrl}`} alt={item.title} />
+                  <img src={`${import.meta.env.BASE_URL}${item.imageUrl}`} alt={item.title} />
                 </div>
                 <p className="news-text">{item.title}</p>
               </div>
-            </div>
+            </motion.div>
           ))}
         </div>
 

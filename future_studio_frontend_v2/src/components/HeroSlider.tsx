@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { heroImages } from '../data/database';
+import { useNavigate } from 'react-router-dom';
 
 interface HeroSliderProps {
   onHeroClick: (index: number) => void;
 }
 
 const HeroSlider: React.FC<HeroSliderProps> = ({ onHeroClick }) => {
+  const navigate = useNavigate();
   const [currentHeroSlide, setCurrentHeroSlide] = useState(0);
 
   useEffect(() => {
@@ -64,7 +66,16 @@ const HeroSlider: React.FC<HeroSliderProps> = ({ onHeroClick }) => {
       </div>
 
       <div className="hero-bottom-action">
-        <button className="btn-dozo-about">Future Studio là gì?</button>
+        <button 
+          className="btn-dozo-about"
+          onClick={() => {
+            navigate('/about');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
+        >
+          Future Studio là gì?
+        </button>
+
       </div>
     </div>
   );
