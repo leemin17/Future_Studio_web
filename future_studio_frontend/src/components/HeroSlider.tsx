@@ -59,10 +59,6 @@ const HeroSlider: React.FC<HeroSliderProps> = ({ onHeroClick }) => {
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
         </button>
       </div>
-
-      <div className="hero-bottom-action">
-        <button className="btn-dozo-about">Future Studio là gì?</button>
-      </div>
     </div>
   );
 };
