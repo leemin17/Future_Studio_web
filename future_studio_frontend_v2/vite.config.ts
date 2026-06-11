@@ -8,7 +8,7 @@ export default defineConfig({
     react(),
     reactClickToComponent(),
   ],
-  base: '/'
+  base: '/',
   server: {
     port: 3000,
   }
