@@ -41,7 +41,7 @@ const HeroSlider: React.FC<HeroSliderProps> = ({ onHeroClick }) => {
                 backgroundImage: `url(${img})`,
                 opacity: index === currentHeroSlide ? 1 : 0,
                 cursor: 'pointer',
-                
+
                 pointerEvents: index === currentHeroSlide ? 'auto' : 'none',
                 zIndex: index === currentHeroSlide ? 2 : 1
               }}
@@ -65,7 +65,7 @@ const HeroSlider: React.FC<HeroSliderProps> = ({ onHeroClick }) => {
         </button>
       </div>
 
-      <div className="hero-bottom-action">
+      {/* <div className="hero-bottom-action">
         <button 
           className="btn-dozo-about"
           onClick={() => {
@@ -76,7 +76,7 @@ const HeroSlider: React.FC<HeroSliderProps> = ({ onHeroClick }) => {
           Future Studio là gì?
         </button>
 
-      </div>
+      </div> */}
     </div>
   );
 };
