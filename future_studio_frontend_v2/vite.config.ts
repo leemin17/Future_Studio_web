@@ -8,7 +8,6 @@ export default defineConfig({
     react(),
     reactClickToComponent(),
   ],
-  base: '/future_studio_frontend_v2/',
   server: {
     port: 3000,
   }
