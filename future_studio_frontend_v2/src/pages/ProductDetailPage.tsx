@@ -119,7 +119,7 @@ const ProductDetailPage: React.FC = () => {
                     Đây là trang hiển thị thông tin chi tiết đầy đủ của nội dung thuộc hệ thống Future Studio. Tại đây, khách hàng có thể tìm hiểu sâu hơn về nguồn gốc, câu chuyện nghệ thuật ẩn sau sản phẩm và các quy trình chế tác tỉ mỉ.
                   </p>
                   <p>
-                    Mọi chi tiết thiết kế đều được đội ngũ biên tập viên tuyển chọn kỹ càng nhằm đem lại trải nghiệm tinh tế và độc bản nhất dành riêng cho bạn.
+                    Mọi chi tiết thiết kế đều được đội ngũ biên tập viên tuyển chọn kỹ càng nhằm đem lại  trải nghiệm tinh tế và độc bản nhất dành riêng cho bạn.
                   </p>
                 </>
               )}
