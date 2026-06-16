@@ -515,11 +515,6 @@ a {
   background-color: #ffffff;
 }
 
-/* (Tùy chọn) Ẩn thanh cuộn mặc định của trình duyệt để giao diện trông sạch sẽ hơn */
-.hero-frame::-webkit-scrollbar {
-  display: none;
-}
-
 .hero-slide {
   position: relative !important;
   flex: 0 0 100vh; /* Ép mỗi slide cao chuẩn 100% màn hình */

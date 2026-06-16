@@ -17,13 +17,13 @@ const HeroSlider: React.FC<HeroSliderProps> = ({ onHeroClick }) => {
     return () => clearInterval(heroInterval);
   }, []);
 
-  const handlePrevHero = () => {
-    setCurrentHeroSlide((prev) => (prev === 0 ? heroImages.length - 1 : prev - 1));
-  };
+  // const handlePrevHero = () => {
+  //   setCurrentHeroSlide((prev) => (prev === 0 ? heroImages.length - 1 : prev - 1));
+  // };
 
-  const handleNextHero = () => {
-    setCurrentHeroSlide((prev) => (prev + 1) % heroImages.length);
-  };
+  // const handleNextHero = () => {
+  //   setCurrentHeroSlide((prev) => (prev + 1) % heroImages.length);
+  // };
 
   return (
     <div className="hero-full-container">
