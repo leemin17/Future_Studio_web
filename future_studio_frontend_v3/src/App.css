@@ -1,0 +1,8 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800;900&family=Noto+Sans+JP:wght@400;700;900&display=swap');
+
+/* Tích hợp Material Icons cho các biểu tượng như menu, giỏ hàng */
+@import url('https://fonts.googleapis.com/icon?family=Material+Icons');
+
+body {
+  font-family: 'Montserrat', 'Noto Sans JP', sans-serif;
+}
