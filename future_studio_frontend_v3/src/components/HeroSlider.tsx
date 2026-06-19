@@ -1,13 +1,13 @@
 import React, { useRef, useEffect } from 'react';
 import { heroImages } from '../data/database';
-import { useNavigate } from 'react-router-dom';
+// import { useNavigate } from 'react-router-dom';
 
 interface HeroSliderProps {
   onHeroClick: (index: number) => void;
 }
 
 const HeroSlider: React.FC<HeroSliderProps> = ({ onHeroClick }) => {
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   const heroFrameRef = useRef<HTMLDivElement>(null);
   const isInteracting = useRef(false); // Cờ đánh dấu người dùng có đang vuốt/lăn chuột không
   const interactTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);

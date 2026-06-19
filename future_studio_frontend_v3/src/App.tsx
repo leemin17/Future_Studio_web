@@ -3,7 +3,7 @@ import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
 
 import Header from './components/Header';
-import Footer from './components/Footer';
+// import Footer from './components/Footer';
 import HomePage from './pages/HomePage';
 import HeroDetailPage from './pages/HeroDetailPage';
 import ProductDetailPage from './pages/ProductDetailPage';

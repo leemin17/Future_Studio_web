@@ -66,7 +66,7 @@ const navItems = [
 
 const sectionIds = navItems.map((item) => item.id);
 
-const Header: React.FC<HeaderProps> = ({ onLogoClick, showFixedHeader, isAtDetailPage, onSearchClick }) => {
+const Header: React.FC<HeaderProps> = ({ onLogoClick, showFixedHeader, isAtDetailPage }) => {
   const activeSection = useScrollSpy(sectionIds);
   const lenis = useLenis(); // Khởi tạo Lenis để dùng cho việc cuộn
   const navigate = useNavigate();
