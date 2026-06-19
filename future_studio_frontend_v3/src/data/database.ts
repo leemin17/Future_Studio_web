@@ -47,8 +47,8 @@ export interface MvItem {
    ===================================================================== */
 // Data cho Slider (Hero)
 export const heroImages = [
-  'images/anhdep.jpg',
-  'images/video.gif',
+  'images/bitisbutterfly.webp',
+  'images/helio.webp',
   'images/video.gif',
 ];
 
