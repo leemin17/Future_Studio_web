@@ -16,6 +16,7 @@ import PageTransition from './components/PageTransition';
    ===================================================================== */
 const App: React.FC = () => {
   const [showFixedHeader, setShowFixedHeader] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const cursorRef = useRef<HTMLDivElement>(null);
 
   const location = useLocation();
@@ -39,6 +40,15 @@ const App: React.FC = () => {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, [isAtDetailPage]); // Thêm isAtDetailPage để logic được cập nhật khi chuyển trang
+
+  // Khóa cuộn trang khi menu mobile đang mở
+  useEffect(() => {
+    if (isMobileMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+  }, [isMobileMenuOpen]);
 
   // ====================================================================
   // HIỆU ỨNG CON TRỎ CHUỘT NGHỆ THUẬT (CUSTOM MAGNETIC CURSOR)
@@ -124,6 +134,8 @@ const App: React.FC = () => {
         onLogoClick={handleResetHome}
         showFixedHeader={showFixedHeader}
         isAtDetailPage={isAtDetailPage}
+        isMobileMenuOpen={isMobileMenuOpen}
+        setIsMobileMenuOpen={setIsMobileMenuOpen}
       />
 
       {/* mode="wait" đợi trang cũ biến mất hẳn rồi trang mới mới hiện ra */}

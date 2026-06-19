@@ -44,6 +44,12 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+/* KHÓA CUỘN TRANG CHỦ: Chỉ cho phép cuộn bên trong Hero Slider */
+.home-page-active {
+  overflow: hidden;
+  height: 100vh;
+}
+
 a {
   text-decoration: none;
   color: inherit;
@@ -1297,7 +1303,7 @@ a {
   .main-header,
   .main-header:has(.header-center-menu) {
     display: flex; /* Bỏ !important bằng cách tăng độ ưu tiên bằng :has */
-    justify-content: center; /* Căn giữa logo */
+    justify-content: space-between; /* Đẩy logo sang trái, nút hamburger sang phải */
     align-items: center;
     width: 100%;
     position: relative; /* Tạo gốc tọa độ cho nút hamburger */
@@ -1317,6 +1323,7 @@ a {
 
   .header-logo {
     font-size: 26px;
+    justify-self: flex-start; /* Đảm bảo logo luôn ở bên trái */
   }
 
   .search-bar,
@@ -1334,7 +1341,7 @@ a {
     z-index: 1001; /* Nằm trên cả menu */
     padding: 4px;
     position: absolute; /* Tách khỏi luồng và đặt vào góc phải */
-    right: 30px;
+    right: 24px; /* Giảm khoảng cách lề phải cho gọn hơn */
     top: 50%;
     transform: translateY(-50%);
   }
@@ -1443,7 +1450,7 @@ a {
   }
 
   .section-title {
-    font-size: 42px;
+    font-size: 38px; /* Thu nhỏ tiêu đề cho vừa vặn hơn */
     line-height: 1.1;
     margin: 16px 0;
   }
@@ -1466,11 +1473,56 @@ a {
   }
 
   .hero-running-item {
-    font-size: 60px; /* Thu nhỏ chữ trên Mobile */
+    font-size: 72px; /* Thu nhỏ chữ trên Mobile */
   }
 
   .hero-running-overlay {
     bottom: 20px; /* Trên điện thoại chỉ cách lề 20px cho gọn */
+  }
+}
+
+/* THÊM BREAKPOINT CHO MÀN HÌNH SIÊU NHỎ (DƯỚI 576px) */
+@media (max-width: 576px) {
+  .container {
+    padding: 0 16px;
+  }
+  .main-header.home-page-header,
+  .main-header.sub-page-header,
+  .main-header.fixed-active {
+    padding: 15px 16px;
+  }
+  .mobile-menu-toggle {
+    right: 16px;
+  }
+  .header-logo {
+    font-size: 22px;
+  }
+  .section-title {
+    font-size: 32px;
+  }
+  .hero-running-item {
+    font-size: 50px;
+  }
+  /* Chuyển card sang xếp dọc và có nền để dễ đọc */
+  .news-card {
+    flex-direction: column;
+    background: #fdfdfd;
+    border: 1px solid #f0f0f0;
+    padding: 16px;
+    border-radius: 8px;
+    gap: 12px;
+  }
+  .news-sidebar {
+    width: 100%;
+    border-left: none;
+    border-bottom: 1px solid var(--color-gray-light);
+    padding-bottom: 8px;
+  }
+  .vertical-date {
+    position: static;
+    writing-mode: horizontal-tb;
+    transform: none;
+    color: var(--color-text-muted);
   }
 }
 
