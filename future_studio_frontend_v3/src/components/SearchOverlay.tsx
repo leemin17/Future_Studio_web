@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { newsData, customerData, type NewsItem } from '../data/database';
+import { newsData, customerData, popularSearches, type NewsItem } from '../data/database';
 
 interface SearchOverlayProps {
   onClose: () => void;
@@ -16,9 +16,6 @@ const SearchOverlay: React.FC<SearchOverlayProps> = ({ onClose }) => {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<typeof allSearchableData>([]);
   const [isLoading, setIsLoading] = useState(false);
-
-  // Danh sách các từ khóa gợi ý
-  const popularSearches = ['Quà tặng', 'Phim hoạt hình', 'Khóa học 3D', 'VIP', 'Kỷ niệm', 'Sáng tạo', 'Tri ân', 'Đối tác'];
 
   // Lọc kết quả mỗi khi người dùng gõ
   useEffect(() => {

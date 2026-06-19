@@ -3,13 +3,14 @@ import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
 
 import Header from './components/Header';
-import Footer from './components/Footer';
 import HomePage from './pages/HomePage';
 import HeroDetailPage from './pages/HeroDetailPage';
 import ProductDetailPage from './pages/ProductDetailPage';
 import CustomerPage from './pages/CustomerPage';
 import AboutPage from './pages/AboutPage';
+import MVPage from './pages/MVPage'; // Import trang MV
 import PageTransition from './components/PageTransition';
+import AllProductsPage from './pages/AllProductsPage'; // Import trang All Products
 
 /* =====================================================================
    5. COMPONENT GỐC (APP) LẮP RÁP CÁC ROUTE
@@ -40,15 +41,6 @@ const App: React.FC = () => {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, [isAtDetailPage]); // Thêm isAtDetailPage để logic được cập nhật khi chuyển trang
-
-  // Khóa cuộn trang khi menu mobile đang mở
-  useEffect(() => {
-    if (isMobileMenuOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-    }
-  }, [isMobileMenuOpen]);
 
   // ====================================================================
   // HIỆU ỨNG CON TRỎ CHUỘT NGHỆ THUẬT (CUSTOM MAGNETIC CURSOR)
@@ -145,7 +137,9 @@ const App: React.FC = () => {
           <Route path="/hero/:id" element={<PageTransition><HeroDetailPage /></PageTransition>} />
           <Route path="/product/:id" element={<PageTransition><ProductDetailPage /></PageTransition>} />
           <Route path="/customers" element={<PageTransition><CustomerPage /></PageTransition>} />
+          <Route path="/all-products" element={<PageTransition><AllProductsPage /></PageTransition>} />
           <Route path="/about" element={<PageTransition><AboutPage /></PageTransition>} />
+          <Route path="/music-videos" element={<PageTransition><MVPage /></PageTransition>} />
         </Routes>
       </AnimatePresence>
     </>

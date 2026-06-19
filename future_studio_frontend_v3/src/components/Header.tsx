@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useLenis } from 'lenis/react';
 import { useNavigate } from 'react-router-dom';
 
+import { navItems } from '../data/database';
 interface HeaderProps {
   onLogoClick: () => void;
   showFixedHeader: boolean;
@@ -41,30 +42,6 @@ const useScrollSpy = (sectionIds: string[]) => {
   return activeSection;
 };
 
-const navItems = [
-  { 
-    label: 'Showcase', 
-    id: 'showcase',
-    subItems: [
-      // Thêm path: '/product/1' để khi bấm vào sẽ chuyển sang trang chi tiết sản phẩm 1
-      { label: 'All', id: 'showcase-all', path: '/product/2' },
-      { label: '3D', id: 'showcase-3d' },
-      { label: 'Cartoon', id: 'showcase-cartoon' },
-      { label: 'Video Music', id: 'showcase-music' }
-    ]
-  },
-  { label: 'The Team', 
-    id: 'team',  
-    subItems: [
-      { label: 'Members', id: 'team-members' },
-      { label: 'Careers', id: 'team-careers' }
-    ]
-  },
-  { label: 'About', id: 'about' },
-  { label: 'Merch', id: 'merch' },
-  { label: 'Contact', id: 'contact' },
-];
-
 const sectionIds = navItems.map((item) => item.id);
 
 const Header: React.FC<HeaderProps> = ({ onLogoClick, showFixedHeader, isAtDetailPage, isMobileMenuOpen, setIsMobileMenuOpen }) => {
@@ -75,7 +52,12 @@ const Header: React.FC<HeaderProps> = ({ onLogoClick, showFixedHeader, isAtDetai
   const handleScrollTo = (id: string) => {
     setIsMobileMenuOpen(false); // Đóng menu mobile khi người dùng đã chọn mục
     if (lenis) {
-      // Sử dụng sức mạnh của Lenis để trượt mượt mà theo gia tốc
+      // Nếu đang ở trang phụ, trước tiên quay về trang chủ rồi mới cuộn
+      if (isAtDetailPage) {
+        navigate('/');
+        // Dùng timeout nhỏ để đợi React Router chuyển trang xong
+        setTimeout(() => lenis.scrollTo(`#${id}`, { offset: 0, duration: 1.2 }), 100);
+      }
       lenis.scrollTo(`#${id}`, { offset: 0, duration: 1.2 });
     } else {
       // Fallback dự phòng nếu Lenis chưa sẵn sàng
@@ -119,11 +101,18 @@ const Header: React.FC<HeaderProps> = ({ onLogoClick, showFixedHeader, isAtDetai
             <button
               className={`header-nav-link ${!isAtDetailPage && activeSection === item.id ? 'active' : ''}`}
               onClick={() => {
-                if (isAtDetailPage) {
-                  navigate(`/#${item.id}`);
+                // Nếu item có path riêng (vd: /about), ưu tiên chuyển trang
+                if (item.path) {
+                  navigate(item.path);
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
                 } else {
-                  handleScrollTo(item.id);
-                }
+                  // Nếu không có path, mặc định là cuộn
+                  if (isAtDetailPage) {
+                    navigate(`/#${item.id}`);
+                  } else {
+                    handleScrollTo(item.id);
+                  }
+                } 
               }}
             >
               {item.label}

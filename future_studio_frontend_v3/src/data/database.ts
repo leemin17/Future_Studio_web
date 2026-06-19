@@ -1,6 +1,19 @@
 /* =====================================================================
    1. ĐỊNH NGHĨA KIỂU DỮ LIỆU (INTERFACES)
    ===================================================================== */
+export interface NavSubItem {
+  label: string;
+  id: string;
+  path?: string;
+}
+
+export interface NavItem {
+  label: string;
+  id: string;
+  path?: string;
+  subItems?: NavSubItem[];
+}
+
 export interface NewsItem {
   id: number;
   date: string;
@@ -19,6 +32,15 @@ export interface ProductItem {
   description?: string;
   imageUrl: string;
 }
+
+export interface MvItem {
+  id: number;
+  title: string;
+  date: string;
+  embedUrl: string;
+  description: string;
+}
+
 
 /* =====================================================================
    2. KHO DỮ LIỆU TÁCH RIÊNG (MOCK DATABASE)
@@ -69,4 +91,52 @@ export const heroDetails = [
     description1: 'Đánh dấu chặng đường phát triển, Future Studio tổ chức sự kiện đặc biệt để gửi lời cảm ơn sâu sắc tới những người đã luôn đồng hành.',
     description2: 'Nhiều phần quà hấp dẫn cùng dòng sản phẩm giới hạn được chế tác độc quyền sẽ chính thức lộ diện. Hãy là những người đầu tiên sở hữu!'
   }
+];
+
+/* =====================================================================
+   3. DỮ LIỆU CHO CÁC COMPONENT GIAO DIỆN
+   ===================================================================== */
+
+// Data cho Header Navigation
+export const navItems: NavItem[] = [
+  { 
+    label: 'Showcase', 
+    id: 'showcase',
+    subItems: [
+      { label: 'All', id: 'showcase-all', path: '/all-products' },
+      { label: '3D', id: 'showcase-3d' },
+      { label: 'Cartoon', id: 'showcase-cartoon' },
+      { label: 'Video Music', id: 'showcase-music', path: '/music-videos' } // Giả sử có trang MV
+    ]
+  },
+  { label: 'The Team', 
+    id: 'team',  
+    subItems: [
+      { label: 'Members', id: 'team-members' },
+      { label: 'Careers', id: 'team-careers' }
+    ]
+  },
+  { label: 'About', id: 'about', path: '/about' },
+  { label: 'Merch', id: 'merch' },
+  { label: 'Contact', id: 'contact' },
+];
+
+// Data cho trang Music Video
+export const mvData: MvItem[] = [
+  { id: 1, title: 'Future Studio - Bức tranh tương lai', date: '2024.04.10', embedUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ', description: 'MV chính thức giới thiệu không gian sáng tạo của Future Studio. Khám phá những câu chuyện chưa từng được kể.' },
+  { id: 2, title: 'Hậu trường sản xuất - Animation 3D', date: '2024.03.20', embedUrl: 'https://www.youtube.com/embed/tgbNymZ7vqY', description: 'Cùng xem các nghệ sĩ của chúng tôi tạo ra những thước phim 3D đỉnh cao như thế nào qua hàng ngàn giờ làm việc miệt mài.' },
+  { id: 3, title: 'Sự kiện ra mắt bộ sưu tập mới', date: '2024.02.15', embedUrl: 'https://www.youtube.com/embed/y8Yv4pnO7qc', description: 'Toàn cảnh sự kiện hoành tráng ra mắt các sản phẩm giới hạn của năm cùng những vị khách mời đặc biệt.' },
+  { id: 4, title: 'Phim ngắn: The Last Guardian', date: '2024.01.05', embedUrl: 'https://www.youtube.com/embed/jNQXAC9IVRw', description: 'Một dự án phim ngắn tâm huyết do đội ngũ Future Studio thực hiện nhằm truyền tải thông điệp bảo vệ thiên nhiên.' }
+];
+
+// Data cho các từ khóa tìm kiếm gợi ý
+export const popularSearches: string[] = [
+  'Quà tặng', 
+  'Phim hoạt hình', 
+  'Khóa học 3D', 
+  'VIP', 
+  'Kỷ niệm', 
+  'Sáng tạo', 
+  'Tri ân', 
+  'Đối tác'
 ];

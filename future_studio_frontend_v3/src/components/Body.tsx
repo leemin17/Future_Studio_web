@@ -75,9 +75,6 @@ const Body: React.FC<BodyProps> = ({ onSelectProduct }) => {
   const formattedCustomerPage = String(currentCustomerPage).padStart(2, '0');
   const formattedTotalCustomerPages = String(totalCustomerPages).padStart(2, '0');
 
-  // Thêm dòng này để ẩn hoàn toàn phần Body đi
-  return null;
-
   return (
     <main>
       {/* ================= SECTION: ALL PRODUCTS ================= */}
