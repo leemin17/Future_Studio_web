@@ -6,7 +6,6 @@ interface HeaderProps {
   onLogoClick: () => void;
   showFixedHeader: boolean;
   isAtDetailPage: boolean;
-  onSearchClick?: () => void;
 }
 
 const useScrollSpy = (sectionIds: string[]) => {

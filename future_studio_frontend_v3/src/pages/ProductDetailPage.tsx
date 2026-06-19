@@ -19,10 +19,10 @@ const ProductDetailPage: React.FC = () => {
   // Nếu có model thì tuân theo viewMode (2D/3D), nếu không có thì ép hệ thống hiển thị 2D
   const currentView = has3DModel ? viewMode : '2D';
 
-  // const handleResetHome = () => {
-  //   navigate('/');
-  //   window.scrollTo({ top: 0, behavior: 'smooth' });
-  // };
+  const handleResetHome = () => {
+    navigate('/');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   const handleProductClick = (item: NewsItem) => {
     navigate(`/product/${item.id}`);
@@ -44,13 +44,13 @@ const ProductDetailPage: React.FC = () => {
 
   return (
     <section className="container" style={{ paddingTop: '60px', paddingBottom: '100px' }}>
-      {/* <button
+      <button
         onClick={handleResetHome}
         className="btn-arrow"
         style={{ marginBottom: '40px', display: 'flex', alignItems: 'center', gap: '8px', width: 'auto', padding: '0 16px', borderRadius: '8px' }}
       >
         ← Quay lại trang chủ
-      </button> */}
+      </button>
 
       <div style={{ display: 'flex', gap: '40px', flexWrap: 'wrap', alignItems: 'flex-start' }}>
         {/* CỘT TRÁI: Nội dung chính */}

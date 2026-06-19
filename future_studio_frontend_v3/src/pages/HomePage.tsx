@@ -7,11 +7,6 @@ import Body from '../components/Body';
 const HomePage: React.FC = () => {
   const navigate = useNavigate();
 
-  const handleHeroClick = (index: number) => {
-    navigate(`/hero/${index}`);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
   const handleProductClick = (item: NewsItem) => {
     navigate(`/product/${item.id}`);
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -19,7 +14,7 @@ const HomePage: React.FC = () => {
 
   return (
     <>
-      <HeroSlider onHeroClick={handleHeroClick} />
+      <HeroSlider />
       <Body onSelectProduct={handleProductClick} />
     </>
   );

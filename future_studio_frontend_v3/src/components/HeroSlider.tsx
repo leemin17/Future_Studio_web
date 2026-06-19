@@ -1,13 +1,9 @@
 import React, { useRef, useEffect } from 'react';
 import { heroImages } from '../data/database';
-// import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
-interface HeroSliderProps {
-  onHeroClick: (index: number) => void;
-}
-
-const HeroSlider: React.FC<HeroSliderProps> = ({ onHeroClick }) => {
-  // const navigate = useNavigate();
+const HeroSlider: React.FC = () => {
+  const navigate = useNavigate();
   const heroFrameRef = useRef<HTMLDivElement>(null);
   const isInteracting = useRef(false); // Cờ đánh dấu người dùng có đang vuốt/lăn chuột không
   const interactTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -218,7 +214,8 @@ const HeroSlider: React.FC<HeroSliderProps> = ({ onHeroClick }) => {
               onClick={(e) => {
                 // Tăng ngưỡng lên 10px và bắt cả vuốt X/Y để chống chạm nhầm siêu nhạy trên điện thoại
                 if (dragDistance.current < 10) {
-                  onHeroClick(index % heroImages.length);
+                  const heroIndex = index % heroImages.length;
+                  navigate(`/hero/${heroIndex}`);
                 } else {
                   e.preventDefault();
                   e.stopPropagation();

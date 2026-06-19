@@ -3,13 +3,12 @@ import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
 
 import Header from './components/Header';
-// import Footer from './components/Footer';
+import Footer from './components/Footer';
 import HomePage from './pages/HomePage';
 import HeroDetailPage from './pages/HeroDetailPage';
 import ProductDetailPage from './pages/ProductDetailPage';
 import CustomerPage from './pages/CustomerPage';
 import AboutPage from './pages/AboutPage';
-import SearchOverlay from './components/SearchOverlay';
 import PageTransition from './components/PageTransition';
 
 /* =====================================================================
@@ -17,7 +16,6 @@ import PageTransition from './components/PageTransition';
    ===================================================================== */
 const App: React.FC = () => {
   const [showFixedHeader, setShowFixedHeader] = useState(false);
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
   const cursorRef = useRef<HTMLDivElement>(null);
 
   const location = useLocation();
@@ -126,10 +124,7 @@ const App: React.FC = () => {
         onLogoClick={handleResetHome}
         showFixedHeader={showFixedHeader}
         isAtDetailPage={isAtDetailPage}
-        onSearchClick={() => setIsSearchOpen(true)}
       />
-
-      {isSearchOpen && <SearchOverlay onClose={() => setIsSearchOpen(false)} />}
 
       {/* mode="wait" đợi trang cũ biến mất hẳn rồi trang mới mới hiện ra */}
       <AnimatePresence mode="wait">
@@ -141,8 +136,6 @@ const App: React.FC = () => {
           <Route path="/about" element={<PageTransition><AboutPage /></PageTransition>} />
         </Routes>
       </AnimatePresence>
-
-      {/* <Footer /> */}
     </>
   );
 };
