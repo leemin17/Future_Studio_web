@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion, AnimatePresence, Variants } from 'framer-motion';
+import { motion, AnimatePresence, type Variants } from 'framer-motion';
 import { type NewsItem } from '../data/database';
 import { IoClose } from "react-icons/io5";
 import { useNavigate } from 'react-router-dom';

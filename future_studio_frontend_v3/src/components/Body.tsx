@@ -74,7 +74,9 @@ const Body: React.FC<BodyProps> = ({ onSelectProduct }) => {
 
   const formattedCustomerPage = String(currentCustomerPage).padStart(2, '0');
   const formattedTotalCustomerPages = String(totalCustomerPages).padStart(2, '0');
-
+  return (
+    null
+  );
   return (
     <main>
       {/* ================= SECTION: ALL PRODUCTS ================= */}

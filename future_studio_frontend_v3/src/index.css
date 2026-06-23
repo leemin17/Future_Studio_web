@@ -117,21 +117,15 @@ a {
   grid-template-columns: repeat(6, 1fr);
 }
 
-/* 1. KHI Ở TRANG CHỦ: Không có dấu gạch dưới, đẩy sát vào khối banner */
-.main-header.home-page-header {
+/* 1. KHI Ở TRANG CHỦ & TRANG PHỤ: Header trong suốt, nằm trên nội dung */
+.main-header.home-page-header,
+.main-header.sub-page-header {
   position: absolute;
   top: 0;
   left: 0;
   background-color: transparent;
   border-bottom: none;
   padding: 24px 72px 16px 72px;
-}
-
-/* 2. KHI SANG TRANG PHỤ: Xuất hiện dấu gạch dưới ngăn cách */
-.main-header.sub-page-header {
-  position: relative;
-  /* Dấu gạch xuất hiện ngăn cách nội dung phụ */
-  padding: 20px 72px;
 }
 
 /* 3. KHI CUỘN XUỐNG SÂU (HEADER CỐ ĐỊNH CHẠY THEO MÀN HÌNH) */
@@ -144,22 +138,24 @@ a {
   padding: 16px 72px;
   box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.08);
   border-bottom: 1px solid var(--color-border);
-  animation: slideDownHeader 0.4s cubic-bezier(0.165, 0.84, 0.44, 1) forwards;
 }
 
 /* --- HIỆU ỨNG TƯƠNG PHẢN MÀU TỰ ĐỘNG CHO HEADER TRONG SUỐT --- */
 /* Áp dụng hiệu ứng đảo màu cho tất cả các thành phần chữ và icon khi header chưa được cuộn */
-.main-header.home-page-header:not(.fixed-active) {
+.main-header.home-page-header:not(.fixed-active),
+.main-header.sub-page-header:not(.fixed-active) {
   color: var(--color-text-main); /* Màu chữ mặc định là trắng */
   mix-blend-mode: difference; /* "Lõi" của hiệu ứng tương phản */
 }
 
-.main-header.home-page-header:not(.fixed-active) .search-bar {
+.main-header.home-page-header:not(.fixed-active) .search-bar,
+.main-header.sub-page-header:not(.fixed-active) .search-bar {
   /* Bỏ các quy tắc cũ để search-bar tuân theo hiệu ứng chung */
   border-color: currentColor; /* Viền sẽ tự đổi màu theo chữ */
 }
 
-.main-header.home-page-header:not(.fixed-active) .search-bar::placeholder {
+.main-header.home-page-header:not(.fixed-active) .search-bar::placeholder,
+.main-header.sub-page-header:not(.fixed-active) .search-bar::placeholder {
   color: currentColor; /* Placeholder cũng tự đổi màu */
   opacity: 0.7; /* Giảm độ đậm của placeholder một chút */
 }
@@ -176,16 +172,6 @@ a {
 
 /* --- CẬP NHẬT LẠI KHU VỰC HERO CONTAINER --- */
 
-
-@keyframes slideDownHeader {
-  0% {
-    transform: translateY(-100%);
-  }
-
-  100% {
-    transform: translateY(0);
-  }
-}
 
 .header-left-logo {
   display: flex;
@@ -368,14 +354,6 @@ a {
    HERO AREA (KHUNG BANNER CHÍNH THỨC)
    ===================================================================== */
 
-.hero-bottom-action {
-  position: absolute;
-  bottom: 9px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 30;
-}
-
 .hero-slider-wrapper .hero-frame {
   position: relative;
   width: 100%;
@@ -419,150 +397,9 @@ a {
   opacity: 1; /* Ghi đè hiệu ứng mờ dần để ảnh luôn hiện khi cuộn tới */
 }
 
-/* NÚT ĐIỀU HƯỚNG BANNER */
-.hero-nav-btn {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  background: var(--color-bg-main);
-  border: 1px solid var(--color-border);
-  /* SỬA: Đổi viền đen thành viền xám mảnh */
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  z-index: 20;
-  transition: all 0.2s ease;
-  color: var(--color-text-main);
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-  /* SỬA: Thêm bóng đổ nhẹ tinh tế */
-}
-
-.hero-nav-btn:hover {
-  background: var(--color-text-main);
-  color: var(--color-bg-main);
-  border-color: var(--color-text-main);
-}
-
 .hero-slider-wrapper {
   position: relative;
   width: 100%;
-}
-
-.hero-nav-btn.prev {
-  left: 30px;
-}
-
-.hero-nav-btn.next {
-  right: 30px;
-}
-
-.hero-overlay {
-  position: relative;
-  z-index: 10;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-end;
-  padding-bottom: 20px;
-  background: linear-gradient(to bottom, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0) 40%, rgba(0, 0, 0, 0.7) 100%);
-  width: 100%;
-  height: 100%;
-}
-
-.hero-title {
-  font-size: 4.5rem;
-  font-weight: 900;
-  text-align: center;
-  margin-bottom: 16px;
-  letter-spacing: -1.5px;
-  background: linear-gradient(-45deg, var(--color-accent-orange), var(--color-accent-mint), var(--color-bg-section), var(--color-bg-main));
-  background-size: 300% 300%;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  animation: liquidGradient 5s ease infinite;
-  filter: drop-shadow(0px 10px 15px rgba(0, 0, 0, 0.6));
-}
-
-@keyframes liquidGradient {
-  0% {
-    background-position: 0% 50%;
-  }
-
-  50% {
-    background-position: 100% 50%;
-  }
-
-  100% {
-    background-position: 0% 50%;
-  }
-}
-
-.btn-dozo-about {
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  background-color: var(--color-text-main);
-  color: var(--color-bg-main);
-  font-size: 13px;
-  font-weight: 700;
-  padding: 12px 60px;
-  border-radius: 40px;
-  border: none;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.btn-dozo-about:hover {
-  background-color: var(--color-gray-medium-dark);
-}
-
-.btn-dozo-about:active {
-  transform: scale(0.95);
-}
-
-.hero-dots {
-  position: absolute;
-  bottom: 30px;
-  z-index: 10;
-  display: flex;
-  gap: 12px;
-  left: 50%;
-  transform: translateX(-50%);
-}
-
-.hero-dot {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background-color: rgba(255, 255, 255, 0.5);
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.hero-dot.active {
-  background-color: var(--color-accent-mint);
-  width: 32px;
-  border-radius: 8px;
-  position: relative;
-  overflow: hidden;
-}
-
-/* Thanh tiến trình chạy trong 4s (tương ứng với thời gian auto play) */
-.hero-dot.active::after {
-  content: '';
-  position: absolute;
-  top: 0; left: 0;
-  height: 100%; width: 0%;
-  background-color: var(--color-bg-main);
-  animation: dotProgress 4s linear forwards;
-}
-
-@keyframes dotProgress {
-  0% { width: 0%; }
-  100% { width: 100%; }
 }
 
 /* =====================================================================
@@ -589,8 +426,7 @@ a {
 
 .hero-running-item {
   display: inline-block;
-  color: var(--color-bg-main); 
-  font-family: 'Titan One', cursive; 
+  color: var(--color-bg-main);  
   font-size: 140px; 
   font-weight: 900;
   white-space: nowrap;
@@ -680,32 +516,29 @@ a {
 }
 
 /* --- BỐ CỤC LƯỚI SO LE (2-3) CHO TRANG ALL PRODUCTS --- */
+/* --- Ý TƯỞNG MỚI: BỐ CỤC LƯỚI MASONRY (PINTEREST-STYLE) --- */
 .all-products-grid {
-  display: grid;
-  /* Tạo một lưới 12 cột để dễ dàng chia cho cả 2 và 3 */
-  grid-template-columns: repeat(12, 1fr); 
-  /* Đặt khoảng cách cột (ngang) */
-  column-gap: 32px;
-  /* Đặt khoảng cách hàng (dọc) */
-  row-gap: 350px; /* Tăng khoảng cách giữa các hàng lên đáng kể */
+  /* Sử dụng CSS Columns để tạo hiệu ứng Masonry đơn giản */
+  column-count: 3; /* Số cột mong muốn, có thể thay đổi (vd: 4) */
+  column-gap: 24px; /* Khoảng cách giữa các cột */
   margin-bottom: 40px;
+  margin-top: 140px; /* Tăng khoảng cách từ lề trên để không bị Header che mất */
 }
 
-/* Cứ 5 sản phẩm thì lặp lại mẫu: 2 sản phẩm đầu tiên chiếm 3 cột (tạo thành hàng 2 cột) */
-/* Hàng đầu tiên: 2 sản phẩm, mỗi sản phẩm chiếm 6/12 cột để lấp đầy màn hình */
-.all-products-grid > .news-card:nth-child(5n + 1) {
-  grid-column: span 6;
+.all-products-grid .news-card {
+  /* Quan trọng: Ngăn không cho một card bị ngắt làm đôi qua 2 cột */
+  break-inside: avoid;
+  /* Khoảng cách giữa các card theo chiều dọc */
+  margin-bottom: 24px;
 }
 
-.all-products-grid > .news-card:nth-child(5n + 2) {
-  grid-column: span 6;
+/* --- HIỆU ỨNG MỜ DẦN KHI HOVER (FOCUS EFFECT) --- */
+.all-products-grid:hover .news-card {
+  opacity: 0.4; /* Khi hover vào lưới, làm mờ tất cả card con */
 }
 
-/* 3 sản phẩm tiếp theo chiếm 2 cột (tạo thành hàng 3 cột) */
-.all-products-grid > .news-card:nth-child(5n + 3),
-.all-products-grid > .news-card:nth-child(5n + 4),
-.all-products-grid > .news-card:nth-child(5n + 5) {
-  grid-column: span 4; /* Giữ nguyên: Mỗi item chiếm 4/12 cột -> Hàng 3 cột */
+.all-products-grid .news-card:hover {
+  opacity: 1; /* Card đang được hover sẽ hiện rõ lại */
 }
 
 .news-card {
@@ -713,7 +546,7 @@ a {
   flex-direction: column; /* Chuyển sang bố cục cột (ảnh trên, chữ dưới) */
   gap: 12px; /* Khoảng cách giữa ảnh và chữ */
   cursor: pointer;
-  transition: transform 0.3s ease;
+  transition: transform 0.3s ease, opacity 0.4s ease; /* Thêm opacity vào transition để hiệu ứng mượt mà */
 }
 
 .news-card:hover {
@@ -776,10 +609,6 @@ a {
 .news-image.natural-size {
   aspect-ratio: auto;
   background-color: transparent; /* Bỏ nền xám để video không có viền lạ */
-}
-
-.news-card:hover .news-image img {
-  transform: scale(1.05);
 }
 
 .news-text {
@@ -1238,12 +1067,9 @@ a {
 
 @media (max-width: 992px) {
   /* Căn lại lề của Header trên iPad/Tablet để tránh chèn các cột Menu */
-  .main-header.home-page-header {
-    padding: 24px 30px 16px 30px;
-  }
-
+  .main-header.home-page-header,
   .main-header.sub-page-header {
-    padding: 20px 30px;
+    padding: 24px 30px 16px 30px;
   }
 
   .main-header.fixed-active {
@@ -1254,27 +1080,14 @@ a {
     padding: 0;
   }
 
-  .hero-nav-btn.prev {
-    left: 20px;
-  }
-
-  .hero-nav-btn.next {
-    right: 20px;
-  }
-
   .news-grid,
   .product-grid,
-  .all-products-grid,
   .comic-grid {
     grid-template-columns: repeat(2, 1fr);
   }
 
-  .hero-title {
-    font-size: 3rem;
-  }
-
-  .hero-running-item {
-    font-size: 100px; /* Thu nhỏ chữ trên Tablet */
+  .all-products-grid {
+    column-count: 2; /* Trên tablet hiển thị 2 cột */
   }
 }
 
@@ -1288,13 +1101,13 @@ a {
     position: relative; /* Tạo gốc tọa độ cho nút hamburger */
   }
 
-  .main-header.sub-page-header,
   .main-header.fixed-active {
     padding: 15px 30px;
   }
 
-  /* Khi ở trang chủ, header sẽ trong suốt và nằm đè lên banner */
-  .main-header.home-page-header { /* Tăng độ ưu tiên */
+  /* Khi ở trang chủ và trang phụ, header sẽ trong suốt và nằm đè lên banner */
+  .main-header.home-page-header,
+  .main-header.sub-page-header { /* Tăng độ ưu tiên */
     position: absolute;
     background-color: transparent;
     padding: 15px 30px;
@@ -1394,15 +1207,14 @@ a {
     padding: 0;
   }
 
-  .hero-nav-btn {
-    display: none;
-  }
-
   .news-grid,
   .product-grid,
-  .all-products-grid,
   .comic-grid {
     grid-template-columns: repeat(1, 1fr);
+  }
+
+  .all-products-grid {
+    column-count: 1; /* Trên điện thoại hiển thị 1 cột */
   }
 
   .section-title {
@@ -1434,14 +1246,6 @@ a {
   .partner-logo-item {
     height: 60px;
   }
-
-  .hero-running-item {
-    font-size: 72px; /* Thu nhỏ chữ trên Mobile */
-  }
-
-  .hero-running-overlay {
-    bottom: 20px; /* Trên điện thoại chỉ cách lề 20px cho gọn */
-  }
 }
 
 /* THÊM BREAKPOINT CHO MÀN HÌNH SIÊU NHỎ (DƯỚI 576px) */
@@ -1462,9 +1266,6 @@ a {
   }
   .section-title {
     font-size: 32px;
-  }
-  .hero-running-item {
-    font-size: 50px; /* Thu nhỏ hơn nữa trên màn hình siêu nhỏ */
   }
   /* Chuyển card sang xếp dọc và có nền để dễ đọc */
   .news-card {
@@ -1709,6 +1510,110 @@ a {
 }
 
 /* =====================================================================
+   QUICK VIEW MODAL SECTION
+   ===================================================================== */
+.quick-view-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.quick-view-modal {
+  position: relative;
+  background-color: var(--color-bg-main);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  max-width: 900px;
+  width: 100%;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  display: flex;
+  overflow: hidden;
+}
+
+.quick-view-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: transparent;
+  border: none;
+  color: var(--color-text-main);
+  cursor: pointer;
+  z-index: 1;
+  transition: transform 0.2s ease;
+}
+
+.quick-view-close:hover {
+  transform: scale(1.1);
+}
+
+.quick-view-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  width: 100%;
+}
+
+.quick-view-media {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  background-color: var(--color-bg-light);
+}
+
+.quick-view-media img,
+.quick-view-media video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.quick-view-info {
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 16px;
+}
+
+.quick-view-date {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+}
+
+.quick-view-title {
+  font-size: 32px;
+  color: var(--color-text-main);
+  line-height: 1.3;
+}
+
+@media (max-width: 768px) {
+  .quick-view-modal {
+    flex-direction: column;
+    max-height: 80vh;
+  }
+  .quick-view-content {
+    grid-template-columns: 1fr;
+  }
+  .quick-view-info {
+    padding: 24px;
+  }
+  .quick-view-title {
+    font-size: 24px;
+  }
+}
+
+/* =====================================================================
    HIỆU ỨNG CHẠY TỪ TRÊN XUỐNG DƯỚI (SLIDE DOWN)
    ===================================================================== */
 @keyframes slideDownEffect {
@@ -1845,135 +1750,5 @@ a {
 @media (hover: none) and (pointer: coarse) {
   .custom-cursor {
     display: none !important;
-  }
-}
-
-/* =====================================================================
-   QUICK VIEW MODAL
-   ===================================================================== */
-.quick-view-backdrop {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(17, 17, 17, 0.7); /* Nền đen mờ */
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  z-index: 10000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 40px;
-}
-
-.quick-view-modal {
-  position: relative;
-  background-color: var(--color-bg-main);
-  border: 1px solid var(--color-border);
-  border-radius: 8px;
-  width: 100%;
-  max-width: 960px;
-  max-height: 90vh;
-  overflow: hidden;
-  display: flex;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-}
-
-.quick-view-close {
-  position: absolute;
-  top: 16px;
-  right: 16px;
-  background: rgba(0,0,0,0.3);
-  border: none;
-  color: var(--color-text-main);
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  z-index: 10;
-  transition: all 0.2s ease;
-}
-
-.quick-view-close:hover {
-  background: var(--color-bg-main);
-  transform: rotate(90deg) scale(1.1);
-}
-
-.quick-view-content {
-  display: grid;
-  grid-template-columns: 3fr 2fr; /* Chia layout 60-40 */
-  width: 100%;
-  height: 100%;
-}
-
-.quick-view-media {
-  width: 100%;
-  height: 100%;
-  max-height: 90vh;
-  background-color: var(--color-bg-light);
-}
-
-.quick-view-media img,
-.quick-view-media video {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.quick-view-info {
-  padding: 48px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 16px;
-  overflow-y: auto;
-}
-
-.quick-view-title {
-  font-family: 'Titan One', cursive;
-  font-size: 36px;
-  line-height: 1.2;
-  color: var(--color-text-main);
-}
-
-.quick-view-date {
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  color: var(--color-text-muted);
-  text-transform: uppercase;
-}
-
-/* Responsive cho Quick View */
-@media (max-width: 992px) {
-  .quick-view-content {
-    grid-template-columns: 1fr;
-  }
-  .quick-view-modal {
-    max-height: 85vh;
-    flex-direction: column;
-  }
-  .quick-view-media {
-    height: 50vw;
-    max-height: 400px;
-  }
-  .quick-view-info {
-    padding: 32px;
-  }
-}
-
-@media (max-width: 576px) {
-  .quick-view-backdrop {
-    padding: 16px;
-  }
-  .quick-view-info {
-    padding: 24px;
-  }
-  .quick-view-title {
-    font-size: 28px;
   }
 }
