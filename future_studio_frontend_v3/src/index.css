@@ -1,22 +1,18 @@
 /* =====================================================================
    GLOBAL RESET & FONTS
    ===================================================================== */
-@import url('https://fonts.googleapis.com/css2?family=Titan+One&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=Montserrat:wght@400;500;600;800&family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Titan+One&display=swap');
 
 :root {
   --color-text-main: #ffffff;
   --color-bg-main: #111111;
   --color-border: #333333;
   --color-text-muted: #a0a0a0;
-  --color-accent-blue: #a5d8f3;
   --color-accent-mint: #5ccba3;
   --color-accent-orange: #ffb74d;
   --color-accent-yellow: #ffde59;
-  --color-bg-mint-blue: #8ec4e9;
-  --color-black: #ffffff; /* Đổi thành trắng để tương phản */
-  --color-text-title: #ffffff;
+  --color-bg-section: #8ec4e9;
+  --color-white: #ffffff;
   --color-gray-dark: #e0e0e0; /* Hover sáng */
   --color-gray-medium-dark: #cccccc;
   --color-gray: #bbbbbb;
@@ -134,7 +130,6 @@ a {
 /* 2. KHI SANG TRANG PHỤ: Xuất hiện dấu gạch dưới ngăn cách */
 .main-header.sub-page-header {
   position: relative;
-  border-bottom: 1px solid var(--color-border);
   /* Dấu gạch xuất hiện ngăn cách nội dung phụ */
   padding: 20px 72px;
 }
@@ -152,24 +147,21 @@ a {
   animation: slideDownHeader 0.4s cubic-bezier(0.165, 0.84, 0.44, 1) forwards;
 }
 
-/* --- TỰ ĐỘNG TƯƠNG PHẢN MÀU CHỮ VỚI NỀN BẰNG MIX-BLEND-MODE --- */
-/* Bỏ mix-blend-mode vì nền đã là đen, không cần hiệu ứng đảo màu nữa */
-/* .main-header.home-page-header:not(.fixed-active) {
-  color: var(--color-text-main);
-} */
+/* --- HIỆU ỨNG TƯƠNG PHẢN MÀU TỰ ĐỘNG CHO HEADER TRONG SUỐT --- */
+/* Áp dụng hiệu ứng đảo màu cho tất cả các thành phần chữ và icon khi header chưa được cuộn */
+.main-header.home-page-header:not(.fixed-active) {
+  color: var(--color-text-main); /* Màu chữ mặc định là trắng */
+  mix-blend-mode: difference; /* "Lõi" của hiệu ứng tương phản */
+}
 
 .main-header.home-page-header:not(.fixed-active) .search-bar {
-  border-color: var(--color-bg-main);
-  color: var(--color-bg-main);
+  /* Bỏ các quy tắc cũ để search-bar tuân theo hiệu ứng chung */
+  border-color: currentColor; /* Viền sẽ tự đổi màu theo chữ */
 }
 
 .main-header.home-page-header:not(.fixed-active) .search-bar::placeholder {
-  color: var(--color-bg-main);
-} 
-
-.main-header.home-page-header:not(.fixed-active) .cart-status svg {
-  -webkit-text-stroke: 2px var(--color-text-main);
-  text-stroke: 2px var(--color-text-main);
+  color: currentColor; /* Placeholder cũng tự đổi màu */
+  opacity: 0.7; /* Giảm độ đậm của placeholder một chút */
 }
 
 /* --- ĐỒNG BỘ LẠI KHUNG BANNER --- */
@@ -247,12 +239,14 @@ a {
 
 .header-nav-link:hover,
 .header-nav-link.active {
-  text-shadow: 0 0 8px currentColor, 0 0 16px currentColor; /* Hiệu ứng phản quang cho chữ */
+  /* Bỏ text-shadow vì nó không hoạt động tốt với mix-blend-mode */
+  /* text-shadow: 0 0 8px currentColor, 0 0 16px currentColor; */
 }
 
 .header-nav-link.active {
   border-bottom-color: currentColor;
-  box-shadow: 0 4px 10px -4px currentColor; /* Phản quang nhẹ ở đường gạch chân */
+  /* Bỏ box-shadow vì nó không hoạt động tốt với mix-blend-mode */
+  /* box-shadow: 0 4px 10px -4px currentColor; */
 }
 
 /* --- WRAPPER VÀ DROPDOWN MENU CHO HEADER --- */
@@ -370,43 +364,6 @@ a {
   transition: left 0.6s ease-in-out;
 }
 
-.cart-status svg {
-  -webkit-text-stroke: 2px var(--color-text-main);
-  /* SỬA: Làm nét giỏ hàng dày lên để dễ nhìn hiệu ứng phản màu */
-  text-stroke: 2px var(--color-text-main);
-}
-
-/* --- HIỆU ỨNG NHÂN VẬT CHẠY Ở HEADER --- */
-.running-character-container {
-  position: absolute;
-  bottom: -2px; /* Canh lề cho nhân vật chạy ngay trên đường viền mép dưới */
-  left: 0;
-  width: 100%;
-  height: 60px;
-  pointer-events: none; /* Khách hàng bấm xuyên qua nhân vật được, không lo vướng nút */
-  overflow: hidden;
-  z-index: 0; /* SỬA LẠI: Kéo nhân vật xuống phía sau cùng */
-}
-
-.running-character {
-  position: absolute;
-  bottom: 2px;
-  width: 55px;
-  height: 55px;
-  background-image: url('/images/chaymoi.gif');
-  background-size: contain;
-  background-repeat: no-repeat;
-  background-position: bottom center;
-  animation: runAcrossHeader 20s linear infinite;
-}
-
-@keyframes runAcrossHeader {
-  0% { left: -60px; transform: scaleX(1); }
-  49.9% { left: 100%; transform: scaleX(1); }
-  50% { left: 100%; transform: scaleX(-1); } /* Đổi chiều / Quay đầu lại */
-  100% { left: -60px; transform: scaleX(-1); }
-}
-
 /* =====================================================================
    HERO AREA (KHUNG BANNER CHÍNH THỨC)
    ===================================================================== */
@@ -522,7 +479,7 @@ a {
   text-align: center;
   margin-bottom: 16px;
   letter-spacing: -1.5px;
-  background: linear-gradient(-45deg, var(--color-accent-orange), var(--color-accent-mint), var(--color-accent-blue), var(--color-bg-main));
+  background: linear-gradient(-45deg, var(--color-accent-orange), var(--color-accent-mint), var(--color-bg-section), var(--color-bg-main));
   background-size: 300% 300%;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -643,7 +600,7 @@ a {
 }
 
 .hero-running-item img {
-  height: 1em; /* Tự động co giãn theo cấu hình chữ Responsive của điện thoại/PC */
+  height: 1.5em; /* Tự động co giãn theo cấu hình chữ Responsive của điện thoại/PC */
   width: auto;
   vertical-align: middle;
   filter: invert(1); /* Tự động đảo ngược ảnh màu đen thành màu trắng để nổi bật trên nền slide */
@@ -690,7 +647,7 @@ a {
 }
 
 .customers-section {
-  background-color: var(--color-bg-mint-blue);
+  background-color: var(--color-bg-section);
   /* Đổi từ xanh lơ sang màu xanh mint chuẩn gu báo chí */
   padding-bottom: 40px;
   padding-top: 1px;
@@ -703,7 +660,7 @@ a {
   font-size: 64px;
   letter-spacing: 2px;
   margin-bottom: 8px;
-  color: var(--color-text-title);
+  color: var(--color-text-main);
 }
 
 .section-desc {
@@ -722,18 +679,39 @@ a {
   margin-bottom: 40px;
 }
 
-/* Lưới 4 cột dành riêng cho trang All Products */
+/* --- BỐ CỤC LƯỚI SO LE (2-3) CHO TRANG ALL PRODUCTS --- */
 .all-products-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 32px;
+  /* Tạo một lưới 12 cột để dễ dàng chia cho cả 2 và 3 */
+  grid-template-columns: repeat(12, 1fr); 
+  /* Đặt khoảng cách cột (ngang) */
+  column-gap: 32px;
+  /* Đặt khoảng cách hàng (dọc) */
+  row-gap: 350px; /* Tăng khoảng cách giữa các hàng lên đáng kể */
   margin-bottom: 40px;
 }
 
+/* Cứ 5 sản phẩm thì lặp lại mẫu: 2 sản phẩm đầu tiên chiếm 3 cột (tạo thành hàng 2 cột) */
+/* Hàng đầu tiên: 2 sản phẩm, mỗi sản phẩm chiếm 6/12 cột để lấp đầy màn hình */
+.all-products-grid > .news-card:nth-child(5n + 1) {
+  grid-column: span 6;
+}
+
+.all-products-grid > .news-card:nth-child(5n + 2) {
+  grid-column: span 6;
+}
+
+/* 3 sản phẩm tiếp theo chiếm 2 cột (tạo thành hàng 3 cột) */
+.all-products-grid > .news-card:nth-child(5n + 3),
+.all-products-grid > .news-card:nth-child(5n + 4),
+.all-products-grid > .news-card:nth-child(5n + 5) {
+  grid-column: span 4; /* Giữ nguyên: Mỗi item chiếm 4/12 cột -> Hàng 3 cột */
+}
+
 .news-card {
-  display: flex;
-  gap: 16px;
-  align-items: stretch;
+  display: flex; /* Giữ flex để căn chỉnh */
+  flex-direction: column; /* Chuyển sang bố cục cột (ảnh trên, chữ dưới) */
+  gap: 12px; /* Khoảng cách giữa ảnh và chữ */
   cursor: pointer;
   transition: transform 0.3s ease;
 }
@@ -777,11 +755,10 @@ a {
   aspect-ratio: 1 / 1;
   background-color: var(--color-bg-light);
   overflow: hidden;
-  border-radius: 4px;
-  /* Thêm bo góc nhẹ cho ảnh hiện đại */
 }
 
-.news-image img {
+.news-image img,
+.news-image video {
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -789,11 +766,24 @@ a {
   transition: transform 0.3s ease;
 }
 
+/* ĐỒNG BỘ KÍCH THƯỚC ẢNH/VIDEO TRONG LƯỚI SO LE */
+.all-products-grid .news-image {
+  aspect-ratio: auto; /* Bỏ tỷ lệ vuông mặc định */
+  /* Xóa height: 350px để media hiển thị theo kích thước thật */
+}
+
+/* Lớp tùy chỉnh để bỏ ép tỷ lệ 1:1, cho phép video/ảnh hiển thị kích thước thật */
+.news-image.natural-size {
+  aspect-ratio: auto;
+  background-color: transparent; /* Bỏ nền xám để video không có viền lạ */
+}
+
 .news-card:hover .news-image img {
   transform: scale(1.05);
 }
 
 .news-text {
+  padding: 0 20px;
   font-size: 14px;
   font-weight: 700;
   line-height: 1.6;
@@ -848,7 +838,7 @@ a {
 
 /* 2. Pick Up */
 .pickup-section {
-  background-color: var(--color-accent-blue);
+  background-color: var(--color-bg-section);
   padding-bottom: 80px;
   padding-top: 1px;
 }
@@ -962,7 +952,7 @@ a {
 
 /* 3. How To Use */
 .how-to-use-section {
-  background-color: var(--color-accent-blue);
+  background-color: var(--color-bg-section);
   padding-bottom: 100px;
   padding-top: 1px;
 }
@@ -1073,8 +1063,8 @@ a {
    FOOTER SECTION
    ===================================================================== */
 .main-footer {
-  background-color: var(--color-black);
-  color: var(--color-bg-main);
+  background-color: var(--color-white);
+  color: var(--color-bg-main); /* Chữ đen trên nền trắng */
   padding-top: 80px;
   display: flex;
   flex-direction: column;
@@ -1135,8 +1125,8 @@ a {
 .social-icon.icon-line {
   font-size: 12px;
   font-weight: 900;
-  background-color: var(--color-bg-main);
-  color: var(--color-black);
+  background-color: var(--color-bg-main); /* Nền đen */
+  color: var(--color-white); /* Chữ trắng */
   padding: 4px 10px;
   border-radius: 20px;
   letter-spacing: 0.5px;
@@ -1184,8 +1174,8 @@ a {
 }
 
 .payment-icon {
-  background-color: #333;
-  color: var(--color-black);
+  background-color: #f0f0f0; /* Nền xám nhạt cho các nút thanh toán */
+  color: #333; /* Chữ đen/xám đậm */
   font-size: 10px;
   font-weight: 800;
   padding: 5px 10px;
@@ -1203,18 +1193,18 @@ a {
 }
 
 .payment-icon.apple {
-  background-color: var(--color-bg-main);
-  color: var(--color-black);
+  background-color: #000000;
+  color: #ffffff;
 }
 
 .payment-icon.gpay {
-  background-color: var(--color-bg-main);
-  color: #5f6368;
+  background-color: #ffffff;
+  color: #000000;
 }
 
 .payment-icon.jcb {
-  background-color: var(--color-bg-main);
-  color: #003a8f;
+  background-color: #ffffff; /* Nền trắng */
+  color: #003a8f; /* Chữ màu xanh của JCB */
 }
 
 .payment-icon.master {
@@ -1228,12 +1218,12 @@ a {
 }
 
 .payment-icon.visa {
-  background-color: var(--color-bg-main);
-  color: #1a1f71;
+  background-color: #ffffff; /* Nền trắng */
+  color: #1a1f71; /* Chữ màu xanh của VISA */
 }
 
 .footer-bottom {
-  width: 100%;
+  width: 100%; /* Đảm bảo footer-bottom chiếm toàn bộ chiều rộng */
   border-top: 1px solid var(--color-gray-dark);
   padding: 24px 0;
   text-align: center;
@@ -1290,11 +1280,11 @@ a {
 
 @media (max-width: 768px) {
   .main-header,
-  .main-header:has(.header-center-menu) {
-    display: flex; /* Bỏ !important bằng cách tăng độ ưu tiên bằng :has */
-    justify-content: space-between; /* Đẩy logo sang trái, nút hamburger sang phải */
+  .main-header:has(.header-center-menu) { /* Tăng độ ưu tiên cho header có menu */
+    display: flex;
+    justify-content: space-between;
     align-items: center;
-    width: 100%;
+    width: 100%; /* Đảm bảo header chiếm toàn bộ chiều rộng */
     position: relative; /* Tạo gốc tọa độ cho nút hamburger */
   }
 
@@ -1304,7 +1294,7 @@ a {
   }
 
   /* Khi ở trang chủ, header sẽ trong suốt và nằm đè lên banner */
-  .main-header.home-page-header {
+  .main-header.home-page-header { /* Tăng độ ưu tiên */
     position: absolute;
     background-color: transparent;
     padding: 15px 30px;
@@ -1324,11 +1314,11 @@ a {
   .mobile-menu-toggle {
     display: flex;
     background: transparent;
-    border: none;
+    border: none; /* Bỏ viền mặc định của button */
     cursor: pointer;
     color: var(--color-text-main);
     z-index: 1001; /* Nằm trên cả menu */
-    padding: 4px;
+    padding: 4px; /* Tạo vùng bấm lớn hơn */
     position: absolute; /* Tách khỏi luồng và đặt vào góc phải */
     right: 24px; /* Giảm khoảng cách lề phải cho gọn hơn */
     top: 50%;
@@ -1337,7 +1327,7 @@ a {
 
   /* Lớp bọc Menu trên di động */
   nav.header-center-menu {
-    display: flex; /* Dùng thẻ nav để tăng độ ưu tiên css */
+    display: flex;
     flex-direction: column;
     position: fixed; /* Chuyển sang fixed để phủ toàn màn hình */
     top: 0;
@@ -1366,7 +1356,7 @@ a {
   /* Các phần tử bên trong menu di động */
   .nav-item-wrapper {
     flex-direction: column;
-    align-items: flex-start;
+    align-items: flex-start; /* Căn các mục menu sang trái */
     width: 100%;
     margin-bottom: 0;
     padding: 16px 0;
@@ -1384,7 +1374,7 @@ a {
   .dropdown-item {
     font-size: 14px;
     padding: 10px 0;
-    border-radius: 0;
+    border-radius: 0; /* Bỏ bo góc trong menu mobile */
     text-align: left; /* Giữ lề trái trên Mobile để đồng bộ với menu cha (bạn có thể đổi thành center nếu muốn) */
   }
 
@@ -1395,7 +1385,7 @@ a {
     padding-left: 0; /* Xóa thụt lề để mục con thẳng hàng hoàn toàn với mục cha */
     opacity: 1; /* Luôn hiện các mục con trên mobile */
     visibility: visible;
-    pointer-events: auto;
+    pointer-events: auto; /* Cho phép bấm vào các mục con */
     display: flex;
     margin-top: 12px;
   }
@@ -1415,19 +1405,6 @@ a {
     grid-template-columns: repeat(1, 1fr);
   }
 
-  .footer-primary-nav {
-    flex-direction: column;
-    align-items: center;
-    gap: 16px;
-  }
-
-  .btn-black {
-    padding: 12px 24px;
-    font-size: 14px;
-    border-radius: 30px;
-    bottom: -15px;
-  }
-
   .section-title {
     font-size: 38px; /* Thu nhỏ tiêu đề cho vừa vặn hơn */
     line-height: 1.1;
@@ -1441,6 +1418,13 @@ a {
 
   .section-desc {
     font-size: 14px;
+  }
+  
+  /* Gom nhóm footer responsive */
+  .footer-primary-nav {
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
   }
 
   .partners-grid {
@@ -1480,7 +1464,7 @@ a {
     font-size: 32px;
   }
   .hero-running-item {
-    font-size: 50px;
+    font-size: 50px; /* Thu nhỏ hơn nữa trên màn hình siêu nhỏ */
   }
   /* Chuyển card sang xếp dọc và có nền để dễ đọc */
   .news-card {
@@ -1501,7 +1485,7 @@ a {
     position: static;
     writing-mode: horizontal-tb;
     transform: none;
-    color: var(--color-text-muted);
+    color: #888; /* Đổi màu ngày tháng cho dễ đọc trên nền sáng */
   }
 }
 
@@ -1512,7 +1496,7 @@ a {
   position: fixed;
   top: 0;
   left: 0;
-  width: 100vw;
+  width: 100%;
   height: 100vh;
   background-color: rgba(255, 255, 255, 0.85); /* Nền trắng hơi trong suốt */
   backdrop-filter: blur(12px); /* Hiệu ứng làm mờ nền phía sau */
@@ -1539,7 +1523,7 @@ a {
   line-height: 1;
   background: none;
   border: none;
-  color: var(--color-text-main);
+  color: var(--color-bg-main);
   cursor: pointer;
   transition: transform 0.2s ease;
 }
@@ -1558,7 +1542,7 @@ a {
   width: 100%;
   font-size: 32px;
   font-family: 'Inter', sans-serif;
-  font-weight: 800;
+  font-weight: 800; /* Chữ đậm cho ô tìm kiếm */
   color: var(--color-text-main);
   background: transparent;
   border: none;
@@ -1602,7 +1586,7 @@ a {
   align-items: center;
   gap: 20px;
   padding: 16px;
-  border-radius: 12px;
+  border-radius: 12px; /* Bo góc cho các kết quả tìm kiếm */
   background-color: var(--color-bg-main);
   box-shadow: 0 4px 15px rgba(0,0,0,0.05);
   transition: all 0.2s ease;
@@ -1689,7 +1673,7 @@ a {
   border: 1px solid var(--color-border);
   color: var(--color-gray-dark);
   padding: 8px 16px;
-  border-radius: 20px;
+  border-radius: 20px; /* Bo tròn cho các tag gợi ý */
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
@@ -1759,7 +1743,7 @@ a {
 
 .floating-animate {
   /* Lặp lại vô hạn (infinite), thời gian 4s, trôi lên xuống mượt mà (ease-in-out) */
-  animation: floatEffect 4s ease-in-out infinite; 
+  animation: floatEffect 4s ease-in-out infinite;
   will-change: transform; /* Tối ưu hóa hiệu năng render cho trình duyệt */
 }
 
@@ -1826,7 +1810,7 @@ a {
   /* Ép các khu vực như nút, ảnh ẩn luôn biểu tượng bàn tay mặc định */
   a, button, .hero-slide, .hero-frame, .news-card, .product-card, input, .search-bar, .cart-status, .menu-burger {
     cursor: none !important;
-  }
+  } 
 
   .custom-cursor {
     position: fixed;
@@ -1861,5 +1845,135 @@ a {
 @media (hover: none) and (pointer: coarse) {
   .custom-cursor {
     display: none !important;
+  }
+}
+
+/* =====================================================================
+   QUICK VIEW MODAL
+   ===================================================================== */
+.quick-view-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(17, 17, 17, 0.7); /* Nền đen mờ */
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+}
+
+.quick-view-modal {
+  position: relative;
+  background-color: var(--color-bg-main);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  width: 100%;
+  max-width: 960px;
+  max-height: 90vh;
+  overflow: hidden;
+  display: flex;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+}
+
+.quick-view-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: rgba(0,0,0,0.3);
+  border: none;
+  color: var(--color-text-main);
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 10;
+  transition: all 0.2s ease;
+}
+
+.quick-view-close:hover {
+  background: var(--color-bg-main);
+  transform: rotate(90deg) scale(1.1);
+}
+
+.quick-view-content {
+  display: grid;
+  grid-template-columns: 3fr 2fr; /* Chia layout 60-40 */
+  width: 100%;
+  height: 100%;
+}
+
+.quick-view-media {
+  width: 100%;
+  height: 100%;
+  max-height: 90vh;
+  background-color: var(--color-bg-light);
+}
+
+.quick-view-media img,
+.quick-view-media video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.quick-view-info {
+  padding: 48px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 16px;
+  overflow-y: auto;
+}
+
+.quick-view-title {
+  font-family: 'Titan One', cursive;
+  font-size: 36px;
+  line-height: 1.2;
+  color: var(--color-text-main);
+}
+
+.quick-view-date {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+}
+
+/* Responsive cho Quick View */
+@media (max-width: 992px) {
+  .quick-view-content {
+    grid-template-columns: 1fr;
+  }
+  .quick-view-modal {
+    max-height: 85vh;
+    flex-direction: column;
+  }
+  .quick-view-media {
+    height: 50vw;
+    max-height: 400px;
+  }
+  .quick-view-info {
+    padding: 32px;
+  }
+}
+
+@media (max-width: 576px) {
+  .quick-view-backdrop {
+    padding: 16px;
+  }
+  .quick-view-info {
+    padding: 24px;
+  }
+  .quick-view-title {
+    font-size: 28px;
   }
 }

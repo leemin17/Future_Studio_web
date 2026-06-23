@@ -229,6 +229,8 @@ const HeroSlider: React.FC = () => {
             <div className="hero-running-track">
               <div className="hero-running-item"><img src="/images/black_text_logo.png" alt="Future Studio Logo" /></div>
               <div className="hero-running-item"><img src="/images/black_text_logo.png" alt="Future Studio Logo" /></div>
+              <div className="hero-running-item"><img src="/images/black_text_logo.png" alt="Future Studio Logo" /></div>
+              <div className="hero-running-item"><img src="/images/black_text_logo.png" alt="Future Studio Logo" /></div>
             </div>
           </div>
         </div>

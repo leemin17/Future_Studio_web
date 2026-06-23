@@ -49,28 +49,28 @@ export interface MvItem {
 export const heroImages = [
   'images/bitisbutterfly.webp',
   'images/helio.webp',
-  'images/video.gif',
+  'images/bitishunter.webp',
 ];
 
 // Data cho Tin tức (What's new / All Products!)
 export const newsData: NewsItem[] = [
-  { id: 1, date: '2026.04.26', title: 'Future Studio thông báo chính thức nghỉ lễ từ 26/4 đến 3/5', imageUrl: 'images/nghile.jpg' },
-  { id: 2, date: '2024.03.26', title: 'Quà cưới cũng là quà tặng cho "chú rể" tốt nhất', imageUrl: 'images/logo.jpg' },
-  { id: 3, date: '2026.04.05', title: 'future team tuyển dụng thành viên cho team', imageUrl: 'images/video.gif' },
-  { id: 4, date: '2024.03.18', title: 'Nhìn! Future Studio GOD 👑 Giới thiệu hàng hóa dành riêng...', imageUrl: 'images/video.gif' },
-  { id: 5, date: '2024.03.10', title: 'Sản phẩm model 3D mới', imageUrl: 'images/jobiterview.jpg', modelUrl: 'models/Lipstick.glb' },
-  { id: 6, date: '2024.02.28', title: 'Khai giảng khóa học 3D Animation cơ bản.', imageUrl: 'images/jobiterview.jpg' },
-  { id: 7, date: '2024.02.15', title: 'Tham quan Studio: Hậu trường phía sau những thước phim.', imageUrl: 'images/jobiterview.jpg' },
-  { id: 8, date: '2024.01.20', title: 'Future Studio lọt top studio sáng tạo của năm!', imageUrl: 'images/jobiterview.jpg' }
+  { id: 1, date: '2026.04.26', title: 'Future Studio thông báo chính thức nghỉ lễ từ 26/4 đến 3/5', imageUrl: 'images/bitisbutterfly.webp' },
+  { id: 2, date: '2024.03.26', title: 'Quà cưới cũng là quà tặng cho "chú rể" tốt nhất', imageUrl: 'images/bitisbutterfly.webp' },
+  { id: 3, date: '2026.04.05', title: 'future team tuyển dụng thành viên cho team', imageUrl: 'images/bitishunter.webp' },
+  { id: 4, date: '2024.03.18', title: 'Nhìn! Future Studio GOD 👑 Giới thiệu hàng hóa dành riêng...', imageUrl: 'images/helio.webp' },
+  { id: 5, date: '2024.03.10', title: 'Sản phẩm model 3D mới', imageUrl: 'images/bitisbutterfly.webp', modelUrl: 'models/Lipstick.glb' },
+  { id: 6, date: '2024.02.28', title: 'Khai giảng khóa học 3D Animation cơ bản.', imageUrl: 'images/bitisbutterfly.webp' },
+  { id: 7, date: '2024.02.15', title: 'Tham quan Studio: Hậu trường phía sau những thước phim.', imageUrl: 'images/bitisbutterfly.webp' },
+  { id: 8, date: '2024.01.20', title: 'Future Studio lọt top studio sáng tạo của năm!', imageUrl: 'images/bitisbutterfly.webp' }
 ];
 
 // Data cho Khách hàng (Our Customers!)
 export const customerData: NewsItem[] = [
-  { id: 101, date: 'THANK YOU', title: 'Dự án quà tặng kỷ niệm ngày thành lập tập đoàn đối tác', imageUrl: 'images/logo.jpg' },
-  { id: 102, date: 'CREATIVE', title: 'Bộ quà tặng sáng tạo độc quyền thiết kế riêng cho khách hàng VIP', imageUrl: 'images/black_text_logo.png' },
-  { id: 103, date: 'STUDIO', title: 'Đơn hàng 500 set quà bàn giao thành công cho studio nghệ thuật', imageUrl: 'images/jobiterview.jpg' },
-  { id: 104, date: 'TRUSTED', title: 'Hợp tác sản xuất hộp quà cao cấp cùng thương hiệu Local Brand', imageUrl: 'images/logo.jpg' },
-  { id: 105, date: '2026', title: 'Sự kiện tri ân các khách hàng thân thiết đồng hành cùng Future Studio', imageUrl: 'images/jobiterview.jpg' }
+  { id: 101, date: 'THANK YOU', title: 'Dự án quà tặng kỷ niệm ngày thành lập tập đoàn đối tác', imageUrl: 'images/bitisbutterfly.webp' },
+  { id: 102, date: 'CREATIVE', title: 'Bộ quà tặng sáng tạo độc quyền thiết kế riêng cho khách hàng VIP', imageUrl: 'images/bitisbutterfly.webp' },
+  { id: 103, date: 'STUDIO', title: 'Đơn hàng 500 set quà bàn giao thành công cho studio nghệ thuật', imageUrl: 'images/bitisbutterfly.webp' },
+  { id: 104, date: 'TRUSTED', title: 'Hợp tác sản xuất hộp quà cao cấp cùng thương hiệu Local Brand', imageUrl: 'images/bitisbutterfly.webp' },
+  { id: 105, date: '2026', title: 'Sự kiện tri ân các khách hàng thân thiết đồng hành cùng Future Studio', imageUrl: 'images/bitisbutterfly.webp' }
 ];
 export const heroDetails = [
   {

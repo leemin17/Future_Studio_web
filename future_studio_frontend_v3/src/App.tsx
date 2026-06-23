@@ -1,16 +1,25 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, Suspense } from 'react';
 import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
 
 import Header from './components/Header';
-import HomePage from './pages/HomePage';
-import HeroDetailPage from './pages/HeroDetailPage';
-import ProductDetailPage from './pages/ProductDetailPage';
-import CustomerPage from './pages/CustomerPage';
-import AboutPage from './pages/AboutPage';
-import MVPage from './pages/MVPage'; // Import trang MV
 import PageTransition from './components/PageTransition';
-import AllProductsPage from './pages/AllProductsPage'; // Import trang All Products
+
+// --- LAZY LOADING COMPONENTS ---
+// Thay vì import trực tiếp, chúng ta dùng React.lazy để trình duyệt chỉ tải code khi cần.
+const HomePage = React.lazy(() => import('./pages/HomePage'));
+const HeroDetailPage = React.lazy(() => import('./pages/HeroDetailPage'));
+const ProductDetailPage = React.lazy(() => import('./pages/ProductDetailPage'));
+const CustomerPage = React.lazy(() => import('./pages/CustomerPage'));
+const AllProductsPage = React.lazy(() => import('./pages/AllProductsPage'));
+const AboutPage = React.lazy(() => import('./pages/AboutPage'));
+const MVPage = React.lazy(() => import('./pages/MVPage'));
+
+// Component hiển thị trong lúc chờ tải trang
+const LoadingFallback = () => (
+  <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+  </div>
+);
 
 /* =====================================================================
    5. COMPONENT GỐC (APP) LẮP RÁP CÁC ROUTE
@@ -131,17 +140,19 @@ const App: React.FC = () => {
       />
 
       {/* mode="wait" đợi trang cũ biến mất hẳn rồi trang mới mới hiện ra */}
-      <AnimatePresence mode="wait">
-        <Routes location={location} key={location.pathname}>
-          <Route path="/" element={<PageTransition><HomePage /></PageTransition>} />
-          <Route path="/hero/:id" element={<PageTransition><HeroDetailPage /></PageTransition>} />
-          <Route path="/product/:id" element={<PageTransition><ProductDetailPage /></PageTransition>} />
-          <Route path="/customers" element={<PageTransition><CustomerPage /></PageTransition>} />
-          <Route path="/all-products" element={<PageTransition><AllProductsPage /></PageTransition>} />
-          <Route path="/about" element={<PageTransition><AboutPage /></PageTransition>} />
-          <Route path="/music-videos" element={<PageTransition><MVPage /></PageTransition>} />
-        </Routes>
-      </AnimatePresence>
+      <Suspense fallback={<LoadingFallback />}>
+        <AnimatePresence mode="wait">
+          <Routes location={location} key={location.pathname}>
+            <Route path="/" element={<PageTransition><HomePage /></PageTransition>} />
+            <Route path="/hero/:id" element={<PageTransition><HeroDetailPage /></PageTransition>} />
+            <Route path="/product/:id" element={<PageTransition><ProductDetailPage /></PageTransition>} />
+            <Route path="/customers" element={<PageTransition><CustomerPage /></PageTransition>} />
+            <Route path="/all-products" element={<PageTransition><AllProductsPage /></PageTransition>} />
+            <Route path="/about" element={<PageTransition><AboutPage /></PageTransition>} />
+            <Route path="/music-videos" element={<PageTransition><MVPage /></PageTransition>} />
+          </Routes>
+        </AnimatePresence>
+      </Suspense>
     </>
   );
 };
