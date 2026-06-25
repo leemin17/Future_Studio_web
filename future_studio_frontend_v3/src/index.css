@@ -24,7 +24,8 @@ body {
 }
 
 /* --- CẤU HÌNH CSS BẮT BUỘC CHO LENIS SCROLL --- */
-html.lenis, html.lenis body {
+html.lenis,
+html.lenis body {
   height: auto;
 }
 
@@ -158,8 +159,7 @@ a {
 }
 
 .main-header.home-page-header:not(.fixed-active) .header-logo,
-.main-header.home-page-header:not(.fixed-active) .header-nav-link
-{
+.main-header.home-page-header:not(.fixed-active) .header-nav-link {
   color: #ffffff;
 }
 
@@ -221,13 +221,15 @@ a {
   cursor: pointer;
   position: relative;
   z-index: 10;
-  justify-self: center; /* Căn giữa logo trong phần ô lưới 1/6 của nó */
+  justify-self: center;
+  /* Căn giữa logo trong phần ô lưới 1/6 của nó */
   color: #111111;
 }
 
 /* --- MENU NGANG NẰM GIỮA HEADER --- */
 .header-center-menu {
-  display: contents; /* Loại bỏ hộp chứa, cho phép các nút bên trong tham gia trực tiếp vào lưới 6 cột */
+  display: contents;
+  /* Loại bỏ hộp chứa, cho phép các nút bên trong tham gia trực tiếp vào lưới 6 cột */
 }
 
 .header-nav-link {
@@ -235,7 +237,8 @@ a {
   border: none;
   font-family: 'Montserrat', sans-serif;
   font-size: 14px;
-  font-weight: 800; /* Tăng độ dày chữ lên siêu đậm để dễ thấy hiệu ứng */
+  font-weight: 800;
+  /* Tăng độ dày chữ lên siêu đậm để dễ thấy hiệu ứng */
   letter-spacing: 0.2em;
   text-transform: uppercase;
   cursor: pointer;
@@ -243,7 +246,8 @@ a {
   outline: none;
   padding-bottom: 4px;
   border-bottom: 1px solid transparent;
-  justify-self: center; /* Căn giữa nút để gạch chân dưới chữ không bị tràn hết ô */
+  justify-self: center;
+  /* Căn giữa nút để gạch chân dưới chữ không bị tràn hết ô */
   position: relative;
   overflow: hidden;
   color: #111111;
@@ -251,12 +255,14 @@ a {
 
 .header-nav-link:hover,
 .header-nav-link.active {
-  text-shadow: 0 0 8px currentColor, 0 0 16px currentColor; /* Hiệu ứng phản quang cho chữ */
+  text-shadow: 0 0 8px currentColor, 0 0 16px currentColor;
+  /* Hiệu ứng phản quang cho chữ */
 }
 
 .header-nav-link.active {
   border-bottom-color: currentColor;
-  box-shadow: 0 4px 10px -4px currentColor; /* Phản quang nhẹ ở đường gạch chân */
+  box-shadow: 0 4px 10px -4px currentColor;
+  /* Phản quang nhẹ ở đường gạch chân */
 }
 
 /* --- WRAPPER VÀ DROPDOWN MENU CHO HEADER --- */
@@ -270,7 +276,8 @@ a {
 
 .dropdown-menu {
   position: absolute;
-  top: calc(100% + 5px); /* Khoảng cách từ nút đến menu */
+  top: calc(100% + 5px);
+  /* Khoảng cách từ nút đến menu */
   left: 50%;
   transform: translateX(-50%) translateY(10px);
   background-color: #ffffff;
@@ -366,7 +373,8 @@ a {
 .nav-login {
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   font-size: 16px;
-  font-weight: 800; /* Tăng độ nét cho nút đăng nhập */
+  font-weight: 800;
+  /* Tăng độ nét cho nút đăng nhập */
   letter-spacing: 0.05em;
   transition: opacity 0.2s;
   position: relative;
@@ -453,13 +461,16 @@ a {
 /* --- HIỆU ỨNG NHÂN VẬT CHẠY Ở HEADER --- */
 .running-character-container {
   position: absolute;
-  bottom: -2px; /* Canh lề cho nhân vật chạy ngay trên đường viền mép dưới */
+  bottom: -2px;
+  /* Canh lề cho nhân vật chạy ngay trên đường viền mép dưới */
   left: 0;
   width: 100%;
   height: 60px;
-  pointer-events: none; /* Khách hàng bấm xuyên qua nhân vật được, không lo vướng nút */
+  pointer-events: none;
+  /* Khách hàng bấm xuyên qua nhân vật được, không lo vướng nút */
   overflow: hidden;
-  z-index: 0; /* SỬA LẠI: Kéo nhân vật xuống phía sau cùng */
+  z-index: 0;
+  /* SỬA LẠI: Kéo nhân vật xuống phía sau cùng */
 }
 
 .running-character {
@@ -475,10 +486,26 @@ a {
 }
 
 @keyframes runAcrossHeader {
-  0% { left: -60px; transform: scaleX(1); }
-  49.9% { left: 100%; transform: scaleX(1); }
-  50% { left: 100%; transform: scaleX(-1); } /* Đổi chiều / Quay đầu lại */
-  100% { left: -60px; transform: scaleX(-1); }
+  0% {
+    left: -60px;
+    transform: scaleX(1);
+  }
+
+  49.9% {
+    left: 100%;
+    transform: scaleX(1);
+  }
+
+  50% {
+    left: 100%;
+    transform: scaleX(-1);
+  }
+
+  /* Đổi chiều / Quay đầu lại */
+  100% {
+    left: -60px;
+    transform: scaleX(-1);
+  }
 }
 
 /* =====================================================================
@@ -502,16 +529,20 @@ a {
   aspect-ratio: auto !important;
   border: none !important;
   border-radius: 0px !important;
-  
+
   /* Bật Scroll Snap để cuộn dọc qua các slide */
   overflow-y: scroll;
   overflow-x: hidden;
-  scroll-behavior: smooth; /* Thêm dòng này để chuyển cảnh trượt mượt mà */
-  -webkit-overflow-scrolling: touch; /* Bật cuộn quán tính (momentum scrolling) trên thiết bị cảm ứng / Mac */
-  overscroll-behavior-y: contain; /* Giữ quán tính trong khung, tạo hiệu ứng nảy (bounce) ở mép trên/dưới */
+  scroll-behavior: smooth;
+  scroll-snap-type: y mandatory;
+  /* Thêm dòng này để chuyển cảnh trượt mượt mà */
+  -webkit-overflow-scrolling: touch;
+  /* Bật cuộn quán tính (momentum scrolling) trên thiết bị cảm ứng / Mac */
+  overscroll-behavior-y: contain;
+  /* Giữ quán tính trong khung, tạo hiệu ứng nảy (bounce) ở mép trên/dưới */
   display: flex;
   flex-direction: column;
-  
+
   background-color: #ffffff;
 }
 
@@ -522,23 +553,32 @@ a {
 
 .hero-slide {
   position: relative !important;
-  flex: 0 0 100vh; /* Ép mỗi slide cao chuẩn 100% màn hình */
-  
+  flex: 0 0 100vh;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+  /* Ép mỗi slide cao chuẩn 100% màn hình */
+
   width: 100%;
   height: 100vh;
   background-size: cover !important;
   background-position: center;
   background-repeat: no-repeat;
   z-index: 1;
-  opacity: 1 !important; /* Ghi đè hiệu ứng mờ dần để ảnh luôn hiện khi cuộn tới */
+  opacity: 1 !important;
+  /* Ghi đè hiệu ứng mờ dần để ảnh luôn hiện khi cuộn tới */
   /* Kích hoạt hiệu ứng chạy từ từ (zoom chậm) liên tục */
-  animation: slowZoom 20s infinite alternate ease-in-out;
+  animation: slowDrift 20s infinite alternate ease-in-out;
 }
 
-/* Hiệu ứng Ken Burns: Khung ảnh từ từ phóng to tạo chiều sâu không gian */
-@keyframes slowZoom {
-  0% { transform: scale(1); }
-  100% { transform: scale(1.05); }
+/* Hiệu ứng Ken Burns kết hợp trôi chậm: Khung ảnh từ từ phóng to và di chuyển tạo chiều sâu */
+@keyframes slowDrift {
+  0% {
+    transform: scale(1) translateY(0px);
+  }
+
+  100% {
+    transform: scale(1.05) translateY(-20px);
+  }
 }
 
 /* NÚT ĐIỀU HƯỚNG BANNER */
@@ -676,15 +716,22 @@ a {
 .hero-dot.active::after {
   content: '';
   position: absolute;
-  top: 0; left: 0;
-  height: 100%; width: 0%;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 0%;
   background-color: #ffffff;
   animation: dotProgress 4s linear forwards;
 }
 
 @keyframes dotProgress {
-  0% { width: 0%; }
-  100% { width: 100%; }
+  0% {
+    width: 0%;
+  }
+
+  100% {
+    width: 100%;
+  }
 }
 
 /* =====================================================================
@@ -1009,7 +1056,8 @@ a {
   /* SỬA: Đổi viền đen khung tranh thành xám mảnh */
   background-color: #ffffff;
   overflow: hidden;
-  aspect-ratio: 3 / 4; /* Kéo dài khung thành hình chữ nhật dọc */
+  aspect-ratio: 3 / 4;
+  /* Kéo dài khung thành hình chữ nhật dọc */
   border-radius: 4px;
 }
 
@@ -1250,7 +1298,8 @@ a {
 
 @media (max-width: 768px) {
   .main-header {
-    display: flex !important; /* Ghi đè lại Grid để hiển thị bình thường trên Mobile */
+    display: flex !important;
+    /* Ghi đè lại Grid để hiển thị bình thường trên Mobile */
     justify-content: space-between;
     align-items: center;
     width: 100%;
@@ -1262,9 +1311,7 @@ a {
     display: none;
   }
 
-  .header-logo {
-    font-size: 26px;
-  }
+  .header-logo {}
 
   .search-bar,
   .nav-login {
@@ -1323,10 +1370,13 @@ a {
   left: 0;
   width: 100vw;
   height: 100vh;
-  background-color: rgba(255, 255, 255, 0.85); /* Nền trắng hơi trong suốt */
-  backdrop-filter: blur(12px); /* Hiệu ứng làm mờ nền phía sau */
+  background-color: rgba(255, 255, 255, 0.85);
+  /* Nền trắng hơi trong suốt */
+  backdrop-filter: blur(12px);
+  /* Hiệu ứng làm mờ nền phía sau */
   -webkit-backdrop-filter: blur(12px);
-  z-index: 9999; /* Đảm bảo luôn nằm trên cùng */
+  z-index: 9999;
+  /* Đảm bảo luôn nằm trên cùng */
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1335,8 +1385,15 @@ a {
 }
 
 @keyframes fadeInOverlay {
-  0% { opacity: 0; transform: translateY(-20px); }
-  100% { opacity: 1; transform: translateY(0); }
+  0% {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .search-overlay-close {
@@ -1394,6 +1451,7 @@ a {
 .search-overlay-results::-webkit-scrollbar {
   width: 6px;
 }
+
 .search-overlay-results::-webkit-scrollbar-thumb {
   background: #cccccc;
   border-radius: 4px;
@@ -1413,7 +1471,7 @@ a {
   padding: 16px;
   border-radius: 12px;
   background-color: #ffffff;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
   transition: all 0.2s ease;
   cursor: pointer;
   opacity: 0;
@@ -1422,13 +1480,20 @@ a {
 }
 
 @keyframes fadeInResult {
-  0% { opacity: 0; transform: translateY(15px); }
-  100% { opacity: 1; transform: translateY(0); }
+  0% {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .search-result-item:hover {
   transform: translateY(-3px);
-  box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
 }
 
 .search-result-image {
@@ -1464,6 +1529,7 @@ a {
   .search-overlay-input {
     font-size: 24px;
   }
+
   .search-overlay-close {
     top: 20px;
     right: 20px;
@@ -1529,8 +1595,13 @@ a {
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 /* =====================================================================
@@ -1539,11 +1610,14 @@ a {
 @keyframes slideDownEffect {
   0% {
     opacity: 0;
-    transform: translateY(-80px); /* Bắt đầu từ phía trên 80px */
+    transform: translateY(-80px);
+    /* Bắt đầu từ phía trên 80px */
   }
+
   100% {
     opacity: 1;
-    transform: translateY(0); /* Chạy về vị trí gốc */
+    transform: translateY(0);
+    /* Chạy về vị trí gốc */
   }
 }
 
@@ -1552,73 +1626,46 @@ a {
 }
 
 /* =====================================================================
-   HIỆU ỨNG TRÔI NỔI (FLOATING / DRIFTING)
+   FALLBACK CHO TRÌNH DUYỆT CŨ
    ===================================================================== */
-@keyframes floatEffect {
-  0% {
-    transform: translateY(0px);
+
+/* 
+  Sử dụng @supports để cung cấp style thay thế cho các trình duyệt
+  không hỗ trợ thuộc tính mix-blend-mode. Điều này đảm bảo header
+  và các thành phần khác vẫn hiển thị tốt.
+*/
+@supports not (mix-blend-mode: difference) {
+
+  /* Fallback cho header ở trang chủ */
+  .main-header.home-page-header:not(.fixed-active) {
+    background-color: #ffffff;
+    /* Chuyển về nền trắng thay vì trong suốt */
+    color: #111111;
+    /* Đổi màu chữ mặc định thành đen */
   }
-  50% {
-    transform: translateY(-15px); /* Trôi nhẹ lên trên 15px */
+
+  .main-header.home-page-header:not(.fixed-active) .header-logo,
+  .main-header.home-page-header:not(.fixed-active) .header-nav-link {
+    color: #111111;
+    /* Đổi màu logo và link thành đen */
   }
-  100% {
-    transform: translateY(0px);
+
+  .main-header.home-page-header:not(.fixed-active) .header-small-logo {
+    filter: none;
+    /* Bỏ filter invert màu */
   }
-}
 
-.floating-animate {
-  /* Lặp lại vô hạn (infinite), thời gian 4s, trôi lên xuống mượt mà (ease-in-out) */
-  animation: floatEffect 4s ease-in-out infinite; 
-  will-change: transform; /* Tối ưu hóa hiệu năng render cho trình duyệt */
-}
+  .main-header.home-page-header:not(.fixed-active) .search-bar {
+    border-color: #111111;
+    color: #111111;
+  }
 
-/* =====================================================================
-   ARTISTIC PORTFOLIO NAVBAR SECTION (VERTICAL RIGHT)
-   ===================================================================== */
-.portfolio-navbar {
-  position: fixed;
-  top: 50%;
-  right: 40px;
-  transform: translateY(-50%);
-  z-index: 1000;
-  /* Kỹ thuật mix-blend-mode giúp menu tự động đổi màu tương phản với background */
-  mix-blend-mode: difference; 
-}
+  .main-header.home-page-header:not(.fixed-active) .search-bar::placeholder {
+    color: #888888;
+  }
 
-.nav-list {
-  list-style: none;
-  display: flex;
-  flex-direction: column;
-  gap: 28px;
-  align-items: flex-end;
-}
-
-.nav-link {
-  background: transparent;
-  border: none;
-  color: rgba(255, 255, 255, 0.4);
-  font-family: 'Titan One', cursive; /* Sử dụng font chữ nghệ thuật có sẵn của bạn */
-  font-size: 13px;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  cursor: pointer;
-  transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
-  position: relative;
-  outline: none;
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-
-.nav-link:hover {
-  color: rgba(255, 255, 255, 0.8);
-  transform: translateX(-8px);
-}
-
-/* Trạng thái Active khi cuộn đến đúng Section */
-.nav-link.active {
-  color: #ffffff;
-  font-size: 18px;
-  transform: translateX(-12px);
-  opacity: 1;
+  .main-header.home-page-header:not(.fixed-active) .cart-status svg {
+    -webkit-text-stroke: 2px #111111;
+    text-stroke: 2px #111111;
+  }
 }
