@@ -1,5 +1,4 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useMemo, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { newsData, customerData, type NewsItem } from '../data/database';
 import QuickViewModal from '../components/QuickViewModal';
@@ -23,16 +22,85 @@ const gridItemVariants = {
   show: { y: 0, opacity: 1 }, // Di chuyển về vị trí 0 và hiện ra
 };
 
+// =====================================================================
+// COMPONENT CARD SẢN PHẨM (ĐÃ ĐƯỢC TÁCH RIÊNG)
+// - Đóng gói toàn bộ giao diện và logic cho một thẻ sản phẩm.
+// - Sử dụng useRef để tương tác trực tiếp với các phần tử DOM.
+// =====================================================================
+interface ProductCardProps {
+  item: NewsItem;
+  onClick: () => void;
+}
+
+const ProductCard: React.FC<ProductCardProps> = ({ item, onClick }) => {
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  const handleMouseEnter = (e: React.MouseEvent<HTMLDivElement>) => {
+    const video = videoRef.current;
+    if (video) {
+      const playPromise = video.play();
+      if (playPromise !== undefined) {
+        playPromise.catch(error => {
+          console.error("Lỗi tự động phát video:", error);
+        });
+      }
+    }
+  };
+
+  const handleMouseLeave = (e: React.MouseEvent<HTMLDivElement>) => {
+    const video = videoRef.current;
+    if (video) {
+      video.pause();
+      video.currentTime = 0; // Tua video về đầu để lần hover sau chạy lại từ đầu
+    }
+  };
+
+  return (
+    <motion.div
+      className="news-card"
+      onClick={onClick}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+      style={{ cursor: 'pointer' }}
+      whileHover={{ y: -8 }}
+      whileTap={{ scale: 0.97 }}
+      transition={{ type: "spring", stiffness: 400, damping: 17 }}
+      variants={gridItemVariants}
+      layout
+    >
+      <div className="news-image natural-size">
+        {item.videoUrl ? (
+          <>
+            <video ref={videoRef} src={`${import.meta.env.BASE_URL}${item.videoUrl}`} poster={`${import.meta.env.BASE_URL}${item.imageUrl}`} muted loop playsInline />
+            <div className="video-play-overlay">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M8 5V19L19 12L8 5Z" fill="white"/>
+              </svg>
+            </div>
+          </>
+        ) : (
+          <img src={`${import.meta.env.BASE_URL}${item.imageUrl}`} alt={`${item.project_name} - ${item.clientInformation}`} />
+        )}
+        <p className="news-text">{item.project_name} - {item.clientInformation}</p>
+      </div>
+    </motion.div>
+  );
+};
+
+// =====================================================================
+// COMPONENT TRANG CHÍNH
+// - Giờ đây chỉ còn nhiệm vụ quản lý state và render ra lưới sản phẩm.
+// =====================================================================
 const AllProductsPage: React.FC = () => {
-  // const navigate = useNavigate(); // Sẽ không dùng navigate nữa
-  const [selectedProduct, setSelectedProduct] = React.useState<NewsItem | null>(null);
+  const [selectedProduct, setSelectedProduct] = useState<NewsItem | null>(null);
 
-  // Gộp và sắp xếp tất cả sản phẩm
-  const allProducts = [...newsData, ...customerData].sort((a, b) => {
-    return new Date(b.date.replace(/\./g, '-')).getTime() - new Date(a.date.replace(/\./g, '-')).getTime();
-  });
+  // Tối ưu hóa: Chỉ gộp và sắp xếp lại sản phẩm một lần bằng useMemo
+  const allProducts = useMemo(() => 
+    [...newsData, ...customerData].sort((a, b) => 
+      new Date(b.date.replace(/\./g, '-')).getTime() - new Date(a.date.replace(/\./g, '-')).getTime()
+    ), 
+  []);
 
-  // Khi bấm vào sản phẩm, sẽ set state để mở modal Quick View
   const handleProductClick = (item: NewsItem) => {
     setSelectedProduct(item);
   };
@@ -41,30 +109,12 @@ const AllProductsPage: React.FC = () => {
     setSelectedProduct(null);
   };
 
-  // --- LOGIC CHẠY VIDEO KHI HOVER ---
-  // Khi đưa chuột vào card
-  const handleMouseEnter = (e: React.MouseEvent<HTMLDivElement>) => {
-    const video = e.currentTarget.querySelector('video');
-    if (video) {
-      video.play();
-    }
-  };
-
-  // Khi đưa chuột ra khỏi card
-  const handleMouseLeave = (e: React.MouseEvent<HTMLDivElement>) => {
-    const video = e.currentTarget.querySelector('video');
-    if (video) {
-      video.pause();
-      video.currentTime = 0; // Tua video về đầu để lần hover sau chạy lại từ đầu
-    }
-  };
-
   return (
     <>
       {/* --- QUICK VIEW MODAL --- */}
       {/* Component QuickViewModal sẽ chỉ render khi có một sản phẩm được chọn */}
       <QuickViewModal product={selectedProduct} onClose={handleCloseQuickView} />
-    <section style={{ paddingTop: '60px', paddingBottom: '100px' }}>
+    <section className="all-products-section">
 
       {/* Bọc lưới sản phẩm bằng motion.div và áp dụng hiệu ứng container */}
       <motion.div
@@ -74,36 +124,11 @@ const AllProductsPage: React.FC = () => {
         animate="show"
       >
         {allProducts.map((item) => (
-          <motion.div // Áp dụng hiệu ứng cho từng item
+          <ProductCard 
             key={item.id}
-            className="news-card"
+            item={item}
             onClick={() => handleProductClick(item)}
-            onMouseEnter={handleMouseEnter}
-            onMouseLeave={handleMouseLeave}
-            style={{ cursor: 'pointer' }}
-            whileHover={{ y: -8 }}
-            whileTap={{ scale: 0.97 }}
-            transition={{ type: "spring", stiffness: 400, damping: 17 }}
-            // Thêm layout prop để Framer Motion tính toán vị trí chính xác
-            variants={gridItemVariants} // Gán hiệu ứng đã định nghĩa
-            layout
-          >
-            {/* Bỏ news-content và news-sidebar, đưa media lên cấp đầu */}
-            <div className="news-image natural-size">
-                {item.videoUrl ? (
-                  <video
-                    src={`${import.meta.env.BASE_URL}${item.videoUrl}`}
-                    poster={`${import.meta.env.BASE_URL}${item.imageUrl}`}
-                    muted
-                    loop
-                    playsInline
-                  />
-                ) : (
-                  <img src={`${import.meta.env.BASE_URL}${item.imageUrl}`} alt={item.title} />
-                )}
-            </div>
-            <p className="news-text">{item.title}</p>
-          </motion.div>
+          />
         ))}
       </motion.div>
     </section>

@@ -60,14 +60,14 @@ const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, onClose }) => 
             <div className="quick-view-content">
               <div className="quick-view-media">
                 {product.videoUrl ? (
-                  <video src={`${import.meta.env.BASE_URL}${product.videoUrl}`} poster={`${import.meta.env.BASE_URL}${product.imageUrl}`} autoPlay muted loop playsInline />
+                  <video src={`${import.meta.env.BASE_URL}${product.videoUrl}`} poster={`${import.meta.env.BASE_URL}${product.imageUrl}`} controls muted autoPlay playsInline loop />
                 ) : (
-                  <img src={`${import.meta.env.BASE_URL}${product.imageUrl}`} alt={product.title} />
+                  <img src={`${import.meta.env.BASE_URL}${product.imageUrl}`} alt={`${product.project_name} - ${product.clientInformation}`} />
                 )}
               </div>
               <div className="quick-view-info">
                 <p className="quick-view-date">{product.date}</p>
-                <h2 className="quick-view-title">{product.title}</h2>
+                <h2 className="quick-view-title">{product.project_name} - {product.clientInformation}</h2>
                 <button className="btn-primary-black" onClick={handleViewDetails}>Xem chi tiết sản phẩm</button>
               </div>
             </div>

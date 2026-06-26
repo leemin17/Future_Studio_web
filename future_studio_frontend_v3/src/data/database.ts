@@ -17,7 +17,8 @@ export interface NavItem {
 export interface NewsItem {
   id: number;
   date: string;
-  title: string;
+  project_name: string;
+  clientInformation: string;
   imageUrl: string;
   videoUrl?: string; // Thêm đường dẫn cho video (tùy chọn)
   modelUrl?: string; // Thêm đường dẫn cho mô hình 3D (tùy chọn)
@@ -54,23 +55,23 @@ export const heroImages = [
 
 // Data cho Tin tức (What's new / All Products!)
 export const newsData: NewsItem[] = [
-  { id: 1, date: '2026.04.26', title: 'Future Studio thông báo chính thức nghỉ lễ từ 26/4 đến 3/5', imageUrl: 'images/bitisbutterfly.webp' },
-  { id: 2, date: '2024.03.26', title: 'Quà cưới cũng là quà tặng cho "chú rể" tốt nhất', imageUrl: 'images/bitisbutterfly.webp' },
-  { id: 3, date: '2026.04.05', title: 'future team tuyển dụng thành viên cho team', imageUrl: 'images/bitishunter.webp' },
-  { id: 4, date: '2024.03.18', title: 'Nhìn! Future Studio GOD 👑 Giới thiệu hàng hóa dành riêng...', imageUrl: 'images/helio.webp' },
-  { id: 5, date: '2024.03.10', title: 'Sản phẩm model 3D mới', imageUrl: 'images/bitisbutterfly.webp', modelUrl: 'models/Lipstick.glb' },
-  { id: 6, date: '2024.02.28', title: 'Khai giảng khóa học 3D Animation cơ bản.', imageUrl: 'images/bitisbutterfly.webp' },
-  { id: 7, date: '2024.02.15', title: 'Tham quan Studio: Hậu trường phía sau những thước phim.', imageUrl: 'images/bitisbutterfly.webp' },
-  { id: 8, date: '2024.01.20', title: 'Future Studio lọt top studio sáng tạo của năm!', imageUrl: 'images/bitisbutterfly.webp' }
+  { id: 1, date: '2026.04.26', project_name: 'project', clientInformation: 'client', imageUrl: 'images/bitisbutterfly.webp' ,videoUrl: 'videos/bitisbutterfly.mp4'},
+  { id: 2, date: '2024.03.26', project_name: 'project', clientInformation: 'client', imageUrl: 'images/anhdep.jpg', videoUrl: 'videos/bitisbutterfly.mp4' },
+  { id: 3, date: '2026.04.05', project_name: 'project', clientInformation: 'client', imageUrl: 'images/anhdep.jpg', videoUrl: 'videos/bitishunter.mp4' },
+  { id: 4, date: '2024.03.18', project_name: 'project', clientInformation: 'client', imageUrl: 'images/anhdep.jpg', videoUrl: 'videos/helio.mp4' },
+  { id: 5, date: '2024.03.10', project_name: 'project', clientInformation: 'client', imageUrl: 'images/anhdep.jpg', videoUrl: 'videos/bitisbutterfly.mp4', modelUrl: 'models/Lipstick.glb' },
+  { id: 6, date: '2024.02.28', project_name: 'project', clientInformation: 'client', imageUrl: 'images/anhdep.jpg', videoUrl: 'videos/bitisbutterfly.mp4' },
+  { id: 7, date: '2024.02.15', project_name: 'project', clientInformation: 'client', imageUrl: 'images/anhdep.jpg', videoUrl: 'videos/bitisbutterfly.mp4' },
+  { id: 8, date: '2024.01.20', project_name: 'project', clientInformation: 'client', imageUrl: 'images/anhdep.jpg', videoUrl: 'videos/bitisbutterfly.mp4' }
 ];
 
 // Data cho Khách hàng (Our Customers!)
 export const customerData: NewsItem[] = [
-  { id: 101, date: 'THANK YOU', title: 'Dự án quà tặng kỷ niệm ngày thành lập tập đoàn đối tác', imageUrl: 'images/bitisbutterfly.webp' },
-  { id: 102, date: 'CREATIVE', title: 'Bộ quà tặng sáng tạo độc quyền thiết kế riêng cho khách hàng VIP', imageUrl: 'images/bitisbutterfly.webp' },
-  { id: 103, date: 'STUDIO', title: 'Đơn hàng 500 set quà bàn giao thành công cho studio nghệ thuật', imageUrl: 'images/bitisbutterfly.webp' },
-  { id: 104, date: 'TRUSTED', title: 'Hợp tác sản xuất hộp quà cao cấp cùng thương hiệu Local Brand', imageUrl: 'images/bitisbutterfly.webp' },
-  { id: 105, date: '2026', title: 'Sự kiện tri ân các khách hàng thân thiết đồng hành cùng Future Studio', imageUrl: 'images/bitisbutterfly.webp' }
+  { id: 101, date: 'THANK YOU', project_name: 'project', clientInformation: 'client', imageUrl: 'images/anhdep.jpg', videoUrl: 'videos/bitisbutterfly.mp4' },
+  { id: 102, date: 'CREATIVE', project_name: 'project', clientInformation: 'client', imageUrl: 'images/anhdep.jpg', videoUrl: 'videos/bitisbutterfly.mp4' },
+  { id: 103, date: 'STUDIO', project_name: 'project', clientInformation: 'client', imageUrl: 'images/anhdep.jpg', videoUrl: 'videos/bitisbutterfly.mp4' },
+  { id: 104, date: 'TRUSTED', project_name: 'project', clientInformation: 'client', imageUrl: 'images/anhdep.jpg', videoUrl: 'videos/bitisbutterfly.mp4' },
+  { id: 105, date: '2026', project_name: 'project', clientInformation: 'client', imageUrl: 'images/anhdep.jpg', videoUrl: 'videos/bitisbutterfly.mp4' }
 ];
 export const heroDetails = [
   {
