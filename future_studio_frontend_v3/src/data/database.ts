@@ -55,23 +55,23 @@ export const heroImages = [
 
 // Data cho Tin tức (What's new / All Products!)
 export const newsData: NewsItem[] = [
-  { id: 1, date: '2026.04.26', project_name: 'project', clientInformation: 'client', imageUrl: 'images/bitisbutterfly.webp' ,videoUrl: 'videos/bitisbutterfly.mp4'},
-  { id: 2, date: '2024.03.26', project_name: 'project', clientInformation: 'client', imageUrl: 'images/anhdep.jpg', videoUrl: 'videos/bitisbutterfly.mp4' },
-  { id: 3, date: '2026.04.05', project_name: 'project', clientInformation: 'client', imageUrl: 'images/anhdep.jpg', videoUrl: 'videos/bitishunter.mp4' },
-  { id: 4, date: '2024.03.18', project_name: 'project', clientInformation: 'client', imageUrl: 'images/anhdep.jpg', videoUrl: 'videos/helio.mp4' },
-  { id: 5, date: '2024.03.10', project_name: 'project', clientInformation: 'client', imageUrl: 'images/anhdep.jpg', videoUrl: 'videos/bitisbutterfly.mp4', modelUrl: 'models/Lipstick.glb' },
-  { id: 6, date: '2024.02.28', project_name: 'project', clientInformation: 'client', imageUrl: 'images/anhdep.jpg', videoUrl: 'videos/bitisbutterfly.mp4' },
-  { id: 7, date: '2024.02.15', project_name: 'project', clientInformation: 'client', imageUrl: 'images/anhdep.jpg', videoUrl: 'videos/bitisbutterfly.mp4' },
-  { id: 8, date: '2024.01.20', project_name: 'project', clientInformation: 'client', imageUrl: 'images/anhdep.jpg', videoUrl: 'videos/bitisbutterfly.mp4' }
+  { id: 1, date: '2026.04.26', project_name: 'project', clientInformation: 'client', imageUrl: 'https://vumbnail.com/1204777394.jpg' ,videoUrl: 'https://vimeo.com/1204777394'},
+  { id: 2, date: '2024.03.26', project_name: 'project', clientInformation: 'client', imageUrl: 'https://vumbnail.com/1204777394.jpg', videoUrl: 'https://vimeo.com/1204777394' },
+  { id: 3, date: '2026.04.05', project_name: 'project', clientInformation: 'client', imageUrl: 'https://vumbnail.com/1204777394.jpg', videoUrl: 'https://vimeo.com/1204777394' },
+  { id: 4, date: '2024.03.18', project_name: 'project', clientInformation: 'client', imageUrl: 'https://vumbnail.com/1204777394.jpg', videoUrl: 'https://vimeo.com/1204777394' },
+  { id: 5, date: '2024.03.10', project_name: 'project', clientInformation: 'client', imageUrl: 'https://vumbnail.com/1204777394.jpg', videoUrl: 'https://vimeo.com/1204777394', modelUrl: 'models/Lipstick.glb' },
+  { id: 6, date: '2024.02.28', project_name: 'project', clientInformation: 'client', imageUrl: 'https://vumbnail.com/1204777394.jpg', videoUrl: 'https://vimeo.com/1204777394' },
+  { id: 7, date: '2024.02.15', project_name: 'project', clientInformation: 'client', imageUrl: 'https://vumbnail.com/1204777394.jpg', videoUrl: 'https://vimeo.com/1204777394' },
+  { id: 8, date: '2024.01.20', project_name: 'project', clientInformation: 'client', imageUrl: 'https://vumbnail.com/1204777394.jpg', videoUrl: 'https://vimeo.com/1204777394' }
 ];
 
 // Data cho Khách hàng (Our Customers!)
 export const customerData: NewsItem[] = [
-  { id: 101, date: 'THANK YOU', project_name: 'project', clientInformation: 'client', imageUrl: 'images/anhdep.jpg', videoUrl: 'videos/bitisbutterfly.mp4' },
-  { id: 102, date: 'CREATIVE', project_name: 'project', clientInformation: 'client', imageUrl: 'images/anhdep.jpg', videoUrl: 'videos/bitisbutterfly.mp4' },
-  { id: 103, date: 'STUDIO', project_name: 'project', clientInformation: 'client', imageUrl: 'images/anhdep.jpg', videoUrl: 'videos/bitisbutterfly.mp4' },
-  { id: 104, date: 'TRUSTED', project_name: 'project', clientInformation: 'client', imageUrl: 'images/anhdep.jpg', videoUrl: 'videos/bitisbutterfly.mp4' },
-  { id: 105, date: '2026', project_name: 'project', clientInformation: 'client', imageUrl: 'images/anhdep.jpg', videoUrl: 'videos/bitisbutterfly.mp4' }
+  { id: 101, date: 'THANK YOU', project_name: 'project', clientInformation: 'client', imageUrl: 'https://vumbnail.com/1204777394.jpg', videoUrl: 'https://vimeo.com/1204777394' },
+  { id: 102, date: 'CREATIVE', project_name: 'project', clientInformation: 'client', imageUrl: 'https://vumbnail.com/1204777394.jpg', videoUrl: 'https://vimeo.com/1204777394' },
+  { id: 103, date: 'STUDIO', project_name: 'project', clientInformation: 'client', imageUrl: 'https://vumbnail.com/1204777394.jpg', videoUrl: 'https://vimeo.com/1204777394' },
+  { id: 104, date: 'TRUSTED', project_name: 'project', clientInformation: 'client', imageUrl: 'https://vumbnail.com/1204777394.jpg', videoUrl: 'https://vimeo.com/1204777394' },
+  { id: 105, date: '2026', project_name: 'project', clientInformation: 'client', imageUrl: 'https://vumbnail.com/1204777394.jpg', videoUrl: 'https://vimeo.com/1204777394' }
 ];
 export const heroDetails = [
   {

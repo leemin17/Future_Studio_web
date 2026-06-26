@@ -1,7 +1,8 @@
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useMemo, useRef, useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { newsData, customerData, type NewsItem } from '../data/database';
 import QuickViewModal from '../components/QuickViewModal';
+import Player from '@vimeo/player';
 
 // --- ĐỊNH NGHĨA HIỆU ỨNG SO LE (STAGGERED ANIMATION) ---
 // 1. Định nghĩa cho khung lưới bọc ngoài
@@ -22,6 +23,12 @@ const gridItemVariants = {
   show: { y: 0, opacity: 1 }, // Di chuyển về vị trí 0 và hiện ra
 };
 
+// Hàm tiện ích để lấy ID video từ URL của Vimeo
+const getVimeoId = (url: string) => {
+  const match = /vimeo.*\/(\d+)/i.exec(url);
+  return match ? match[1] : null;
+};
+
 // =====================================================================
 // COMPONENT CARD SẢN PHẨM (ĐÃ ĐƯỢC TÁCH RIÊNG)
 // - Đóng gói toàn bộ giao diện và logic cho một thẻ sản phẩm.
@@ -33,51 +40,89 @@ interface ProductCardProps {
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({ item, onClick }) => {
-  const videoRef = useRef<HTMLVideoElement>(null);
+  const cardRef = useRef<HTMLDivElement>(null);
+  const playerContainerRef = useRef<HTMLDivElement>(null);
+  const playerRef = useRef<Player | null>(null);
+  const videoRef = useRef<HTMLVideoElement>(null); // Ref cho thẻ <video>
 
-  const handleMouseEnter = (e: React.MouseEvent<HTMLDivElement>) => {
-    const video = videoRef.current;
-    if (video) {
-      const playPromise = video.play();
-      if (playPromise !== undefined) {
-        playPromise.catch(error => {
-          console.error("Lỗi tự động phát video:", error);
+  const isVimeo = useMemo(() => item.videoUrl?.includes('vimeo'), [item.videoUrl]);
+
+  // Khởi tạo Vimeo Player khi component được mount hoặc videoUrl thay đổi
+  useEffect(() => {
+    // Chỉ xử lý khi là video Vimeo
+    if (isVimeo && item.videoUrl && playerContainerRef.current) {
+      const videoId = getVimeoId(item.videoUrl);
+      if (videoId) {
+        // ĐÃ SỬA: Tắt `background` để video không tự chạy khi vừa tải xong.
+        // Thay vào đó, ta cài đặt thủ công các tùy chọn để có hiệu ứng preview (tắt tiếng, lặp lại, ẩn nút)
+        // và việc play/pause sẽ được điều khiển bằng sự kiện `handleMouseEnter`/`handleMouseLeave`.
+        const player = new Player(playerContainerRef.current, {
+          id: parseInt(videoId),
+          muted: true,
+          loop: true,
+          controls: false,
+          responsive: true,
         });
+        playerRef.current = player;
+
+        // Hủy player khi component unmount để tránh rò rỉ bộ nhớ
+        return () => {
+          player.destroy();
+        };
       }
+    }
+  }, [item.videoUrl, isVimeo]);
+
+  const handleMouseEnter = () => {
+    if (isVimeo && playerRef.current) {
+      playerRef.current.play().catch(error => {
+        console.error("Lỗi tự động phát video Vimeo:", error);
+      });
+    } else if (!isVimeo && videoRef.current) {
+      videoRef.current.play().catch(error => {
+        console.error("Lỗi tự động phát video local:", error);
+      });
     }
   };
 
-  const handleMouseLeave = (e: React.MouseEvent<HTMLDivElement>) => {
-    const video = videoRef.current;
-    if (video) {
-      video.pause();
-      video.currentTime = 0; // Tua video về đầu để lần hover sau chạy lại từ đầu
+  const handleMouseLeave = () => {
+    if (isVimeo && playerRef.current) {
+      playerRef.current.pause();
+      playerRef.current.setCurrentTime(0); // Tua về đầu
+    } else if (!isVimeo && videoRef.current) {
+      videoRef.current.pause();
+      videoRef.current.currentTime = 0; // Tua về đầu
     }
   };
 
   return (
     <motion.div
+      ref={cardRef}
       className="news-card"
       onClick={onClick}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-      style={{ cursor: 'pointer' }}
-      whileHover={{ y: -8 }}
-      whileTap={{ scale: 0.97 }}
-      transition={{ type: "spring", stiffness: 400, damping: 17 }}
       variants={gridItemVariants}
       layout
     >
-      <div className="news-image natural-size">
+      <div
+        className="news-image natural-size"
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+      >
         {item.videoUrl ? (
-          <>
-            <video ref={videoRef} src={`${import.meta.env.BASE_URL}${item.videoUrl}`} poster={`${import.meta.env.BASE_URL}${item.imageUrl}`} muted loop playsInline />
-            <div className="video-play-overlay">
-              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M8 5V19L19 12L8 5Z" fill="white"/>
-              </svg>
-            </div>
-          </>
+          isVimeo ? (
+            // Div này sẽ là nơi Vimeo Player được gắn vào
+            <div ref={playerContainerRef} className="vimeo-player-container" />
+          ) : (
+            // Dùng thẻ video cho các file local
+            <video
+              ref={videoRef}
+              src={`${import.meta.env.BASE_URL}${item.videoUrl}`}
+              muted
+              loop
+              playsInline
+              // CSS đã có sẵn trong index.css để video fill khung
+            />
+          )
         ) : (
           <img src={`${import.meta.env.BASE_URL}${item.imageUrl}`} alt={`${item.project_name} - ${item.clientInformation}`} />
         )}

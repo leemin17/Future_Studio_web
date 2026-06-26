@@ -694,15 +694,43 @@ a {
   object-fit: cover;
   display: block;
   transition: transform 0.3s ease;
+  /* Thuộc tính pointer-events được tách ra cho ảnh và video ở dưới */
 }
+
+/* ĐÃ TẮT: Quy tắc này cũng được vô hiệu hóa để con trỏ chuột có thể tương tác với ảnh.
+   LƯU Ý: Tương tự như video, điều này có thể làm hiệu ứng hover trên thẻ cha hoạt động không ổn định. */
+/* .news-image img {
+  pointer-events: none;
+} */
 
 /* GIẢI PHÁP: Làm cho video "vô hình" với chuột, đảm bảo sự kiện
    onMouseLeave của thẻ .news-card cha luôn được kích hoạt chính xác. */
-.news-image video {
+/* ĐÃ TẮT: Quy tắc dưới đây đã được chú thích lại để cho phép con trỏ chuột tương tác với video.
+   LƯU Ý: Điều này sẽ làm cho hiệu ứng play/pause khi hover vào/ra khỏi thẻ cha (.news-card) hoạt động không chính xác. */
+/* .news-image video {
+  pointer-events: none;
+} */
+
+/* GIẢI PHÁP CHO CUSTOM CURSOR & TƯƠNG TÁC:
+   Làm cho iframe của Vimeo "vô hình" với chuột.
+   Điều này cho phép con trỏ tùy chỉnh di chuyển mượt mà bên trên video,
+   đồng thời các sự kiện hover và click sẽ được xử lý bởi thẻ .news-card cha. */
+.news-image iframe {
   pointer-events: none;
 }
 
-.all-products-grid .news-image {
+/* GIẢI PHÁP: Đảm bảo container cho Vimeo player chiếm toàn bộ không gian
+   của thẻ cha (.news-image) để iframe có kích thước đúng và sự kiện hover hoạt động. */
+.vimeo-player-container {
+  width: 100%;
+  height: 100%;
+  /* GIẢI PHÁP CUỐI CÙNG: Thêm lại pointer-events: none.
+     - Điều này làm cho khối div này "vô hình" với chuột.
+     - Sự kiện hover sẽ được thẻ .news-image cha bắt trọn vẹn, giải quyết dứt điểm lỗi video không chạy. */
+  pointer-events: none;
+}
+
+.all-products-grid .news-image {  
   aspect-ratio: auto;
 }
 
@@ -1498,6 +1526,7 @@ a {
     height: 4px; /* Biến thành một đường gạch ngang */
     border-radius: 2px;
     background-color: var(--accent-tertiary); /* Màu xanh mint */
+    mix-blend-mode: difference; /* Tạo hiệu ứng nổi bật trên nền tối */
   }
 
   .cursor-text {
