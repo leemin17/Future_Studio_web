@@ -92,18 +92,25 @@ const App: React.FC = () => {
     // Kiểm tra xem chuột có đang nằm trên thẻ tương tác không để phóng to
     const onMouseOver = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
-      if (target.closest('.hero-frame')) {
+      const cursorText = cursor?.querySelector('.cursor-text') as HTMLElement;
+      if (!cursor || !cursorText) return;
+
+      // Reset state
+      cursor.classList.remove('hovering', 'dragging', 'hidden', 'video-hover');
+      cursorText.innerText = '';
+
+      // Kiểm tra video hover, hoạt động ngay cả khi có lớp phủ trên video
+      const potentialVideoContainer = target.closest('.news-image, .quick-view-media');
+      if ((potentialVideoContainer && potentialVideoContainer.querySelector('video')) || target.closest('video')) {
+        cursor.classList.add('video-hover');
+        cursorText.innerText = 'WATCH';
+      } else if (target.closest('.hero-frame')) {
         cursor.classList.add('dragging');
-        cursor.classList.remove('hovering', 'hidden');
       } else if (target.closest('.news-card, .product-card')) {
         cursor.classList.add('hovering');
-        cursor.classList.remove('dragging', 'hidden');
       } else if (target.closest('a, button, input, .search-bar, .cart-status, .menu-burger')) {
         // Trỏ vào nút -> Ẩn con trỏ custom đi
         cursor.classList.add('hidden');
-        cursor.classList.remove('hovering', 'dragging');
-      } else {
-        cursor.classList.remove('hovering', 'dragging', 'hidden');
       }
     };
 
@@ -129,7 +136,9 @@ const App: React.FC = () => {
   return (
     <>
       {/* Khung chứa con trỏ chuột custom */}
-      <div ref={cursorRef} className="custom-cursor"></div>
+      <div ref={cursorRef} className="custom-cursor">
+        <span className="cursor-text"></span>
+      </div>
 
       <Header
         onLogoClick={handleResetHome}

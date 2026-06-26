@@ -1728,8 +1728,9 @@ a {
     pointer-events: none; /* Cho phép người dùng bấm xuyên qua con trỏ */
     z-index: 999999;
     transform: translate3d(0, 0, 0);
-    transition: width 0.3s cubic-bezier(0.165, 0.84, 0.44, 1), 
-                height 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+    transition: width 0.3s cubic-bezier(0.165, 0.84, 0.44, 1),
+                height 0.3s cubic-bezier(0.165, 0.84, 0.44, 1),
+                background-color 0.3s ease;
     will-change: transform, width, height;
   }
 
@@ -1743,6 +1744,32 @@ a {
   .custom-cursor.dragging {
     width: 20px; /* Giảm kích thước vòng tròn khi ở khung Banner */
     height: 20px;
+  }
+
+  /* Khi rê vào video -> Biến thành nút chữ "WATCH" */
+  .custom-cursor.video-hover {
+    width: 80px;
+    height: 80px;
+    background-color: var(--color-accent-yellow); /* Màu vàng cho nổi bật */
+    mix-blend-mode: normal; /* Tắt blend mode để màu vàng hiển thị đúng */
+  }
+
+  .cursor-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: var(--color-bg-main); /* Chữ đen */
+    font-size: 14px;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    white-space: nowrap; /* Ngăn chữ bị xuống dòng */
+  }
+  .custom-cursor.video-hover .cursor-text {
+    opacity: 1;
   }
 }
 
