@@ -708,25 +708,11 @@ a {
 /* ĐÃ TẮT: Quy tắc dưới đây đã được chú thích lại để cho phép con trỏ chuột tương tác với video.
    LƯU Ý: Điều này sẽ làm cho hiệu ứng play/pause khi hover vào/ra khỏi thẻ cha (.news-card) hoạt động không chính xác. */
 /* .news-image video {
-  pointer-events: none;
+  pointer-events: none; 
 } */
 
-/* GIẢI PHÁP CHO CUSTOM CURSOR & TƯƠNG TÁC:
-   Làm cho iframe của Vimeo "vô hình" với chuột.
-   Điều này cho phép con trỏ tùy chỉnh di chuyển mượt mà bên trên video,
-   đồng thời các sự kiện hover và click sẽ được xử lý bởi thẻ .news-card cha. */
-.news-image iframe {
-  pointer-events: none;
-}
-
-/* GIẢI PHÁP: Đảm bảo container cho Vimeo player chiếm toàn bộ không gian
-   của thẻ cha (.news-image) để iframe có kích thước đúng và sự kiện hover hoạt động. */
-.vimeo-player-container {
-  width: 100%;
-  height: 100%;
-  /* Đã gỡ bỏ pointer-events: none.
-     Logic xử lý hover phức tạp hơn sẽ được thực hiện trong component bằng JavaScript. */
-}
+/* Các quy tắc pointer-events cho iframe và vimeo-player-container đã được gỡ bỏ.
+   Việc tương tác giờ đây được xử lý bởi một lớp phủ chuyên dụng (.interaction-overlay). */
 
 .all-products-grid .news-image {  
   aspect-ratio: auto;
@@ -757,6 +743,18 @@ a {
 
 .all-products-grid .news-card:hover .news-text {
   opacity: 1; /* Hiện ra khi hover vào card cha */
+}
+
+.interaction-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 2; /* Nằm trên video/ảnh nhưng dưới lớp text */
+  /* Lớp này trong suốt nhưng sẽ bắt tất cả sự kiện chuột,
+     giải quyết xung đột với iframe và đảm bảo hover/click hoạt động nhất quán.
+     Con trỏ custom cũng sẽ tương tác với lớp này, không bị kẹt. */
 }
 
 .video-play-overlay {

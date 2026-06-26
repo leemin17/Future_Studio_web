@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { newsData, customerData, type NewsItem } from '../data/database';
 import QuickViewModal from '../components/QuickViewModal';
 import Player from '@vimeo/player';
+import { useInView } from 'react-intersection-observer';
 
 // --- ĐỊNH NGHĨA HIỆU ỨNG SO LE (STAGGERED ANIMATION) ---
 // 1. Định nghĩa cho khung lưới bọc ngoài
@@ -40,7 +41,6 @@ interface ProductCardProps {
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({ item, onClick }) => {
-  const cardRef = useRef<HTMLDivElement>(null);
   const playerContainerRef = useRef<HTMLDivElement>(null);
   const playerRef = useRef<Player | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null); // Ref cho thẻ <video>
@@ -48,11 +48,20 @@ const ProductCard: React.FC<ProductCardProps> = ({ item, onClick }) => {
   // State để lưu thumbnail URL, khởi tạo với ảnh fallback từ database
   const [thumbnailUrl, setThumbnailUrl] = useState(item.imageUrl);
 
+  // GIẢI PHÁP HIỆU NĂNG: Chỉ tải video khi card nằm trong màn hình
+  // ĐÃ SỬA: Thêm <HTMLDivElement> để TypeScript hiểu rằng ref này
+  // sẽ được gắn vào một div, giải quyết lỗi "báo đỏ".
+  const { ref, inView } = useInView<HTMLDivElement>({
+    triggerOnce: true, // Chỉ kích hoạt 1 lần duy nhất
+    threshold: 0.1,    // Kích hoạt khi 10% card hiện ra
+  });
+
   const isVimeo = useMemo(() => item.videoUrl?.includes('vimeo'), [item.videoUrl]);
 
   // useEffect mới: Tự động lấy thumbnail từ API chính thức của Vimeo
   useEffect(() => {
-    if (isVimeo && item.videoUrl) {
+    // Chỉ fetch khi card hiện ra trong màn hình
+    if (inView && isVimeo && item.videoUrl) {
       fetch(`https://vimeo.com/api/oembed.json?url=${item.videoUrl}`)
         .then(response => response.json())
         .then(data => {
@@ -65,12 +74,12 @@ const ProductCard: React.FC<ProductCardProps> = ({ item, onClick }) => {
           console.error('Lỗi khi lấy thumbnail từ Vimeo, sử dụng ảnh fallback:', error);
         });
     }
-  }, [isVimeo, item.videoUrl]);
+  }, [inView, isVimeo, item.videoUrl]);
 
   // Khởi tạo Vimeo Player khi component được mount hoặc videoUrl thay đổi
   useEffect(() => {
-    // Chỉ xử lý khi là video Vimeo
-    if (isVimeo && item.videoUrl && playerContainerRef.current) {
+    // Chỉ khởi tạo player khi card hiện ra trong màn hình
+    if (inView && isVimeo && item.videoUrl && playerContainerRef.current) {
       const videoId = getVimeoId(item.videoUrl);
       if (videoId) {
         // ĐÃ SỬA: Tắt `background` để video không tự chạy khi vừa tải xong.
@@ -91,7 +100,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ item, onClick }) => {
         };
       }
     }
-  }, [item.videoUrl, isVimeo]);
+  }, [inView, item.videoUrl, isVimeo]);
 
   const handleMouseEnter = () => {
     setIsHovering(true);
@@ -106,6 +115,8 @@ const ProductCard: React.FC<ProductCardProps> = ({ item, onClick }) => {
     }
   };
 
+  // Đã đơn giản hóa: Logic JavaScript phức tạp đã được gỡ bỏ và thay thế
+  // bằng giải pháp CSS `pointer-events: none` đáng tin cậy hơn.
   const handleMouseLeave = () => {
     setIsHovering(false);
     if (isVimeo && playerRef.current) {
@@ -127,17 +138,21 @@ const ProductCard: React.FC<ProductCardProps> = ({ item, onClick }) => {
 
   return (
     <motion.div
-      ref={cardRef}
+      ref={ref} // Gắn ref từ useInView vào đây
       className="news-card"
-      onClick={onClick}
       variants={gridItemVariants}
       layout
     >
       <div
         className="news-image natural-size"
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave}
       >
+        {/* Lớp phủ trong suốt để bắt tất cả tương tác, giải quyết mọi vấn đề về sự kiện */}
+        <div
+          className="interaction-overlay"
+          onClick={onClick}
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
+        />
         {/* Lớp ảnh thumbnail, luôn hiển thị làm nền */}
         <img
           src={getFullImageUrl(thumbnailUrl)}
@@ -155,9 +170,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ item, onClick }) => {
               height: '100%',
               opacity: isHovering ? 1 : 0,
               transition: 'opacity 0.3s ease',
-              // GIẢI PHÁP: Thêm thuộc tính này để lớp video không "bắt" sự kiện chuột,
-              // cho phép sự kiện hover trên thẻ .news-image cha hoạt động ổn định.
-              pointerEvents: 'none',
+              // Đã gỡ bỏ pointer-events: none, vì lớp phủ interaction-overlay đã xử lý tất cả sự kiện.
             }}
           >
             {isVimeo ? (
@@ -169,7 +182,6 @@ const ProductCard: React.FC<ProductCardProps> = ({ item, onClick }) => {
                 muted
                 loop
                 playsInline
-                style={{ pointerEvents: 'none' }} // Đảm bảo sự kiện hover hoạt động nhất quán
               />
             )}
           </div>
@@ -187,12 +199,29 @@ const ProductCard: React.FC<ProductCardProps> = ({ item, onClick }) => {
 const AllProductsPage: React.FC = () => {
   const [selectedProduct, setSelectedProduct] = useState<NewsItem | null>(null);
 
-  // Tối ưu hóa: Chỉ gộp và sắp xếp lại sản phẩm một lần bằng useMemo
-  const allProducts = useMemo(() => 
-    [...newsData, ...customerData].sort((a, b) => 
-      new Date(b.date.replace(/\./g, '-')).getTime() - new Date(a.date.replace(/\./g, '-')).getTime()
-    ), 
-  []);
+  // SỬA LỖI: Sắp xếp sản phẩm một cách an toàn, xử lý các giá trị ngày không hợp lệ
+  // để tránh lỗi sắp xếp không nhất quán trên các trình duyệt khác nhau.
+  const allProducts = useMemo(() => {
+    return [...newsData, ...customerData].sort((a, b) => {
+      const dateA = new Date(a.date.replace(/\./g, '-'));
+      const dateB = new Date(b.date.replace(/\./g, '-'));
+
+      const timeA = dateA.getTime();
+      const timeB = dateB.getTime();
+
+      const isAValid = !isNaN(timeA);
+      const isBValid = !isNaN(timeB);
+
+      if (isAValid && isBValid) {
+        // Cả hai ngày đều hợp lệ, sắp xếp theo thứ tự mới nhất trước
+        return timeB - timeA;
+      }
+      // Đẩy các mục có ngày không hợp lệ (ví dụ: "THANK YOU") xuống cuối danh sách
+      if (isAValid) return -1;
+      if (isBValid) return 1;
+      return 0; // Giữ nguyên thứ tự nếu cả hai đều không hợp lệ
+    });
+  }, []);
 
   const handleProductClick = (item: NewsItem) => {
     setSelectedProduct(item);
