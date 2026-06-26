@@ -724,10 +724,8 @@ a {
 .vimeo-player-container {
   width: 100%;
   height: 100%;
-  /* GIẢI PHÁP CUỐI CÙNG: Thêm lại pointer-events: none.
-     - Điều này làm cho khối div này "vô hình" với chuột.
-     - Sự kiện hover sẽ được thẻ .news-image cha bắt trọn vẹn, giải quyết dứt điểm lỗi video không chạy. */
-  pointer-events: none;
+  /* Đã gỡ bỏ pointer-events: none.
+     Logic xử lý hover phức tạp hơn sẽ được thực hiện trong component bằng JavaScript. */
 }
 
 .all-products-grid .news-image {  

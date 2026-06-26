@@ -44,8 +44,28 @@ const ProductCard: React.FC<ProductCardProps> = ({ item, onClick }) => {
   const playerContainerRef = useRef<HTMLDivElement>(null);
   const playerRef = useRef<Player | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null); // Ref cho thẻ <video>
+  const [isHovering, setIsHovering] = useState(false);
+  // State để lưu thumbnail URL, khởi tạo với ảnh fallback từ database
+  const [thumbnailUrl, setThumbnailUrl] = useState(item.imageUrl);
 
   const isVimeo = useMemo(() => item.videoUrl?.includes('vimeo'), [item.videoUrl]);
+
+  // useEffect mới: Tự động lấy thumbnail từ API chính thức của Vimeo
+  useEffect(() => {
+    if (isVimeo && item.videoUrl) {
+      fetch(`https://vimeo.com/api/oembed.json?url=${item.videoUrl}`)
+        .then(response => response.json())
+        .then(data => {
+          // Lấy thumbnail chất lượng cao nhất
+          if (data && data.thumbnail_url) {
+            setThumbnailUrl(data.thumbnail_url);
+          }
+        })
+        .catch(error => {
+          console.error('Lỗi khi lấy thumbnail từ Vimeo, sử dụng ảnh fallback:', error);
+        });
+    }
+  }, [isVimeo, item.videoUrl]);
 
   // Khởi tạo Vimeo Player khi component được mount hoặc videoUrl thay đổi
   useEffect(() => {
@@ -74,6 +94,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ item, onClick }) => {
   }, [item.videoUrl, isVimeo]);
 
   const handleMouseEnter = () => {
+    setIsHovering(true);
     if (isVimeo && playerRef.current) {
       playerRef.current.play().catch(error => {
         console.error("Lỗi tự động phát video Vimeo:", error);
@@ -86,6 +107,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ item, onClick }) => {
   };
 
   const handleMouseLeave = () => {
+    setIsHovering(false);
     if (isVimeo && playerRef.current) {
       playerRef.current.pause();
       playerRef.current.setCurrentTime(0); // Tua về đầu
@@ -93,6 +115,14 @@ const ProductCard: React.FC<ProductCardProps> = ({ item, onClick }) => {
       videoRef.current.pause();
       videoRef.current.currentTime = 0; // Tua về đầu
     }
+  };
+
+  // Hàm tiện ích để xử lý cả URL tuyệt đối (từ Vimeo) và tương đối (local)
+  const getFullImageUrl = (url: string) => {
+    if (url.startsWith('http://') || url.startsWith('https://')) {
+      return url;
+    }
+    return `${import.meta.env.BASE_URL}${url}`;
   };
 
   return (
@@ -108,23 +138,41 @@ const ProductCard: React.FC<ProductCardProps> = ({ item, onClick }) => {
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
       >
-        {item.videoUrl ? (
-          isVimeo ? (
-            // Div này sẽ là nơi Vimeo Player được gắn vào
-            <div ref={playerContainerRef} className="vimeo-player-container" />
-          ) : (
-            // Dùng thẻ video cho các file local
-            <video
-              ref={videoRef}
-              src={`${import.meta.env.BASE_URL}${item.videoUrl}`}
-              muted
-              loop
-              playsInline
-              // CSS đã có sẵn trong index.css để video fill khung
-            />
-          )
-        ) : (
-          <img src={`${import.meta.env.BASE_URL}${item.imageUrl}`} alt={`${item.project_name} - ${item.clientInformation}`} />
+        {/* Lớp ảnh thumbnail, luôn hiển thị làm nền */}
+        <img
+          src={getFullImageUrl(thumbnailUrl)}
+          alt={`${item.project_name} - ${item.clientInformation}`}
+        />
+
+        {/* Lớp video, nằm đè lên và chỉ hiện ra khi hover */}
+        {item.videoUrl && (
+          <div
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              width: '100%',
+              height: '100%',
+              opacity: isHovering ? 1 : 0,
+              transition: 'opacity 0.3s ease',
+              // GIẢI PHÁP: Thêm thuộc tính này để lớp video không "bắt" sự kiện chuột,
+              // cho phép sự kiện hover trên thẻ .news-image cha hoạt động ổn định.
+              pointerEvents: 'none',
+            }}
+          >
+            {isVimeo ? (
+              <div ref={playerContainerRef} className="vimeo-player-container" />
+            ) : (
+              <video
+                ref={videoRef}
+                src={`${import.meta.env.BASE_URL}${item.videoUrl}`}
+                muted
+                loop
+                playsInline
+                style={{ pointerEvents: 'none' }} // Đảm bảo sự kiện hover hoạt động nhất quán
+              />
+            )}
+          </div>
         )}
         <p className="news-text">{item.project_name} - {item.clientInformation}</p>
       </div>
