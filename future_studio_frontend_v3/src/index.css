@@ -1944,7 +1944,7 @@ button:not(.header-nav-link):hover,
 
 /* Section chính của trang Team */
 .team-section {
-  padding: 60px 0;
+  padding: 0 0;
   /* Giảm padding ngang, chỉ giữ padding trên dưới */
   background-color: var(--background-primary);
   /* Nền tối mặc định của trang */
@@ -1984,6 +1984,7 @@ button:not(.header-nav-link):hover,
   display: flex;
   align-items: center;
   /* Thêm padding ngang để các nút không bị dính vào lề màn hình nhỏ */
+  /* Thêm padding ngang để các nút không bị dính vào lề màn hình nhỏ */
   padding: 0 20px;
   max-width: 1400px;
   /* Giới hạn chiều rộng tối đa */
@@ -1994,6 +1995,31 @@ button:not(.header-nav-link):hover,
 /* =========================================
    CONTAINER LƯỚT NGANG
 ========================================= */
+/* --- CONTAINER MỚI CHO CAROUSEL CHẠY LIÊN TỤC --- */
+.team-carousel-continuous {
+  width: 100%;
+  overflow: hidden;
+  padding: 30px 0;
+  /* Thêm padding trên dưới để thẻ không bị cắt */
+  -webkit-mask-image: linear-gradient(to right,
+      transparent 0%,
+      black 10%,
+      black 90%,
+      transparent 100%);
+  mask-image: linear-gradient(to right,
+      transparent 0%,
+      black 10%,
+      black 90%,
+      transparent 100%);
+}
+
+.team-carousel-track {
+  display: flex;
+  gap: 40px;
+  width: fit-content;
+  animation: ticker 80s linear infinite;
+}
+
 .carousel-container {
   display: flex;
   gap: 40px;
@@ -2018,28 +2044,16 @@ button:not(.header-nav-link):hover,
   /* Dành cho Chrome, Safari, Opera */
 }
 
-/* Nút điều hướng cho Team Carousel */
-.team-nav-btn {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  z-index: 20;
-  /* Kích thước lớn hơn một chút để dễ bấm */
-  width: 48px;
-  height: 48px;
-  font-size: 24px;
+/* Xóa các nút điều hướng vì carousel giờ tự chạy */
+.team-carousel-wrapper {
+  display: block;
+  padding: 0;
 }
 
-.team-nav-btn.prev {
-  left: 0;
-  /* Đặt nút ở cạnh trái của wrapper */
+/* Tạm dừng animation khi hover */
+.team-carousel-continuous:hover .team-carousel-track {
+  animation-play-state: paused;
 }
-
-.team-nav-btn.next {
-  right: 0;
-  /* Đặt nút ở cạnh phải của wrapper */
-}
-
 
 /* =========================================
    THỂ POLAROID (KHUNG ẢNH LẤY LIỀN)
