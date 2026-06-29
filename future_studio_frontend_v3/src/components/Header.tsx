@@ -17,7 +17,7 @@ const useScrollSpy = (sectionIds: string[]) => {
   useEffect(() => {
     const options = {
       root: null,
-      rootMargin: '-10% 0px -40% 0px', 
+      rootMargin: '-10% 0px -40% 0px',
       threshold: 0.4,
     };
 
@@ -83,7 +83,7 @@ const Header: React.FC<HeaderProps> = ({ onLogoClick, showFixedHeader, isAtDetai
       </div>
 
       {/* Nút Hamburger menu dành cho điện thoại */}
-      <button 
+      <button
         className="mobile-menu-toggle"
         onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
       >
@@ -112,12 +112,12 @@ const Header: React.FC<HeaderProps> = ({ onLogoClick, showFixedHeader, isAtDetai
                   } else {
                     handleScrollTo(item.id);
                   }
-                } 
+                }
               }}
             >
               {item.label}
             </button>
-            
+
             {item.subItems && (
               <div className="dropdown-menu">
                 {item.subItems.map((sub) => (

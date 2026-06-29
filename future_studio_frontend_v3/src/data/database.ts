@@ -42,6 +42,13 @@ export interface MvItem {
   description: string;
 }
 
+export interface TeamMember {
+  id: number;
+  name: string;
+  role: string;
+  image: string;
+}
+
 
 /* =====================================================================
    2. KHO DỮ LIỆU TÁCH RIÊNG (MOCK DATABASE)
@@ -55,23 +62,23 @@ export const heroImages = [
 
 // Data cho Tin tức (What's new / All Products!)
 export const newsData: NewsItem[] = [
-  { id: 1, date: '2026.04.26', project_name: 'project', clientInformation: 'client', imageUrl: 'images/placeholder.jpg' ,videoUrl: 'https://vimeo.com/1204801368'},
-  { id: 2, date: '2024.03.26', project_name: 'project', clientInformation: 'client', imageUrl: 'images/placeholder.jpg', videoUrl: 'https://vimeo.com/1204790802' },
-  { id: 3, date: '2026.04.05', project_name: 'project', clientInformation: 'client', imageUrl: 'images/placeholder.jpg', videoUrl: 'https://vimeo.com/1204801368' },
-  { id: 4, date: '2024.03.18', project_name: 'project', clientInformation: 'client', imageUrl: 'images/placeholder.jpg', videoUrl: 'https://vimeo.com/1204790802' },
-  { id: 5, date: '2024.03.10', project_name: 'project', clientInformation: 'client', imageUrl: 'images/placeholder.jpg', videoUrl: 'https://vimeo.com/1204801368', modelUrl: 'models/Lipstick.glb' },
-  { id: 6, date: '2024.02.28', project_name: 'project', clientInformation: 'client', imageUrl: 'images/placeholder.jpg', videoUrl: 'https://vimeo.com/1204790802' },
-  { id: 7, date: '2024.02.15', project_name: 'project', clientInformation: 'client', imageUrl: 'images/placeholder.jpg', videoUrl: 'https://vimeo.com/1204801368' },
-  { id: 8, date: '2024.01.20', project_name: 'project', clientInformation: 'client', imageUrl: 'images/placeholder.jpg', videoUrl: 'https://vimeo.com/1204790802' }
+  { id: 1, date: '2026.04.26', project_name: 'project', clientInformation: 'client', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1204801368' },
+  { id: 2, date: '2024.03.26', project_name: 'project', clientInformation: 'client', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1204790802' },
+  { id: 3, date: '2026.04.05', project_name: 'project', clientInformation: 'client', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1204801368' },
+  { id: 4, date: '2024.03.18', project_name: 'project', clientInformation: 'client', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1204790802' },
+  { id: 5, date: '2024.03.10', project_name: 'project', clientInformation: 'client', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1204801368', modelUrl: 'models/Lipstick.glb' },
+  { id: 6, date: '2024.02.28', project_name: 'project', clientInformation: 'client', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1204790802' },
+  { id: 7, date: '2024.02.15', project_name: 'project', clientInformation: 'client', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1204801368' },
+  { id: 8, date: '2024.01.20', project_name: 'project', clientInformation: 'client', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1204790802' }
 ];
 
 // Data cho Khách hàng (Our Customers!)
 export const customerData: NewsItem[] = [
-  { id: 101, date: 'THANK YOU', project_name: 'project', clientInformation: 'client', imageUrl: 'images/placeholder.jpg', videoUrl: 'https://vimeo.com/1204801368' },
-  { id: 102, date: 'CREATIVE', project_name: 'project', clientInformation: 'client', imageUrl: 'images/placeholder.jpg', videoUrl: 'https://vimeo.com/1204790802' },
-  { id: 103, date: 'STUDIO', project_name: 'project', clientInformation: 'client', imageUrl: 'images/placeholder.jpg', videoUrl: 'https://vimeo.com/1204801368' },
-  { id: 104, date: 'TRUSTED', project_name: 'project', clientInformation: 'client', imageUrl: 'images/placeholder.jpg', videoUrl: 'https://vimeo.com/1204801368' },
-  { id: 105, date: '2026', project_name: 'project', clientInformation: 'client', imageUrl: 'images/placeholder.jpg', videoUrl: 'https://vimeo.com/1204801368' }
+  { id: 101, date: 'THANK YOU', project_name: 'project', clientInformation: 'client', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1204801368' },
+  { id: 102, date: 'CREATIVE', project_name: 'project', clientInformation: 'client', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1204790802' },
+  { id: 103, date: 'STUDIO', project_name: 'project', clientInformation: 'client', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1204801368' },
+  { id: 104, date: 'TRUSTED', project_name: 'project', clientInformation: 'client', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1204801368' },
+  { id: 105, date: '2026', project_name: 'project', clientInformation: 'client', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1204801368' }
 ];
 export const heroDetails = [
   {
@@ -94,27 +101,71 @@ export const heroDetails = [
   }
 ];
 
+export const teamMembers: TeamMember[] = [
+  {
+    id: 1,
+    name: 'Sarah & Chloe',
+    role: 'Creative Duo',
+    image: 'images/anhcuong.jpg'
+  },
+  {
+    id: 2,
+    name: 'Mark',
+    role: 'Head of Dev',
+    image: 'images/anhdat.jpg'
+  },
+  {
+    id: 3,
+    name: 'Lê Minh',
+    role: 'Frontend Developer',
+    image: 'images/anhcuong.jpg'
+  },
+  {
+    id: 4,
+    name: 'Anna',
+    role: 'UI/UX Designer',
+    image: 'images/anhdat.jpg'
+  },
+  {
+    id: 5,
+    name: 'Anna',
+    role: 'UI/UX Designer',
+    image: 'images/anhdat.jpg'
+  },
+  {
+    id: 6,
+    name: 'Anna',
+    role: 'UI/UX Designer',
+    image: 'images/anhdat.jpg'
+  },
+  {
+    id: 7,
+    name: 'Anna',
+    role: 'UI/UX Designer',
+    image: 'images/anhdat.jpg'
+  }
+];
+
 /* =====================================================================
    3. DỮ LIỆU CHO CÁC COMPONENT GIAO DIỆN
    ===================================================================== */
 
 // Data cho Header Navigation
 export const navItems: NavItem[] = [
-  { 
-    label: 'Showcase', 
+  {
+    label: 'Showcase',
     id: 'showcase',
     subItems: [
       { label: 'All', id: 'showcase-all', path: '/all-products' },
       { label: '3D', id: 'showcase-3d' },
-      { label: 'Cartoon', id: 'showcase-cartoon' },
-      { label: 'Video Music', id: 'showcase-music', path: '/music-videos' } // Giả sử có trang MV
+      { label: 'Cartoon', id: 'showcase-cartoon' }
     ]
   },
-  { label: 'The Team', 
-    id: 'team',  
+  {
+    label: 'The Team',
+    id: 'team',
     subItems: [
-      { label: 'Members', id: 'team-members' },
-      { label: 'Careers', id: 'team-careers' }
+      { label: 'Members', id: 'team-members', path: '/team' }
     ]
   },
   { label: 'About', id: 'about', path: '/about' },
@@ -132,12 +183,12 @@ export const mvData: MvItem[] = [
 
 // Data cho các từ khóa tìm kiếm gợi ý
 export const popularSearches: string[] = [
-  'Quà tặng', 
-  'Phim hoạt hình', 
-  'Khóa học 3D', 
-  'VIP', 
-  'Kỷ niệm', 
-  'Sáng tạo', 
-  'Tri ân', 
+  'Quà tặng',
+  'Phim hoạt hình',
+  'Khóa học 3D',
+  'VIP',
+  'Kỷ niệm',
+  'Sáng tạo',
+  'Tri ân',
   'Đối tác'
 ];
