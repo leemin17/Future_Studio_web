@@ -128,19 +128,19 @@ export const teamMembers: TeamMember[] = [
   },
   {
     id: 5,
-    name: 'Anna',
+    name: 'Amee',
     role: 'UI/UX Designer',
     image: 'images/anhdat.jpg'
   },
   {
     id: 6,
-    name: 'Anna',
+    name: 'Tuấn',
     role: 'UI/UX Designer',
     image: 'images/anhdat.jpg'
   },
   {
     id: 7,
-    name: 'Anna',
+    name: 'Cướng',
     role: 'UI/UX Designer',
     image: 'images/anhdat.jpg'
   }

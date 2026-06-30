@@ -1,101 +1,201 @@
-import React, { useRef, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { teamMembers } from '../data/database';
 
 const TeamPage = () => {
-    const carouselRef = useRef<HTMLDivElement>(null);
-    const isScrollingRef = useRef(false); // Ref để theo dõi trạng thái cuộn do code gây ra
-
-    // Nhân đôi danh sách thành viên để tạo hiệu ứng lặp lại
-    const duplicatedMembers = useMemo(() => [...teamMembers, ...teamMembers], []);
-
-    // Thiết lập vị trí cuộn ban đầu để có thể cuộn sang trái
-    useEffect(() => {
-        const carousel = carouselRef.current;
-        if (carousel) {
-            const scrollWidth = carousel.scrollWidth;
-            const clientWidth = carousel.clientWidth;
-            // Đặt vị trí cuộn ở giữa, tức là điểm bắt đầu của bản sao thứ hai
-            carousel.scrollLeft = (scrollWidth - clientWidth) / 2;
-        }
+    // --- LOGIC CHO CAROUSEL VÔ TẬN ---
+    const PADDING_SIZE = 2; // Số lượng item nhân bản ở mỗi đầu
+    const extendedMembers = useMemo(() => {
+        const start = teamMembers.slice(-PADDING_SIZE);
+        const end = teamMembers.slice(0, PADDING_SIZE);
+        return [...start, ...teamMembers, ...end];
     }, []);
 
-    const handleScroll = () => {
-        if (isScrollingRef.current) return; // Bỏ qua nếu đang cuộn do code
+    const [currentIndex, setCurrentIndex] = useState(PADDING_SIZE); // Bắt đầu từ item thật đầu tiên
+    const [isTransitioning, setIsTransitioning] = useState(true); // Bật transition ban đầu
+    const [offset, setOffset] = useState(0);
+    const trackWrapperRef = useRef<HTMLDivElement>(null);
+    const throttleTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-        const carousel = carouselRef.current;
-        if (carousel) {
-            const { scrollLeft, scrollWidth, clientWidth } = carousel;
-            const itemWidth = scrollWidth / duplicatedMembers.length;
+    // --- State cho việc vuốt trên di động ---
+    const [isSwiping, setIsSwiping] = useState(false);
+    const [touchStartX, setTouchStartX] = useState(0);
+    const [touchDeltaX, setTouchDeltaX] = useState(0);
+    const activeIndex = (currentIndex - PADDING_SIZE + teamMembers.length) % teamMembers.length;
 
-            // Khi cuộn gần đến cuối (bản sao thứ hai)
-            if (scrollLeft + clientWidth >= scrollWidth - itemWidth) {
-                isScrollingRef.current = true;
-                carousel.scrollLeft = scrollLeft - (scrollWidth / 2);
-                setTimeout(() => { isScrollingRef.current = false; }, 50);
-            }
-            // Khi cuộn gần về đầu (bản sao đầu tiên)
-            else if (scrollLeft <= itemWidth) {
-                isScrollingRef.current = true;
-                carousel.scrollLeft = scrollLeft + (scrollWidth / 2);
-                setTimeout(() => { isScrollingRef.current = false; }, 50);
-            }
-        }
-    };
-
-    const scroll = (scrollOffset: number) => {
-        if (carouselRef.current) {
-            carouselRef.current.scrollBy({ left: scrollOffset, behavior: 'smooth' });
-        }
-    };
-
-    // HIỆU ỨNG: Lướt ngang carousel bằng con lăn chuột
+    // --- LOGIC ĐỂ TÍNH TOÁN VỊ TRÍ CHO CAROUSEL ---
     useEffect(() => {
-        const carousel = carouselRef.current;
+        const calculateOffset = () => {
+            if (!trackWrapperRef.current) return;
+
+            const wrapperWidth = trackWrapperRef.current.offsetWidth;
+
+            // Kích thước và khoảng cách được định nghĩa trong CSS
+            const activeCardWidth = 320;
+            const inactiveCardWidth = 160;
+            const gap = 40;
+
+            // Tính tổng chiều rộng của các thẻ trước thẻ active
+            let totalWidthBeforeActive = 0;
+            for (let i = 0; i < currentIndex; i++) {
+                totalWidthBeforeActive += inactiveCardWidth + gap;
+            }
+
+            // Tính toán offset để căn giữa thẻ active
+            const newOffset = (wrapperWidth / 2) - totalWidthBeforeActive - (activeCardWidth / 2);
+            setOffset(newOffset);
+        };
+
+        calculateOffset();
+        window.addEventListener('resize', calculateOffset);
+        return () => window.removeEventListener('resize', calculateOffset);
+    }, [currentIndex]);
+
+    // --- Xử lý khi transition kết thúc để tạo hiệu ứng lặp ---
+    const handleTransitionEnd = () => {
+        // Khi hiệu ứng lướt tới slide nhân bản kết thúc, ta sẽ thực hiện cú "nhảy"
+        // Nếu đang ở slide nhân bản cuối -> nhảy về slide thật đầu tiên
+        if (currentIndex === extendedMembers.length - PADDING_SIZE) {
+            setIsTransitioning(false); // Tắt transition để "nhảy" tức thì
+            setCurrentIndex(PADDING_SIZE);
+        }
+        // Nếu đang ở slide nhân bản đầu -> nhảy về slide thật cuối cùng
+        else if (currentIndex === PADDING_SIZE - 1) {
+            setIsTransitioning(false); // Tắt transition để "nhảy" tức thì
+            setCurrentIndex(extendedMembers.length - PADDING_SIZE - 1);
+        }
+    };
+
+    const handlePrev = useCallback(() => {
+        setCurrentIndex((prev) => prev - 1);
+        setIsTransitioning(true);
+    }, []);
+
+    const handleNext = useCallback(() => {
+        setCurrentIndex((prev) => prev + 1);
+        setIsTransitioning(true);
+    }, []);
+
+    // Tối ưu hóa hiệu ứng "nhảy" slide:
+    // Sau khi "nhảy" (isTransitioning = false), dùng useEffect để bật lại transition
+    // trong một chu trình render riêng biệt. Điều này đảm bảo trình duyệt
+    // không bị "giật" do thay đổi vị trí và bật transition cùng lúc.
+    useEffect(() => {
+        if (!isTransitioning) {
+            // Đẩy việc bật lại transition vào tác vụ tiếp theo để trình duyệt có thời gian render cú "nhảy"
+            const timer = setTimeout(() => setIsTransitioning(true), 50); // 50ms là khoảng an toàn
+            return () => clearTimeout(timer);
+        }
+    }, [isTransitioning]);
+
+    // --- HIỆU ỨNG: LƯỚT CAROUSEL BẰNG CON LĂN CHUỘT ---
+    useEffect(() => {
+        const carousel = trackWrapperRef.current;
         if (!carousel) return;
 
         const handleWheel = (e: WheelEvent) => {
-            // Nếu người dùng lăn chuột, ngăn hành vi cuộn dọc mặc định của trang
-            e.preventDefault();
+            e.preventDefault(); // Ngăn trang cuộn dọc
 
-            // Cuộn carousel theo chiều ngang, giá trị deltaY là khoảng cách lăn chuột
-            carousel.scrollBy({
-                left: e.deltaY,
-                behavior: 'auto' // Dùng 'auto' để cuộn tức thì, tạo cảm giác phản hồi nhanh
-            });
+            if (throttleTimeout.current) return; // Nếu đang trong thời gian chờ, không làm gì cả
+
+            if (e.deltaY > 0) {
+                handleNext();
+            } else {
+                handlePrev();
+            }
+
+            // Đặt thời gian chờ 500ms trước khi cho phép lăn chuột tiếp
+            throttleTimeout.current = setTimeout(() => {
+                throttleTimeout.current = null;
+            }, 500);
         };
 
         carousel.addEventListener('wheel', handleWheel, { passive: false });
-        return () => carousel.removeEventListener('wheel', handleWheel);
-    }, []);
+
+        return () => {
+            carousel.removeEventListener('wheel', handleWheel);
+            if (throttleTimeout.current) {
+                clearTimeout(throttleTimeout.current);
+            }
+        };
+    }, [handleNext, handlePrev]);
+
+    // --- LOGIC VUỐT TRÊN DI ĐỘNG ---
+    const handleTouchStart = (e: React.TouchEvent) => {
+        // Chỉ bắt đầu vuốt nếu đang không trong thời gian chờ
+        if (throttleTimeout.current) return;
+        setTouchStartX(e.touches[0].clientX);
+        setIsSwiping(true);
+    };
+
+    const handleTouchMove = (e: React.TouchEvent) => {
+        if (!isSwiping) return;
+        const currentX = e.touches[0].clientX;
+        setTouchDeltaX(currentX - touchStartX);
+    };
+
+    const handleTouchEnd = () => {
+        if (!isSwiping) return;
+
+        const swipeThreshold = 50; // Ngưỡng vuốt tối thiểu (50px)
+        if (touchDeltaX < -swipeThreshold) {
+            handleNext();
+        } else if (touchDeltaX > swipeThreshold) {
+            handlePrev();
+        }
+
+        // Reset lại trạng thái vuốt
+        setIsSwiping(false);
+        setTouchDeltaX(0);
+        setTouchStartX(0);
+    };
+
 
     return (
         <section className="team-section">
-            <div className="team-carousel-wrapper">
-                <button className="btn-arrow team-nav-btn prev" onClick={() => scroll(-320)} aria-label="Thành viên trước">
-                    &lt;
-                </button>
-
-                <div className="carousel-container" ref={carouselRef} onScroll={handleScroll}>
-                    {duplicatedMembers.map((member, index) => (
-                        <div key={`${member.id}-${index}`} className="polaroid-card">
-                            <div className="polaroid-image-wrapper">
-                                <img
-                                    src={member.image}
-                                    alt={`Ảnh của ${member.name}`}
-                                    loading="lazy"
-                                />
-                            </div>
-                            <div className="polaroid-caption">
-                                <h3>{member.name}</h3>
-                                <p>{member.role}</p>
-                            </div>
+            <div className="container">
+                {/* Coverflow Carousel */}
+                <div className="team-carousel-coverflow">
+                    <div className="team-carousel-track-wrapper" ref={trackWrapperRef}>
+                        <div
+                            className="team-carousel-track"
+                            style={{
+                                // Khi đang vuốt, ưu tiên vị trí theo tay người dùng để có phản hồi tức thì
+                                transform: isSwiping
+                                    ? `translateX(${offset + touchDeltaX}px)`
+                                    : `translateX(${offset}px)`,
+                                // Tắt transition khi đang vuốt để không bị trễ
+                                transition: isSwiping || !isTransitioning ? 'none' : 'transform 0.6s cubic-bezier(0.25, 0.8, 0.25, 1)'
+                            }}
+                            onTransitionEnd={handleTransitionEnd}
+                            onTouchStart={handleTouchStart}
+                            onTouchMove={handleTouchMove}
+                            onTouchEnd={handleTouchEnd}
+                        >
+                            {extendedMembers.map((member, index) => (
+                                <div
+                                    key={`${member.id}-${index}`}
+                                    className={`polaroid-card-wrapper ${index === currentIndex ? 'active' : ''}`}
+                                    onClick={() => { setCurrentIndex(index); setIsTransitioning(true); }}
+                                >
+                                    <div className="polaroid-card">
+                                        <div className="polaroid-image-wrapper">
+                                            <img
+                                                src={member.image}
+                                                alt={`Ảnh của ${member.name}`}
+                                                loading="lazy"
+                                            />
+                                        </div>
+                                        <div className="polaroid-caption">
+                                            <h3>{member.name}</h3>
+                                            <p>{member.role}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
                         </div>
-                    ))}
-                </div>
+                    </div>
 
-                <button className="btn-arrow team-nav-btn next" onClick={() => scroll(320)} aria-label="Thành viên kế tiếp">
-                    &gt;
-                </button>
+                </div>
             </div>
         </section>
     );
