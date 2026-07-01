@@ -25,10 +25,10 @@ const ProductDetailPage: React.FC = () => {
   // Nếu có model thì tuân theo viewMode (2D/3D), nếu không có thì ép hệ thống hiển thị 2D
   const currentView = has3DModel ? viewMode : '2D';
 
-  const handleResetHome = () => {
-    navigate('/');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
+  // const handleResetHome = () => {
+  //   navigate('/');
+  //   window.scrollTo({ top: 0, behavior: 'smooth' });
+  // };
 
   const handleProductClick = (item: NewsItem) => {
     navigate(`/product/${item.id}`);

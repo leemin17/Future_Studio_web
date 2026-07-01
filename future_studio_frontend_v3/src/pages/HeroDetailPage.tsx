@@ -7,10 +7,10 @@ const HeroDetailPage: React.FC = () => {
   const navigate = useNavigate();
   const selectedHeroIndex = parseInt(id || '0', 10);
 
-  const handleResetHome = () => {
-    navigate('/');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
+  // const handleResetHome = () => {
+  //   navigate('/');
+  //   window.scrollTo({ top: 0, behavior: 'smooth' });
+  // };
 
   const handleProductClick = (item: NewsItem) => {
     navigate(`/product/${item.id}`);

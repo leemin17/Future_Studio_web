@@ -51,7 +51,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ item, onClick }) => {
   // GIẢI PHÁP HIỆU NĂNG: Chỉ tải video khi card nằm trong màn hình
   // ĐÃ SỬA: Thêm <HTMLDivElement> để TypeScript hiểu rằng ref này
   // sẽ được gắn vào một div, giải quyết lỗi "báo đỏ".
-  const { ref, inView } = useInView<HTMLDivElement>({
+  const { ref, inView } = useInView({
     triggerOnce: true, // Chỉ kích hoạt 1 lần duy nhất
     threshold: 0.1,    // Kích hoạt khi 10% card hiện ra
   });
@@ -156,7 +156,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ item, onClick }) => {
         {/* Lớp ảnh thumbnail, luôn hiển thị làm nền */}
         <img
           src={getFullImageUrl(thumbnailUrl)}
-          alt={`${item.project_name} - ${item.clientInformation}`}
+          alt={`${item.title} - ${item.clientInformation}`}
         />
 
         {/* Lớp video, nằm đè lên và chỉ hiện ra khi hover */}
@@ -186,7 +186,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ item, onClick }) => {
             )}
           </div>
         )}
-        <p className="news-text">{item.project_name} - {item.clientInformation}</p>
+        <p className="news-text">{item.title} - {item.clientInformation}</p>
       </div>
     </motion.div>
   );

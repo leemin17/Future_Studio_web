@@ -5,6 +5,7 @@ const TeamPage = () => {
     // --- LOGIC CHO CAROUSEL VÔ TẬN ---
     const PADDING_SIZE = 2; // Số lượng item nhân bản ở mỗi đầu
     const extendedMembers = useMemo(() => {
+        if (teamMembers.length <= PADDING_SIZE) return teamMembers; // Tránh lỗi nếu mảng quá nhỏ
         const start = teamMembers.slice(-PADDING_SIZE);
         const end = teamMembers.slice(0, PADDING_SIZE);
         return [...start, ...teamMembers, ...end];
@@ -20,7 +21,8 @@ const TeamPage = () => {
     const [isSwiping, setIsSwiping] = useState(false);
     const [touchStartX, setTouchStartX] = useState(0);
     const [touchDeltaX, setTouchDeltaX] = useState(0);
-    const activeIndex = (currentIndex - PADDING_SIZE + teamMembers.length) % teamMembers.length;
+    const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+    // const activeIndex = (currentIndex - PADDING_SIZE + teamMembers.length) % teamMembers.length;
 
     // --- LOGIC ĐỂ TÍNH TOÁN VỊ TRÍ CHO CAROUSEL ---
     useEffect(() => {
@@ -30,9 +32,9 @@ const TeamPage = () => {
             const wrapperWidth = trackWrapperRef.current.offsetWidth;
 
             // Kích thước và khoảng cách được định nghĩa trong CSS
-            const activeCardWidth = 320;
-            const inactiveCardWidth = 160;
-            const gap = 40;
+            const activeCardWidth = isMobile ? 240 : 320;
+            const inactiveCardWidth = isMobile ? 120 : 160;
+            const gap = isMobile ? 20 : 40;
 
             // Tính tổng chiều rộng của các thẻ trước thẻ active
             let totalWidthBeforeActive = 0;
@@ -48,7 +50,18 @@ const TeamPage = () => {
         calculateOffset();
         window.addEventListener('resize', calculateOffset);
         return () => window.removeEventListener('resize', calculateOffset);
-    }, [currentIndex]);
+    }, [currentIndex, isMobile]);
+
+    // --- Theo dõi kích thước màn hình để chuyển đổi giữa layout desktop/mobile ---
+    useEffect(() => {
+        const mediaQuery = window.matchMedia('(max-width: 768px)');
+        const handleResize = () => setIsMobile(mediaQuery.matches);
+
+        mediaQuery.addEventListener('change', handleResize);
+        handleResize(); // Kiểm tra ngay khi component mount
+
+        return () => mediaQuery.removeEventListener('change', handleResize);
+    }, []);
 
     // --- Xử lý khi transition kết thúc để tạo hiệu ứng lặp ---
     const handleTransitionEnd = () => {
@@ -56,12 +69,16 @@ const TeamPage = () => {
         // Nếu đang ở slide nhân bản cuối -> nhảy về slide thật đầu tiên
         if (currentIndex === extendedMembers.length - PADDING_SIZE) {
             setIsTransitioning(false); // Tắt transition để "nhảy" tức thì
-            setCurrentIndex(PADDING_SIZE);
+            // Dùng requestAnimationFrame để đảm bảo việc bật lại transition xảy ra sau khi DOM đã cập nhật
+            requestAnimationFrame(() => setCurrentIndex(PADDING_SIZE));
         }
         // Nếu đang ở slide nhân bản đầu -> nhảy về slide thật cuối cùng
         else if (currentIndex === PADDING_SIZE - 1) {
             setIsTransitioning(false); // Tắt transition để "nhảy" tức thì
-            setCurrentIndex(extendedMembers.length - PADDING_SIZE - 1);
+            requestAnimationFrame(() => setCurrentIndex(extendedMembers.length - PADDING_SIZE - 1));
+        } else if (!isTransitioning) {
+            // Bật lại transition sau khi đã "nhảy" xong
+            setIsTransitioning(true);
         }
     };
 
@@ -74,18 +91,6 @@ const TeamPage = () => {
         setCurrentIndex((prev) => prev + 1);
         setIsTransitioning(true);
     }, []);
-
-    // Tối ưu hóa hiệu ứng "nhảy" slide:
-    // Sau khi "nhảy" (isTransitioning = false), dùng useEffect để bật lại transition
-    // trong một chu trình render riêng biệt. Điều này đảm bảo trình duyệt
-    // không bị "giật" do thay đổi vị trí và bật transition cùng lúc.
-    useEffect(() => {
-        if (!isTransitioning) {
-            // Đẩy việc bật lại transition vào tác vụ tiếp theo để trình duyệt có thời gian render cú "nhảy"
-            const timer = setTimeout(() => setIsTransitioning(true), 50); // 50ms là khoảng an toàn
-            return () => clearTimeout(timer);
-        }
-    }, [isTransitioning]);
 
     // --- HIỆU ỨNG: LƯỚT CAROUSEL BẰNG CON LĂN CHUỘT ---
     useEffect(() => {
@@ -194,7 +199,6 @@ const TeamPage = () => {
                             ))}
                         </div>
                     </div>
-
                 </div>
             </div>
         </section>
