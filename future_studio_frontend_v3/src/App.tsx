@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
-import { ReactLenis } from 'lenis/react';
 
 import Header from './components/Header';
 import Footer from './components/Footer';
@@ -10,7 +9,6 @@ import HeroDetailPage from './pages/HeroDetailPage';
 import ProductDetailPage from './pages/ProductDetailPage';
 import CustomerPage from './pages/CustomerPage';
 import AboutPage from './pages/AboutPage';
-import SearchOverlay from './components/SearchOverlay';
 import PageTransition from './components/PageTransition';
 
 /* =====================================================================
@@ -18,7 +16,7 @@ import PageTransition from './components/PageTransition';
    ===================================================================== */
 const App: React.FC = () => {
   const [showFixedHeader, setShowFixedHeader] = useState(false);
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const cursorRef = useRef<HTMLDivElement>(null);
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -42,15 +40,75 @@ const App: React.FC = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, [isAtDetailPage]); // Thêm isAtDetailPage để logic được cập nhật khi chuyển trang
 
-  // --- MỞ KHÓA CUỘN CHO HERO BANNER ---
-  // Tự động gán thuộc tính 'data-lenis-prevent' để Lenis bỏ qua khu vực này,
-  // giúp anh có thể thoải mái lăn chuột lướt dọc qua các slide ảnh.
+  // ====================================================================
+  // HIỆU ỨNG CON TRỎ CHUỘT NGHỆ THUẬT (CUSTOM MAGNETIC CURSOR)
+  // ====================================================================
   useEffect(() => {
-    const heroFrame = document.querySelector('.hero-frame');
-    if (heroFrame) {
-      heroFrame.setAttribute('data-lenis-prevent', 'true');
-    }
-  }, [location.pathname]); // Chạy lại việc kiểm tra mỗi khi chuyển trang
+    const cursor = cursorRef.current;
+    if (!cursor) return;
+
+    let mouseX = window.innerWidth / 2;
+    let mouseY = window.innerHeight / 2;
+    let cursorX = mouseX;
+    let cursorY = mouseY;
+    let currentScale = 1;
+    let isClicking = false;
+
+    // Cập nhật tọa độ khi chuột di chuyển
+    const onMouseMove = (e: MouseEvent) => {
+      mouseX = e.clientX;
+      mouseY = e.clientY;
+    };
+
+    // Bắt sự kiện nhấn và nhả chuột
+    const onMouseDown = () => { isClicking = true; };
+    const onMouseUp = () => { isClicking = false; };
+
+    // Vòng lặp render (60fps) giúp con trỏ trượt mượt mà có gia tốc (Lerp)
+    const renderCursor = () => {
+      cursorX += (mouseX - cursorX) * 0.2; // 0.2 là độ trễ, số càng nhỏ càng trễ mượt
+      cursorY += (mouseY - cursorY) * 0.2;
+      
+      // Nội suy hiệu ứng thu nhỏ mượt mà khi click
+      const targetScale = isClicking ? 0.5 : 1; // Thu nhỏ còn 50% khi bấm chuột
+      currentScale += (targetScale - currentScale) * 0.2;
+
+      cursor.style.transform = `translate3d(${cursorX - cursor.offsetWidth / 2}px, ${cursorY - cursor.offsetHeight / 2}px, 0) scale(${currentScale})`;
+      requestAnimationFrame(renderCursor);
+    };
+    const rafId = requestAnimationFrame(renderCursor);
+
+    // Kiểm tra xem chuột có đang nằm trên thẻ tương tác không để phóng to
+    const onMouseOver = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (target.closest('.hero-frame')) {
+        cursor.classList.add('dragging');
+        cursor.classList.remove('hovering', 'hidden');
+      } else if (target.closest('.news-card, .product-card')) {
+        cursor.classList.add('hovering');
+        cursor.classList.remove('dragging', 'hidden');
+      } else if (target.closest('a, button, input, .search-bar, .cart-status, .menu-burger')) {
+        // Trỏ vào nút -> Ẩn con trỏ custom đi
+        cursor.classList.add('hidden');
+        cursor.classList.remove('hovering', 'dragging');
+      } else {
+        cursor.classList.remove('hovering', 'dragging', 'hidden');
+      }
+    };
+
+    window.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mouseover', onMouseOver);
+    window.addEventListener('mousedown', onMouseDown);
+    window.addEventListener('mouseup', onMouseUp);
+
+    return () => {
+      window.removeEventListener('mousemove', onMouseMove);
+      document.removeEventListener('mouseover', onMouseOver);
+      window.removeEventListener('mousedown', onMouseDown);
+      window.removeEventListener('mouseup', onMouseUp);
+      cancelAnimationFrame(rafId);
+    };
+  }, []);
 
   const handleResetHome = () => {
     navigate('/');
@@ -58,16 +116,15 @@ const App: React.FC = () => {
   };
 
   return (
-    // Bọc toàn bộ App bằng ReactLenis để có hiệu ứng trượt êm ái có đà
-    <ReactLenis root options={{ lerp: 0.08, duration: 1.5, smoothWheel: true }}>
+    <>
+      {/* Khung chứa con trỏ chuột custom */}
+      <div ref={cursorRef} className="custom-cursor"></div>
+
       <Header
         onLogoClick={handleResetHome}
         showFixedHeader={showFixedHeader}
         isAtDetailPage={isAtDetailPage}
-        onSearchClick={() => setIsSearchOpen(true)}
       />
-
-      {isSearchOpen && <SearchOverlay onClose={() => setIsSearchOpen(false)} />}
 
       {/* mode="wait" đợi trang cũ biến mất hẳn rồi trang mới mới hiện ra */}
       <AnimatePresence mode="wait">
@@ -79,9 +136,7 @@ const App: React.FC = () => {
           <Route path="/about" element={<PageTransition><AboutPage /></PageTransition>} />
         </Routes>
       </AnimatePresence>
-
-      {/* <Footer /> */}
-    </ReactLenis>
+    </>
   );
 };
 
