@@ -10,13 +10,13 @@ interface BodyProps {
 /* --- COMPONENT TẠO HIỆU ỨNG PARALLAX CHO ẢNH/VIDEO --- */
 const ParallaxMedia: React.FC<{ item: NewsItem }> = ({ item }) => {
   const ref = useRef(null);
-  
+
   // Theo dõi vị trí của khung ảnh so với màn hình trình duyệt
   const { scrollYProgress } = useScroll({
     target: ref,
     offset: ["start end", "end start"]
   });
-  
+
   // Khi cuộn, ảnh sẽ trượt chầm chậm từ -15% (bị kéo lên) đến 15% (bị đẩy xuống)
   const y = useTransform(scrollYProgress, [0, 1], ["-15%", "15%"]);
 
@@ -75,9 +75,6 @@ const Body: React.FC<BodyProps> = ({ onSelectProduct }) => {
   const formattedCustomerPage = String(currentCustomerPage).padStart(2, '0');
   const formattedTotalCustomerPages = String(totalCustomerPages).padStart(2, '0');
 
-  // Thêm dòng này để ẩn hoàn toàn phần Body đi
-  return null;
-
   return (
     <main>
       {/* ================= SECTION: ALL PRODUCTS ================= */}
@@ -93,11 +90,11 @@ const Body: React.FC<BodyProps> = ({ onSelectProduct }) => {
             // Tính toán logic Apple Dock Effect
             const isHovered = hoveredNewsIndex === index;
             const isAdjacent = hoveredNewsIndex !== null && Math.abs(hoveredNewsIndex - index) === 1;
-            
+
             let scale = 1;
             let y = 0;
             let zIndex = 1;
-            
+
             if (isHovered) {
               scale = 1.15; // Thẻ được trỏ chuột phóng to nhất
               y = -10;
@@ -124,8 +121,8 @@ const Body: React.FC<BodyProps> = ({ onSelectProduct }) => {
                   <span className="vertical-date">{item.date}</span>
                 </div>
                 <div className="news-content">
-                {/* Sử dụng ParallaxMedia thay cho khung ảnh thường */}
-                <ParallaxMedia item={item} />
+                  {/* Sử dụng ParallaxMedia thay cho khung ảnh thường */}
+                  <ParallaxMedia item={item} />
                   <p className="news-text">{item.title}</p>
                 </div>
               </motion.div>
@@ -154,11 +151,11 @@ const Body: React.FC<BodyProps> = ({ onSelectProduct }) => {
               // Tính toán logic Apple Dock Effect
               const isHovered = hoveredCustomerIndex === index;
               const isAdjacent = hoveredCustomerIndex !== null && Math.abs(hoveredCustomerIndex - index) === 1;
-              
+
               let scale = 1;
               let y = 0;
               let zIndex = 1;
-              
+
               if (isHovered) {
                 scale = 1.15;
                 y = -10;
@@ -185,8 +182,8 @@ const Body: React.FC<BodyProps> = ({ onSelectProduct }) => {
                     <span className="vertical-date">{item.date}</span>
                   </div>
                   <div className="news-content">
-                  {/* Tương tự, áp dụng luôn Parallax cho danh sách Our Customers */}
-                  <ParallaxMedia item={item} />
+                    {/* Tương tự, áp dụng luôn Parallax cho danh sách Our Customers */}
+                    <ParallaxMedia item={item} />
                     <p className="news-text">{item.title}</p>
                   </div>
                 </motion.div>

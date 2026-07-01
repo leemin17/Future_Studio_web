@@ -1,47 +1,19 @@
-<<<<<<< HEAD
-import React, { useState, useEffect, useRef } from 'react';
-=======
-import React, { useRef, useEffect } from 'react';
->>>>>>> 2eef6a03590428a3b58b41b7b4a72495670e7b8d
+import React, { useRef, useEffect, useState } from 'react';
 import { heroImages } from '../data/database';
 import { useNavigate } from 'react-router-dom';
 
 const HeroSlider: React.FC = () => {
   const navigate = useNavigate();
   const heroFrameRef = useRef<HTMLDivElement>(null);
-  const isInteracting = useRef(false); // Cờ đánh dấu người dùng có đang vuốt/lăn chuột không
+  const isInteracting = useRef(false);
   const interactTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const exactScrollTop = useRef(0); // Lưu giá trị cuộn dạng số thập phân chính xác
-  const scrollDirection = useRef(1); // 1: tự động trôi xuống, -1: tự động trôi lên
-
-<<<<<<< HEAD
-  const sliderRef = useRef<HTMLDivElement>(null);
+  const exactScrollTop = useRef(0);
+  const scrollDirection = useRef(1);
   const isDragging = useRef(false);
-  const startY = useRef(0);
-  const scrollTop = useRef(0);
-  const isMoved = useRef(false);
-
-  useEffect(() => {
-    const heroInterval = setInterval(() => {
-      setCurrentHeroSlide((prevIndex) => {
-        const nextIndex = (prevIndex + 1) % heroImages.length;
-        if (sliderRef.current) {
-          const slideHeight = sliderRef.current.clientHeight;
-          sliderRef.current.scrollTo({
-            top: nextIndex * slideHeight,
-            behavior: 'smooth'
-          });
-        }
-        return nextIndex;
-      });
-    }, 4000);
-    return () => clearInterval(heroInterval);
-=======
-  // Biến hỗ trợ thao tác nắm kéo (Drag) bằng chuột trên máy tính
-  const isDragging = useRef(false);
-  const lastX = useRef(0); // Thêm theo dõi trục X để chống lỗi kéo chéo
-  const lastY = useRef(0); // Thay vì lưu điểm bắt đầu cố định, ta lưu điểm ngay trước đó để kéo mượt
+  const lastX = useRef(0);
+  const lastY = useRef(0);
   const dragDistance = useRef(0);
+  const [currentHeroSlide, setCurrentHeroSlide] = useState(0); // State này có thể cần cho logic khác như dots
 
   // Hàm khi người dùng giữ tay / giữ chuột
   const handleInteractStart = () => {
@@ -57,7 +29,7 @@ const HeroSlider: React.FC = () => {
     isDragging.current = true;
     dragDistance.current = 0;
     lastX.current = e.clientX;
-    lastY.current = e.clientY;
+    lastY.current = e.clientY; // Cập nhật lại tọa độ mới
     if (heroFrameRef.current) {
       heroFrameRef.current.style.cursor = 'grabbing'; // Đổi trỏ chuột thành hình nắm chặt
     }
@@ -66,7 +38,7 @@ const HeroSlider: React.FC = () => {
   // Xử lý chạm trên màn hình cảm ứng (Điện thoại / Tablet / Trackpad)
   const handleTouchStart = (e: React.TouchEvent) => {
     handleInteractStart();
-    isDragging.current = true; // Bật cờ này để đồng bộ hóa với sự kiện nhấc tay (touchend) toàn cục
+    isDragging.current = true;
     dragDistance.current = 0;
     lastX.current = e.touches[0].clientX;
     lastY.current = e.touches[0].clientY;
@@ -130,7 +102,6 @@ const HeroSlider: React.FC = () => {
       window.removeEventListener('touchend', handleGlobalMouseUp);
       window.removeEventListener('touchcancel', handleGlobalMouseUp);
     };
->>>>>>> 2eef6a03590428a3b58b41b7b4a72495670e7b8d
   }, []);
 
   useEffect(() => {
@@ -211,61 +182,11 @@ const HeroSlider: React.FC = () => {
     return () => cancelAnimationFrame(animationFrameId);
   }, []);
 
-  const handleMouseDown = (e: React.MouseEvent) => {
-    if (!sliderRef.current) return;
-    isDragging.current = true;
-    isMoved.current = false;
-    sliderRef.current.style.cursor = 'grabbing';
-    sliderRef.current.style.scrollSnapType = 'none'; // Tắt snap khi đang kéo
-    startY.current = e.pageY - sliderRef.current.offsetTop;
-    scrollTop.current = sliderRef.current.scrollTop;
-  };
-
-  const handleMouseLeave = () => {
-    if (!isDragging.current) return;
-    isDragging.current = false;
-    if (sliderRef.current) {
-      sliderRef.current.style.cursor = 'grab';
-      sliderRef.current.style.scrollSnapType = 'y mandatory'; // Bật lại snap
-    }
-  };
-
-  const handleMouseUp = () => {
-    isDragging.current = false;
-    if (sliderRef.current) {
-      sliderRef.current.style.cursor = 'grab';
-      sliderRef.current.style.scrollSnapType = 'y mandatory';
-    }
-  };
-
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (!isDragging.current || !sliderRef.current) return;
-    e.preventDefault();
-    const y = e.pageY - sliderRef.current.offsetTop;
-    const walk = (y - startY.current) * 1.5; // Tốc độ cuộn chuột
-    if (Math.abs(walk) > 5) {
-      isMoved.current = true;
-    }
-    sliderRef.current.scrollTop = scrollTop.current - walk;
-  };
-
   return (
     <>
       <div className="hero-full-container">
       <div className="hero-slider-wrapper">
-
-        <div 
-<<<<<<< HEAD
-          className="hero-frame"
-          ref={sliderRef}
-          onMouseDown={handleMouseDown}
-          onMouseLeave={handleMouseLeave}
-          onMouseUp={handleMouseUp}
-          onMouseMove={handleMouseMove}
-          style={{ cursor: 'grab' }}
-        >
-          {heroImages.map((img, index) => (
-=======
+        <div
           className="hero-frame" 
           ref={heroFrameRef}
           // Bắt các sự kiện tương tác vật lý từ người dùng
@@ -281,49 +202,14 @@ const HeroSlider: React.FC = () => {
         >
           {/* Nhân bản 3 lần mảng ảnh để tạo không gian đệm vuốt vô tận siêu mượt */}
           {[...heroImages, ...heroImages, ...heroImages].map((img, index) => (
->>>>>>> 2eef6a03590428a3b58b41b7b4a72495670e7b8d
             <div
               key={index}
               className="hero-slide"
               style={{
                 backgroundImage: `url(${img})`,
-<<<<<<< HEAD
                 opacity: 1, // Ảnh nào cũng hiện để trượt qua
                 pointerEvents: 'auto',
                 zIndex: index === currentHeroSlide ? 2 : 1
-              }}
-              onClick={() => {
-                if (!isMoved.current) {
-                  onHeroClick(index);
-                }
-              }}
-            />
-          ))}
-
-          {/* <div className="hero-dots">
-            {heroImages.map((_, index) => (
-              <div
-                key={index}
-                onClick={() => setCurrentHeroSlide(index)}
-                className={`hero-dot ${index === currentHeroSlide ? 'active' : ''}`}
-              />
-            ))}
-          </div> */}
-        </div>
-
-        {/* <button className="hero-nav-btn next" onClick={handleNextHero}>
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
-        </button> */}
-      </div>
-
-      {/* <div className="hero-bottom-action">
-        <button 
-          className="btn-dozo-about"
-          onClick={() => {
-            navigate('/about');
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-          }}
-=======
               }}
               // Trả về index chuẩn theo mảng gốc
               onClick={(e) => {
@@ -336,19 +222,20 @@ const HeroSlider: React.FC = () => {
                   e.stopPropagation();
                 }
               }}
->>>>>>> 2eef6a03590428a3b58b41b7b4a72495670e7b8d
-        >
-          {/* =========================================
-              HIỆU ỨNG LOGO CHẠY NGANG Ở LỀ DƯỚI
-              ========================================= */}
-          <div className="hero-running-overlay">
-            <div className="hero-running-track">
-              <div className="hero-running-item"><img src="/images/black_text_logo.png" alt="Future Studio Logo" /></div>
-              <div className="hero-running-item"><img src="/images/black_text_logo.png" alt="Future Studio Logo" /></div>
-            </div>
-          </div>
-        </div>
+            />
           ))}
+        </div>
+        {/* =========================================
+            HIỆU ỨNG LOGO CHẠY NGANG Ở LỀ DƯỚI
+            (Được đưa ra ngoài để chỉ render 1 lần)
+            ========================================= */}
+        <div className="hero-running-overlay">
+          <div className="hero-running-track">
+            <div className="hero-running-item"><img src="/images/black_text_logo.png" alt="Future Studio Logo" /></div>
+            <div className="hero-running-item"><img src="/images/black_text_logo.png" alt="Future Studio Logo" /></div>
+            <div className="hero-running-item"><img src="/images/black_text_logo.png" alt="Future Studio Logo" /></div>
+            <div className="hero-running-item"><img src="/images/black_text_logo.png" alt="Future Studio Logo" /></div>
+          </div>
         </div>
       </div>
       </div>
