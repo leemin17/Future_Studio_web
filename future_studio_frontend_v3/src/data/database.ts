@@ -62,13 +62,13 @@ export const heroImages = [
 
 // Data cho Tin tức (What's new / All Products!)
 export const newsData: NewsItem[] = [
-  { id: 1, date: '2026.04.26', title: 'project', clientInformation: 'client', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1204801368' },
+  { id: 4, date: '2026.04.26', title: 'project', clientInformation: 'client', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1204801368' },
   { id: 2, date: '2024.03.26', title: 'project', clientInformation: 'client', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1204790802' },
-  { id: 3, date: '2026.04.05', title: 'project', clientInformation: 'client', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1204801368' },
-  { id: 4, date: '2024.03.18', title: 'project', clientInformation: 'client', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1204790802' },
+  { id: 1, date: '2026.04.05', title: 'project', clientInformation: 'client', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1206377241' },
+  { id: 3, date: '2024.03.18', title: 'project', clientInformation: 'client', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1206377241' },
   { id: 5, date: '2024.03.10', title: 'project', clientInformation: 'client', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1204801368', modelUrl: 'models/Lipstick.glb' },
   { id: 6, date: '2024.02.28', title: 'project', clientInformation: 'client', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1204790802' },
-  { id: 7, date: '2024.02.15', title: 'project', clientInformation: 'client', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1204801368' },
+  { id: 7, date: '2024.02.15', title: 'project', clientInformation: 'client', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1206377241' },
   { id: 8, date: '2024.01.20', title: 'project', clientInformation: 'client', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1204790802' }
 ];
 
