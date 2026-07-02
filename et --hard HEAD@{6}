@@ -1,0 +1,76 @@
+[33m22c31c26[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mdev[m[33m, [m[1;31morigin/dev[m[33m)[m HEAD@{0}: reset: moving to HEAD
+[33m22c31c26[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mdev[m[33m, [m[1;31morigin/dev[m[33m)[m HEAD@{1}: checkout: moving from main to dev
+[33mb4180640[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mmain[m[33m)[m HEAD@{2}: reset: moving to HEAD
+[33mb4180640[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mmain[m[33m)[m HEAD@{3}: pull origin main: Fast-forward
+[33m2eef6a03[m HEAD@{4}: checkout: moving from dev to main
+[33m22c31c26[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mdev[m[33m, [m[1;31morigin/dev[m[33m)[m HEAD@{5}: commit (merge): Sửa xung đột
+[33m5c27a970[m HEAD@{6}: pull origin dev: Fast-forward
+[33me9c503dc[m HEAD@{7}: commit: Cập nhật allproduct hoàn chỉnh
+[33mc07290fb[m HEAD@{8}: commit: Cập nhật hover
+[33mef5795c0[m HEAD@{9}: reset: moving to HEAD
+[33mef5795c0[m HEAD@{10}: commit: Cập nhật lại trang allproductpage mới
+[33m7fabcd0e[m HEAD@{11}: reset: moving to HEAD
+[33m7fabcd0e[m HEAD@{12}: reset: moving to HEAD
+[33m7fabcd0e[m HEAD@{13}: reset: moving to HEAD
+[33m7fabcd0e[m HEAD@{14}: commit: Cập nhật lại trang allproductpage
+[33m087d5677[m HEAD@{15}: commit: backup trước khi sửa
+[33m95658944[m HEAD@{16}: commit: sửa lại giao diện
+[33m7feac6a2[m HEAD@{17}: commit: Tối ưu hóa mã nguồn
+[33m6a623b72[m HEAD@{18}: commit: Tối ưu hóa mã nguồn
+[33m5fd86de4[m HEAD@{19}: commit: Tối ưu hóa mã nguồn
+[33mb60d54c2[m HEAD@{20}: commit: Tối ưu hóa mã nguồn
+[33m7471d369[m HEAD@{21}: commit: Tối ưu hóa mã nguồn
+[33m0b9a1f14[m HEAD@{22}: merge main: updating HEAD
+[33m0b9a1f14[m HEAD@{23}: merge main: updating HEAD
+[33m0b9a1f14[m HEAD@{24}: checkout: moving from dev to dev
+[33m0b9a1f14[m HEAD@{25}: checkout: moving from dev to dev
+[33m0b9a1f14[m HEAD@{26}: checkout: moving from 39c1dc8cdfbc0b235a092846f5c87ee318ab0b8f to dev
+[33m39c1dc8c[m HEAD@{27}: checkout: moving from main to 39c1dc8c
+[33m2eef6a03[m HEAD@{28}: checkout: moving from main to main
+[33m2eef6a03[m HEAD@{29}: checkout: moving from 39c1dc8cdfbc0b235a092846f5c87ee318ab0b8f to main
+[33m39c1dc8c[m HEAD@{30}: checkout: moving from main to 39c1dc8c
+[33m2eef6a03[m HEAD@{31}: reset: moving to HEAD
+[33m2eef6a03[m HEAD@{32}: checkout: moving from main to main
+[33m2eef6a03[m HEAD@{33}: commit: Tối ưu hóa mã nguồn
+[33m39c1dc8c[m HEAD@{34}: commit: Tối ưu hóa mã nguồn
+[33mc7f3c7de[m HEAD@{35}: commit: Cập nhật giao diện mới
+[33m4c5a81ee[m HEAD@{36}: checkout: moving from main to main
+[33m4c5a81ee[m HEAD@{37}: checkout: moving from main to main
+[33m4c5a81ee[m HEAD@{38}: checkout: moving from main to main
+[33m4c5a81ee[m HEAD@{39}: commit: Cập nhật giao diện mới
+[33ma1b98bc1[m HEAD@{40}: checkout: moving from dev to main
+[33m0b9a1f14[m HEAD@{41}: commit: Cập nhật v3
+[33me3bc7f22[m HEAD@{42}: checkout: moving from main to dev
+[33ma1b98bc1[m HEAD@{43}: commit: Cập nhật v3
+[33m34b09528[m HEAD@{44}: commit: Cập nhật v3
+[33m3d4391bd[m HEAD@{45}: pull: Fast-forward
+[33me3bc7f22[m HEAD@{46}: merge dev: Fast-forward
+[33m26bf7848[m HEAD@{47}: checkout: moving from dev to main
+[33me3bc7f22[m HEAD@{48}: checkout: moving from dev to dev
+[33me3bc7f22[m HEAD@{49}: commit: sửa lại page khách hàng
+[33m26bf7848[m HEAD@{50}: checkout: moving from main to dev
+[33m26bf7848[m HEAD@{51}: checkout: moving from dev to main
+[33m26bf7848[m HEAD@{52}: checkout: moving from main to dev
+[33m26bf7848[m HEAD@{53}: checkout: moving from dev to main
+[33m26bf7848[m HEAD@{54}: checkout: moving from main to dev
+[33m26bf7848[m HEAD@{55}: merge dev: Fast-forward
+[33mc43032a7[m HEAD@{56}: checkout: moving from dev to main
+[33m26bf7848[m HEAD@{57}: commit: cập nhật thêm chức năng tìm kiếm và view model 3d sản phẩm
+[33m7f712f2d[m HEAD@{58}: commit: cập nhật thêm chức năng tìm kiếm và view model 3d sản phẩm
+[33mc43032a7[m HEAD@{59}: checkout: moving from main to dev
+[33mc43032a7[m HEAD@{60}: commit: Cập nhật giao diện mới
+[33m442ae8e3[m HEAD@{61}: commit: Cập nhật giao diện mới
+[33m5f016407[m HEAD@{62}: commit: update video gif
+[33m37420323[m HEAD@{63}: commit: update phần khách hàng
+[33me31c828e[m HEAD@{64}: commit: update phần khách hàng
+[33m61995799[m HEAD@{65}: commit: cập nhật phiên bản 2
+[33m6cc8c3a1[m HEAD@{66}: commit: cập nhật phiên bản 2
+[33m579da25f[m HEAD@{67}: commit: phiên bản 2
+[33m51d9072b[m HEAD@{68}: pull: Fast-forward
+[33m99c68d70[m HEAD@{69}: commit: Sửa lại giao diện theo yêu cầu
+[33mfbc8f135[m HEAD@{70}: commit: Sửa lại giao diện theo yêu cầu
+[33m9d4573de[m HEAD@{71}: commit: Sửa lại giao diện theo yêu cầu
+[33mca182a79[m HEAD@{72}: commit: Tối ưu lại giao diện điện thoại
+[33m21d4bcb3[m HEAD@{73}: commit: Xóa config cũ, chuẩn bị lên Netlify
+[33ma5fbd27c[m HEAD@{74}: commit: Chỉnh sửa cập nhật CSS giỏ hàng, responsive điện thoại và fix lỗi build
+[33m1f01db78[m HEAD@{75}: clone: from https://github.com/leemin17/Future_Studio_web.git

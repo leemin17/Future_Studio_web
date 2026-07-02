@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { teamMembers } from '../data/database';
+import ScrollReveal from '../components/ScrollReveal';
 
 const TeamPage = () => {
     // --- LOGIC CHO CAROUSEL VÔ TẬN ---

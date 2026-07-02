@@ -1924,10 +1924,9 @@ button:not(.header-nav-link):hover,
 
 .team-banner {
   width: 100vw;
-  height: auto; /* Maintain aspect ratio */
+  height: 100vh; /* Cover the full viewport height */
   display: block; /* Remove extra space below image */
   object-fit: cover; /* Cover the area without distortion */
-  margin-top: -100px; /* Slightly rounded corners */
 }
 
 /* --- Coverflow Carousel --- */
