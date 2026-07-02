@@ -30,27 +30,29 @@ const TeamPage = () => {
             if (!trackWrapperRef.current) return;
 
             const wrapperWidth = trackWrapperRef.current.offsetWidth;
+            const track = trackWrapperRef.current.querySelector<HTMLDivElement>('.team-carousel-track');
 
-            // Kích thước và khoảng cách được định nghĩa trong CSS
-            const activeCardWidth = isMobile ? 240 : 320;
-            const inactiveCardWidth = isMobile ? 120 : 160;
-            const gap = isMobile ? 20 : 40;
+            if (!track || !track.children || track.children.length === 0) return;
 
-            // Tính tổng chiều rộng của các thẻ trước thẻ active
-            let totalWidthBeforeActive = 0;
-            for (let i = 0; i < currentIndex; i++) {
-                totalWidthBeforeActive += inactiveCardWidth + gap;
-            }
+            const cards = Array.from(track.children) as HTMLDivElement[];
+            const activeCard = cards[currentIndex];
 
-            // Tính toán offset để căn giữa thẻ active
-            const newOffset = (wrapperWidth / 2) - totalWidthBeforeActive - (activeCardWidth / 2);
+            if (!activeCard) return;
+
+            const activeCardOffsetLeft = activeCard.offsetLeft;
+            const activeCardWidth = activeCard.offsetWidth;
+
+            const newOffset = (wrapperWidth / 2) - activeCardOffsetLeft - (activeCardWidth / 2);
             setOffset(newOffset);
         };
 
         calculateOffset();
+
         window.addEventListener('resize', calculateOffset);
-        return () => window.removeEventListener('resize', calculateOffset);
-    }, [currentIndex, isMobile]);
+        return () => {
+            window.removeEventListener('resize', calculateOffset);
+        };
+    }, [currentIndex, isMobile, extendedMembers]); // Thêm isMobile và extendedMembers để tính lại khi cần
 
     // --- Theo dõi kích thước màn hình để chuyển đổi giữa layout desktop/mobile ---
     useEffect(() => {
