@@ -153,7 +153,7 @@ export const teamMembers: TeamMember[] = [
 // Data cho Header Navigation
 export const navItems: NavItem[] = [
   {
-    label: 'Showcase',
+    label: 'Products',
     id: 'showcase',
     subItems: [
       { label: 'All', id: 'showcase-all', path: '/all-products' },
@@ -162,14 +162,13 @@ export const navItems: NavItem[] = [
     ]
   },
   {
-    label: 'The Team',
-    id: 'team',
+    label: 'About',
+    id: 'about',
     subItems: [
-      { label: 'Members', id: 'team-members', path: '/team' }
+      { label: 'Our Story', id: 'about-story', path: '/about' },
+      { label: 'Team', id: 'about-team', path: '/team' }
     ]
   },
-  { label: 'About', id: 'about', path: '/about' },
-  { label: 'Merch', id: 'merch' },
   { label: 'Contact', id: 'contact' },
 ];
 

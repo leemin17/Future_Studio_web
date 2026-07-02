@@ -6,3 +6,11 @@
 body {
   font-family: 'Montserrat', 'Noto Sans JP', sans-serif;
 }
+
+.team-banner {
+    width: 100vw;
+    height: auto; /* Maintain aspect ratio */
+    display: block; /* Remove extra space below image */
+    object-fit: cover; /* Cover the area without distortion */
+    margin-top: -60px; /* Adjust if there's a fixed header pushing content down */
+}

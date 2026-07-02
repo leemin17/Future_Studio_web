@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, Suspense } from 'react';
+import React, { useState, Suspense } from 'react';
 import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
 
@@ -33,7 +33,7 @@ const App: React.FC = () => {
   // SỬA LỖI: Header chỉ "dính" lại (sticky) sau khi cuộn 800px trên mọi trang,
   // gây ra lỗi trên trang chi tiết (vốn không có banner lớn).
   // YÊU CẦU MỚI: Bỏ hiệu ứng tự hiện ra khi cuộn, cho Header luôn cố định ở trên cùng.
-  const [showFixedHeader, setShowFixedHeader] = useState(true);
+  const showFixedHeader = true;
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
 

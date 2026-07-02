@@ -253,7 +253,6 @@ button:not(.header-nav-link):hover,
 .search-suggestion-tag:hover,
 .search-overlay-close:hover {
   transform: translateY(-2px);
-  box-shadow: 0 0 15px 0px var(--accent-primary);
 }
 
 
@@ -372,7 +371,7 @@ button:not(.header-nav-link):hover,
 
 .main-header:has(.header-center-menu) {
   display: grid;
-  grid-template-columns: repeat(6, 1fr);
+  grid-template-columns: repeat(4, 1fr);
 }
 
 /* Header sẽ luôn ở trạng thái fixed, nên position: absolute không cần thiết nữa */
@@ -430,10 +429,11 @@ button:not(.header-nav-link):hover,
 }
 
 .header-nav-link {
+  padding: 20px 12px;
   background: transparent;
   border: none;
   font-family: 'Montserrat', sans-serif;
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 800;
   letter-spacing: 0.2em;
   text-transform: uppercase;
@@ -474,7 +474,6 @@ button:not(.header-nav-link):hover,
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  box-shadow: none;
   border-radius: 12px;
   padding: 4px 0;
   opacity: 0;
@@ -499,8 +498,8 @@ button:not(.header-nav-link):hover,
   transform: translateX(-50%) translateY(0);
   pointer-events: auto;
 }
-
 .dropdown-item {
+  appearance: none; /* Remove default browser styling */
   background: transparent;
   border: none;
   font-family: 'Montserrat', sans-serif;
@@ -516,13 +515,13 @@ button:not(.header-nav-link):hover,
   position: relative;
   overflow: hidden;
   color: var(--text-primary);
-  padding: 8px 20px;
-  width: 100%;
-  border-radius: 8px;
+  padding: 8px 20px 6px; /* Adjusted padding to make space for the underline */
+  width: 100%; /* Changed to 100% to allow text-align: center to work across full width */
+  border-bottom: 2px solid transparent; /* Transparent border for underline effect */
 }
 
 .dropdown-item:hover {
-  background-color: rgba(255, 255, 255, 0.1);
+  border-bottom-color: var(--accent-primary);
   color: var(--text-primary);
 }
 
@@ -1356,7 +1355,6 @@ button:not(.header-nav-link):hover,
   padding: 16px;
   border-radius: 12px;
   background-color: var(--background-primary);
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
   transition: all 0.2s ease;
   cursor: pointer;
   opacity: 0;
@@ -1690,7 +1688,6 @@ button:not(.header-nav-link):hover,
     max-width: 360px;
     height: 100vh;
     background-color: var(--background-primary);
-    box-shadow: -10px 0 20px rgba(0, 0, 0, 0.15);
     z-index: 1000;
     overflow-y: auto;
     padding: 80px 24px 24px;
@@ -1724,17 +1721,9 @@ button:not(.header-nav-link):hover,
     font-size: 18px;
   }
 
-  .dropdown-item {
-    font-size: 14px;
-    padding: 10px 0;
-    border-radius: 0;
-    text-align: left;
-  }
-
   .dropdown-menu {
     position: static;
     transform: none;
-    box-shadow: none;
     padding-left: 0;
     opacity: 1;
     visibility: visible;
@@ -1931,6 +1920,14 @@ button:not(.header-nav-link):hover,
   max-width: 500px;
   margin: 0 auto;
   /* Căn giữa nếu dòng mô tả ngắn */
+}
+
+.team-banner {
+  width: 100vw;
+  height: auto; /* Maintain aspect ratio */
+  display: block; /* Remove extra space below image */
+  object-fit: cover; /* Cover the area without distortion */
+  margin-top: -100px; /* Slightly rounded corners */
 }
 
 /* --- Coverflow Carousel --- */

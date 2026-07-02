@@ -159,6 +159,7 @@ const TeamPage = () => {
 
     return (
         <section className="team-section">
+            <img src="images/team.jpg" alt="Team Banner" className="team-banner" />
             <div className="container">
                 {/* Coverflow Carousel */}
                 <div className="team-carousel-coverflow">
