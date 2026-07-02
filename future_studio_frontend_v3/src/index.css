@@ -1708,8 +1708,9 @@ button:not(.header-nav-link):hover,
     align-items: center;
     width: 100%;
     /* Đảm bảo header chiếm toàn bộ chiều rộng */
-    position: relative;
+    position: fixed; /* Chỉnh thành fixed để giữ header cố định khi cuộn */
     /* Tạo gốc tọa độ cho nút hamburger */
+    mix-blend-mode: difference; /* Thêm lại hiệu ứng mix-blend-mode cho mobile */
   }
 
   .main-header.fixed-active {
@@ -1719,7 +1720,7 @@ button:not(.header-nav-link):hover,
   /* Khi ở trang chủ và trang phụ, header sẽ trong suốt và nằm đè lên banner */
   .main-header.home-page-header,
   .main-header.sub-page-header {
-    position: absolute;
+    position: fixed;
     background-color: transparent;
     padding: 15px 30px;
   }
