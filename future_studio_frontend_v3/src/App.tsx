@@ -24,137 +24,19 @@ const LoadingFallback = () => (
    5. COMPONENT GỐC (APP) LẮP RÁP CÁC ROUTE
    ===================================================================== */
 const App: React.FC = () => {
-  const [showFixedHeader, setShowFixedHeader] = useState(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const cursorRef = useRef<HTMLDivElement>(null);
-
   const location = useLocation();
   const navigate = useNavigate();
 
   // Biến kiểm tra xem có đang ở trang phụ (trang chi tiết) hay không
   const isAtDetailPage = location.pathname !== '/';
 
-  // ====================================================================
-  // FIX: ĐỒNG BỘ HIỆU ỨNG CURSOR KHI CHUYỂN TRANG
-  // ====================================================================
-  // Reset trạng thái của con trỏ chuột mỗi khi chuyển trang (thay đổi URL).
-  // Điều này đảm bảo hiệu ứng (vd: "WATCH" trên video) không bị "kẹt" lại
-  // khi người dùng điều hướng sang trang khác không có video.
-  useEffect(() => {
-    const cursor = cursorRef.current;
-    if (cursor) {
-      cursor.classList.remove('hovering', 'dragging', 'hidden', 'video-hover', 'title-hover');
-      const cursorText = cursor.querySelector('.cursor-text') as HTMLElement;
-      if (cursorText) cursorText.innerText = '';
-    }
-  }, [location.pathname]); // Phụ thuộc vào pathname để chạy lại khi URL thay đổi
-
   // SỬA LỖI: Header chỉ "dính" lại (sticky) sau khi cuộn 800px trên mọi trang,
   // gây ra lỗi trên trang chi tiết (vốn không có banner lớn).
   // YÊU CẦU MỚI: Bỏ hiệu ứng tự hiện ra khi cuộn, cho Header luôn cố định ở trên cùng.
-  useEffect(() => {
-    setShowFixedHeader(true);
-  }, []);
+  const [showFixedHeader, setShowFixedHeader] = useState(true);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  // ====================================================================
-  // HIỆU ỨNG CON TRỎ CHUỘT NGHỆ THUẬT (CUSTOM MAGNETIC CURSOR)
-  // ====================================================================
-  useEffect(() => {
-    const cursor = cursorRef.current;
-    if (!cursor) return;
 
-    // Chỉ chạy hiệu ứng trên thiết bị có con trỏ chính xác (PC/Laptop)
-    if (!window.matchMedia("(pointer: fine)").matches) return;
-
-    // --- TỐI ƯU HIỆU NĂNG ---
-    // Biến này sẽ lưu trạng thái class hiện tại của con trỏ.
-    // Chúng ta chỉ cập nhật DOM (thêm/xóa class) khi trạng thái này thực sự thay đổi.
-    let currentClass = '';
-
-    let mouseX = window.innerWidth / 2;
-    let mouseY = window.innerHeight / 2;
-    let cursorX = mouseX;
-    let cursorY = mouseY;
-    let currentScale = 1;
-    let isClicking = false;
-    let rafId: number | null = null;
-
-    // Bắt sự kiện nhấn và nhả chuột
-    const onMouseDown = () => { isClicking = true; };
-    const onMouseUp = () => { isClicking = false; };
-
-    // Vòng lặp render (60fps) giúp con trỏ trượt mượt mà có gia tốc (Lerp)
-    const renderCursor = () => {
-      cursorX += (mouseX - cursorX) * 0.2; // 0.2 là độ trễ, số càng nhỏ càng trễ mượt
-      cursorY += (mouseY - cursorY) * 0.2;
-
-      // Nội suy hiệu ứng thu nhỏ mượt mà khi click
-      const targetScale = isClicking ? 0.5 : 1; // Thu nhỏ còn 50% khi bấm chuột
-      currentScale += (targetScale - currentScale) * 0.2;
-
-      cursor.style.transform = `translate3d(${cursorX - cursor.offsetWidth / 2}px, ${cursorY - cursor.offsetHeight / 2}px, 0) scale(${currentScale})`;
-      rafId = requestAnimationFrame(renderCursor);
-    };
-
-    // Hợp nhất onMouseMove và onMouseOver để tối ưu
-    const onMouseMove = (e: MouseEvent) => {
-      mouseX = e.clientX;
-      mouseY = e.clientY;
-
-      // Bắt đầu vòng lặp render nếu chưa chạy
-      if (!rafId) rafId = requestAnimationFrame(renderCursor);
-
-      const target = e.target as HTMLElement;
-      const cursorText = cursor.querySelector('.cursor-text') as HTMLElement;
-
-      let newClass = '';
-      let newText = '';
-
-      // Kiểm tra video hover, hoạt động ngay cả khi có lớp phủ trên video
-      const potentialVideoContainer = target.closest('.news-image, .quick-view-media');
-      if ((potentialVideoContainer && potentialVideoContainer.querySelector('video')) || target.closest('video')) {
-        newClass = 'video-hover';
-        newText = 'WATCH';
-      } else if (target.closest('.hero-frame')) {
-        newClass = 'dragging';
-      } else if (target.closest('.section-title')) { // <-- THÊM ĐIỀU KIỆN MỚI
-        newClass = 'title-hover';
-      } else if (target.closest('.news-card, .product-card, .polaroid-card')) {
-        // ĐỒNG BỘ: Sử dụng hiệu ứng 'dragging' (vòng tròn nhỏ) cho tất cả các card
-        // để nhất quán với HeroSlider, tạo cảm giác đây là khu vực có thể tương tác.
-        newClass = 'dragging';
-      } else if (target.closest('a, button, input, iframe, .search-bar, .cart-status, .menu-burger')) {
-        // Trỏ vào nút, iframe -> Ẩn con trỏ custom đi
-        newClass = 'hidden';
-      }
-
-      // Chỉ cập nhật DOM nếu class thay đổi, tránh các thao tác thừa thãi
-      if (newClass !== currentClass) {
-        // Xóa class cũ nếu có
-        if (currentClass) cursor.classList.remove(currentClass);
-        // Thêm class mới nếu có
-        if (newClass) cursor.classList.add(newClass);
-        // Cập nhật text
-        cursorText.innerText = newText;
-        // Lưu lại trạng thái mới
-        currentClass = newClass;
-      }
-    };
-
-    window.addEventListener('mousemove', onMouseMove);
-    window.addEventListener('mousedown', onMouseDown);
-    window.addEventListener('mouseup', onMouseUp);
-
-    return () => {
-      window.removeEventListener('mousemove', onMouseMove);
-      window.removeEventListener('mousedown', onMouseDown);
-      window.removeEventListener('mouseup', onMouseUp);
-      // Hủy vòng lặp render khi component bị unmount
-      if (rafId) {
-        cancelAnimationFrame(rafId);
-      }
-    };
-  }, []);
 
   const handleResetHome = () => {
     navigate('/');
@@ -163,10 +45,7 @@ const App: React.FC = () => {
 
   return (
     <>
-      {/* Khung chứa con trỏ chuột custom */}
-      <div ref={cursorRef} className="custom-cursor">
-        <span className="cursor-text"></span>
-      </div>
+
 
       <Header
         onLogoClick={handleResetHome}

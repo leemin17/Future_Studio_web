@@ -73,6 +73,14 @@
   box-sizing: border-box;
 }
 
+/* Remove dotted outline for focused elements to address "dotted effect of the mouse" */
+/* IMPORTANT: Completely removing outlines can harm accessibility for keyboard users.
+   Consider providing an alternative visual focus indicator for accessibility. */
+*:focus {
+  outline: none;
+}
+
+
 html {
   scroll-behavior: smooth;
 }
@@ -352,6 +360,9 @@ button:not(.header-nav-link):hover,
   width: 100%;
   z-index: 1000;
   transition: padding 0.3s ease;
+  position: fixed; /* Luôn cố định */
+  top: 0;
+  left: 0;
 
   /* Đồng bộ hiệu ứng trong suốt trên tất cả các trang */
   background-color: transparent;
@@ -1574,90 +1585,7 @@ button:not(.header-nav-link):hover,
   opacity: 1;
 }
 
-/* --- Custom Cursor --- */
-@media (hover: hover) and (pointer: fine) {
-  body {
-    cursor: none;
-  }
 
-  a,
-  button,
-  .hero-slide,
-  .hero-frame,
-  .news-card,
-  .product-card,
-  input,
-  .search-bar,
-  .cart-status,
-  .menu-burger {
-    cursor: none !important;
-  }
-
-  .custom-cursor {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 10px;
-    height: 10px;
-    background-color: var(--text-primary);
-    border-radius: 50%;
-    pointer-events: none;
-    z-index: 999999;
-    transform: translate3d(0, 0, 0);
-    transition: width 0.3s cubic-bezier(0.165, 0.84, 0.44, 1),
-      height 0.3s cubic-bezier(0.165, 0.84, 0.44, 1),
-      background-color 0.3s ease;
-    will-change: transform, width, height;
-  }
-
-  .custom-cursor.hovering {
-    width: 48px;
-    height: 48px;
-  }
-
-  .custom-cursor.dragging {
-    width: 20px;
-    height: 20px;
-  }
-
-  .custom-cursor.video-hover {
-    width: 80px;
-    height: 80px;
-    background-color: var(--accent-primary);
-    mix-blend-mode: normal;
-  }
-
-  /* Hiệu ứng mới khi hover vào tiêu đề section */
-  .custom-cursor.title-hover {
-    width: 60px;
-    height: 4px;
-    /* Biến thành một đường gạch ngang */
-    border-radius: 2px;
-    background-color: var(--accent-tertiary);
-    /* Màu xanh mint */
-    mix-blend-mode: difference;
-    /* Tạo hiệu ứng nổi bật trên nền tối */
-  }
-
-  .cursor-text {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    color: var(--background-primary);
-    font-size: 14px;
-    font-weight: 800;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-    white-space: nowrap;
-  }
-
-  .custom-cursor.video-hover .cursor-text {
-    opacity: 1;
-  }
-}
 
 /* Lớp CSS mới thay cho style inline */
 .all-products-section {
