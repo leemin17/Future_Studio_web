@@ -131,18 +131,6 @@ export const teamMembers: TeamMember[] = [
     name: 'Amee',
     role: 'UI/UX Designer',
     image: 'images/anhdat.jpg'
-  },
-  {
-    id: 6,
-    name: 'Tuấn',
-    role: 'UI/UX Designer',
-    image: 'images/anhdat.jpg'
-  },
-  {
-    id: 7,
-    name: 'Cướng',
-    role: 'UI/UX Designer',
-    image: 'images/anhdat.jpg'
   }
 ];
 

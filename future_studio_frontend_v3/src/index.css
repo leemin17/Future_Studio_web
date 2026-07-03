@@ -85,12 +85,28 @@ html {
   scroll-behavior: smooth;
 }
 
+/* Thêm các quy tắc ẩn thanh cuộn cho thẻ <html> để đảm bảo tính nhất quán */
+html {
+  scrollbar-width: none; /* Dành cho Firefox */
+  -ms-overflow-style: none;  /* Dành cho IE và Edge */
+}
+
+html::-webkit-scrollbar {
+  display: none; /* Dành cho Chrome, Safari, và Opera */
+}
+
 body {
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   color: var(--text-primary);
   background-color: var(--background-primary);
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
+  scrollbar-width: none; /* For Firefox */
+  -ms-overflow-style: none;  /* For IE and Edge */
+}
+
+body::-webkit-scrollbar {
+  display: none; /* For Chrome, Safari, and Opera */
 }
 
 a {
@@ -263,14 +279,34 @@ button:not(.header-nav-link):hover,
   border: 1px solid var(--border-default);
   width: 40px;
   height: 40px;
-  border-radius: 8px;
-  font-size: 18px;
+  
+  /* Đổi từ 8px thành 50% để tạo hình tròn */
+  border-radius: 50%; 
+  
+  font-size: 18 px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: 900;
   color: var(--text-primary);
+  mix-blend-mode: difference;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  /* Thêm 2 dòng này để ép nó bỏ các khoảng trống thừa */
+  line-height: 1; 
+  padding: 0;
+  
+  /* Thêm transition để lúc hover nó mượt hơn */
+  transition: all 0.3s ease;
+}
+
+.btn-arrow span {
+  /* Nhích thử tọa độ cho đến khi anh thấy vừa mắt */
+  /* Ví dụ: Đẩy lên trên 1px (Y: -1px), và đẩy sang trái 1px (X: -1px) */
+  transform: translate(0, -2px); 
 }
 
 .btn-arrow:hover:not(:disabled) {
@@ -1887,6 +1923,66 @@ button:not(.header-nav-link):hover,
    6. TEAM PAGE STYLES
    ===================================================================== */
 
+/* --- THANH TIẾN TRÌNH CUỘN TRANG --- */
+.page-scroll-progress-bar {
+  position: fixed;
+  /* Đặt ngay bên dưới header (chiều cao header khoảng 80-100px) */
+  top: 0; 
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--accent-primary); /* Màu vàng */
+  transform-origin: 0%; /* Bắt đầu từ bên trái */
+  z-index: 2000; /* Đảm bảo nằm trên hầu hết các phần tử */
+}
+
+
+/* --- HIỆU ỨNG STACKING CHO TEAM PAGE --- */
+.team-stacking-container {
+  position: relative; /* Tạo gốc tọa độ cho các phần tử con */
+}
+
+.team-banner-section {
+  height: 100vh; /* Section banner chiếm toàn bộ chiều cao màn hình */
+  width: 100%;
+  overflow: hidden;
+  position: sticky; /* Đây là chìa khóa: section sẽ dính lại ở top: 0 */
+  top: 0;
+  z-index: 1; /* Đảm bảo banner nằm dưới */
+}
+
+/* Section carousel thành viên đã được cố định */
+.team-carousel-section {
+  height: 100vh; /* Section banner chiếm toàn bộ chiều cao màn hình */
+  width: 100%;
+   /* Tạo khoảng trống để carousel không bị che bởi banner */
+  position: relative; /* Đảm bảo nó có thể đè lên trên */
+  z-index: 2; /* Nằm trên banner */
+  background-color: var(--background-primary);
+  display: flex;
+  align-items: center;
+}
+
+/* --- THANH THỜI LƯỢNG CHO CAROUSEL --- */
+.carousel-progress-bar-container {
+  width: 100%;
+  max-width: 400px; /* Giới hạn chiều rộng tối đa */
+  height: 3px; /* Chiều cao của thanh */
+  background-color: var(--border-default); /* Màu nền của thanh (track) */
+  border-radius: 2px;
+  margin-bottom: 40px; /* Khoảng cách với carousel bên dưới */
+  overflow: hidden; /* Ẩn phần thừa của thanh con */
+}
+
+.carousel-progress-bar {
+  width: 100%;
+  height: 100%;
+  background-color: var(--accent-primary); /* Màu vàng cho phần đã đi qua */
+  transform-origin: left; /* Đảm bảo animation scale bắt đầu từ bên trái */
+  border-radius: 2px;
+}
+
+
 /* Section chính của trang Team */
 .team-section {
   padding: 0 0 100px 0;
@@ -1924,7 +2020,7 @@ button:not(.header-nav-link):hover,
 
 .team-banner {
   width: 100vw;
-  height: 100vh; /* Cover the full viewport height */
+  height: 100%; /* Cover the full section height */
   display: block; /* Remove extra space below image */
   object-fit: cover; /* Cover the area without distortion */
 }
@@ -1935,7 +2031,6 @@ button:not(.header-nav-link):hover,
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 0 0 100px 0;
 }
 
 .team-carousel-track-wrapper {
@@ -1959,18 +2054,14 @@ button:not(.header-nav-link):hover,
 }
 
 .team-carousel-track {
-  padding: 40px 0;
+  padding: 60px 0; 
   display: flex;
   align-items: center;
-  /* Căn các thẻ theo chiều dọc */
   gap: 40px;
-  /* Khoảng cách giữa các thẻ */
   width: fit-content;
-  /* Chiều rộng của track bằng tổng chiều rộng các con */
   transition: transform 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
-  /* Hiệu ứng chuyển động mượt mà */
   will-change: transform;
-  transform-style: preserve-3d; /* Thêm cho context 3D */
+  transform-style: preserve-3d;
 }
 
 .polaroid-card-wrapper {
@@ -1983,14 +2074,14 @@ button:not(.header-nav-link):hover,
 
 /* --- Style cho thẻ không active --- */
 .polaroid-card-wrapper .polaroid-card {
-  width: 12.5vw;
   /* max-width: 160px; */ /* Giới hạn kích thước tối đa trên màn hình lớn */
+  width: 12.5vw;
+  max-width: 200px; /* Giới hạn kích thước tối đa trên màn hình lớn */
 }
 
 .polaroid-card-wrapper .polaroid-image-wrapper {
-  /* Duy trì tỷ lệ khung ảnh polaroid (khoảng 1:1.2) */
   height: 15vw;
-  /* max-height: 210px; */
+  max-height: 240px;
 }
 
 /* --- Style cho thẻ active (ở giữa) --- */
@@ -2003,14 +2094,13 @@ button:not(.header-nav-link):hover,
 
 .polaroid-card-wrapper.active .polaroid-card {
   width: 25vw;
-  /* max-width: 320px; */ /* Giới hạn kích thước tối đa */
+  max-width: 400px; /* THÊM: Chặn thẻ active ở mức vừa phải */
   box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
 }
 
 .polaroid-card-wrapper.active .polaroid-image-wrapper {
-  /* Duy trì tỷ lệ khung ảnh polaroid */
   height: 30vw;
-  /* max-height: 360px; */
+  max-height: 480px;
 }
 
 /* --- Responsive cho màn hình di động --- */
@@ -2120,4 +2210,132 @@ button:not(.header-nav-link):hover,
   color: var(--text-muted);
   /* Chữ màu xám nhạt */
   margin: 0;
+}
+
+/* =====================================================================
+   7. CUSTOM CURSOR HIDING (ẨN CHUỘT MẶC ĐỊNH)
+   ===================================================================== */
+@media (min-width: 769px) {
+    body, html, * {
+        cursor: none !important;
+    }
+    
+    /* Ép ẩn chuột trên cả các thẻ có sẵn hiệu ứng hover chuột như link, nút bấm */
+    a, button, input, textarea, select, .polaroid-card-wrapper {
+        cursor: none !important;
+    }
+}
+/* =====================================================================
+   8. MOTTO SECTION (CHÂM NGÔN)
+   ===================================================================== */
+.motto-section {
+  padding: 0 100px;
+  /* ÉP CHIẾM TRỌN 1 MÀN HÌNH */
+  height: 100vh;
+  width: 100%;
+  
+  /* Bắt buộc phải có màu nền để che ảnh banner sticky ở dưới */
+  background-color: var(--background-primary); 
+  
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 24px;
+  overflow: hidden;
+  /* Đảm bảo nổi lên trên banner */
+  
+  position: sticky; 
+  top: 0;
+  z-index: 2; 
+}
+
+/* --- Style 1: Nền tờ giấy --- */
+.motto-paper {
+  background-color: #fdfbf7;
+  border: 1px solid #e8e5dc;
+  border-radius: 4px;
+  padding: 80px 60px;
+  max-width: 900px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  position: relative;
+}
+
+/* Dấu ngoặc kép trang trí */
+.motto-paper::before {
+  content: '"';
+  font-family: 'Playfair Display', serif;
+  font-size: 120px;
+  color: rgba(0, 0, 0, 0.05);
+  position: absolute;
+  top: -20px;
+  left: 30px;
+  line-height: 1;
+}
+
+.motto-paper .motto-text {
+  font-family: 'Playfair Display', serif;
+  font-size: 32px;
+  font-style: italic;
+  color: #222;
+  line-height: 1.6;
+  margin-bottom: 30px;
+}
+
+.motto-paper .motto-author {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 0.2em;
+  color: #d4af37; /* Màu vàng kim */
+  text-transform: uppercase;
+}
+
+/* --- Style 2: Typography mượt mà trên nền tối --- */
+.motto-modern {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.motto-modern .motto-text {
+  font-family: 'Playfair Display', serif;
+  font-size: 48px;
+  font-weight: 600;
+  font-style: italic;
+  color: var(--text-primary);
+  line-height: 1.4;
+  margin-bottom: 40px;
+}
+
+/* Highlight một vài chữ trong châm ngôn */
+.motto-highlight {
+  color: var(--accent-primary);
+}
+
+.motto-modern .motto-author {
+  font-family: 'Inter', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-muted);
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+}
+
+.motto-modern .motto-author::before,
+.motto-modern .motto-author::after {
+  content: '';
+  height: 1px;
+  width: 40px;
+  background-color: var(--border-strong);
+}
+
+/* Responsive cho Mobile */
+@media (max-width: 768px) {
+  .motto-paper .motto-text { font-size: 24px; }
+  .motto-paper { padding: 40px 24px; }
+  .motto-modern .motto-text { font-size: 32px; }
 }
