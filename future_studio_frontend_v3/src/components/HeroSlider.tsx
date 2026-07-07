@@ -13,7 +13,7 @@ const HeroSlider: React.FC = () => {
   const lastX = useRef(0);
   const lastY = useRef(0);
   const dragDistance = useRef(0);
-  const [currentHeroSlide, setCurrentHeroSlide] = useState(0); // State này có thể cần cho logic khác như dots
+  const [currentHeroSlide] = useState(0);
 
   // Hàm khi người dùng giữ tay / giữ chuột
   const handleInteractStart = () => {
