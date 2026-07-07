@@ -4,6 +4,8 @@ import { newsData, customerData, type NewsItem } from '../data/database';
 import QuickViewModal from '../components/QuickViewModal';
 import Player from '@vimeo/player';
 import { useInView } from 'react-intersection-observer';
+import { getAssetUrl, resolveMediaUrl } from '../utils/media';
+import { sortByDateDesc } from '../utils/date';
 
 // --- ĐỊNH NGHĨA HIỆU ỨNG SO LE (STAGGERED ANIMATION) ---
 // 1. Định nghĩa cho khung lưới bọc ngoài
@@ -128,14 +130,6 @@ const ProductCard: React.FC<ProductCardProps> = ({ item, onClick }) => {
     }
   };
 
-  // Hàm tiện ích để xử lý cả URL tuyệt đối (từ Vimeo) và tương đối (local)
-  const getFullImageUrl = (url: string) => {
-    if (url.startsWith('http://') || url.startsWith('https://')) {
-      return url;
-    }
-    return `${import.meta.env.BASE_URL}${url}`;
-  };
-
   return (
     <motion.div
       ref={ref} // Gắn ref từ useInView vào đây
@@ -155,7 +149,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ item, onClick }) => {
         />
         {/* Lớp ảnh thumbnail, luôn hiển thị làm nền */}
         <img
-          src={getFullImageUrl(thumbnailUrl)}
+          src={resolveMediaUrl(thumbnailUrl)}
           alt={`${item.title} - ${item.clientInformation}`}
         />
 
@@ -178,7 +172,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ item, onClick }) => {
             ) : (
               <video
                 ref={videoRef}
-                src={`${import.meta.env.BASE_URL}${item.videoUrl}`}
+                src={getAssetUrl(item.videoUrl)}
                 muted
                 loop
                 playsInline
@@ -201,27 +195,10 @@ const AllProductsPage: React.FC = () => {
 
   // SỬA LỖI: Sắp xếp sản phẩm một cách an toàn, xử lý các giá trị ngày không hợp lệ
   // để tránh lỗi sắp xếp không nhất quán trên các trình duyệt khác nhau.
-  const allProducts = useMemo(() => {
-    return [...newsData, ...customerData].sort((a, b) => {
-      const dateA = new Date(a.date.replace(/\./g, '-'));
-      const dateB = new Date(b.date.replace(/\./g, '-'));
-
-      const timeA = dateA.getTime();
-      const timeB = dateB.getTime();
-
-      const isAValid = !isNaN(timeA);
-      const isBValid = !isNaN(timeB);
-
-      if (isAValid && isBValid) {
-        // Cả hai ngày đều hợp lệ, sắp xếp theo thứ tự mới nhất trước
-        return timeB - timeA;
-      }
-      // Đẩy các mục có ngày không hợp lệ (ví dụ: "THANK YOU") xuống cuối danh sách
-      if (isAValid) return -1;
-      if (isBValid) return 1;
-      return 0; // Giữ nguyên thứ tự nếu cả hai đều không hợp lệ
-    });
-  }, []);
+  const allProducts = useMemo(
+    () => sortByDateDesc([...newsData, ...customerData]),
+    [],
+  );
 
   const handleProductClick = (item: NewsItem) => {
     setSelectedProduct(item);

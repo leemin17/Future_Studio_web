@@ -1,17 +1,18 @@
 import React, { useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 
 import Header from './components/Header';
 import AppRoutes from './pages';
 // THÊM: Import component CustomCursor mà anh đã tạo ở Bước 2
-import CustomCursor from './components/CustomCursor'; 
+import CustomCursor from './components/CustomCursor';
+import { useAppNavigation } from './hooks/useAppNavigation';
 
 /* =====================================================================
    5. COMPONENT GỐC (APP) LẮP RÁP CÁC ROUTE
    ===================================================================== */
 const App: React.FC = () => {
   const location = useLocation();
-  const navigate = useNavigate();
+  const { goHome } = useAppNavigation();
 
   // Biến kiểm tra xem có đang ở trang phụ (trang chi tiết) hay không
   const isAtDetailPage = location.pathname !== '/';
@@ -22,10 +23,7 @@ const App: React.FC = () => {
   const showFixedHeader = true;
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  const handleResetHome = () => {
-    navigate('/');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
+  const handleResetHome = goHome;
 
   return (
     <>
