@@ -1,22 +1,8 @@
-<<<<<<< HEAD
-import React, { useState, useEffect, useRef } from 'react';
-=======
 import React, { useState, useEffect, useRef, Suspense } from 'react';
->>>>>>> dev
 import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
 
 import Header from './components/Header';
-<<<<<<< HEAD
-import Footer from './components/Footer';
-import HomePage from './pages/HomePage';
-import HeroDetailPage from './pages/HeroDetailPage';
-import ProductDetailPage from './pages/ProductDetailPage';
-import CustomerPage from './pages/CustomerPage';
-import AboutPage from './pages/AboutPage';
-import PageTransition from './components/PageTransition';
-
-=======
 import PageTransition from './components/PageTransition';
 
 // --- LAZY LOADING COMPONENTS ---
@@ -34,16 +20,12 @@ const LoadingFallback = () => (
   </div>
 );
 
->>>>>>> dev
 /* =====================================================================
    5. COMPONENT GỐC (APP) LẮP RÁP CÁC ROUTE
    ===================================================================== */
 const App: React.FC = () => {
   const [showFixedHeader, setShowFixedHeader] = useState(false);
-<<<<<<< HEAD
-=======
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
->>>>>>> dev
   const cursorRef = useRef<HTMLDivElement>(null);
 
   const location = useLocation();
@@ -52,23 +34,6 @@ const App: React.FC = () => {
   // Biến kiểm tra xem có đang ở trang phụ (trang chi tiết) hay không
   const isAtDetailPage = location.pathname !== '/';
 
-<<<<<<< HEAD
-  // SỬA LỖI: Header chỉ "dính" lại (sticky) sau khi cuộn 800px trên mọi trang,
-  // gây ra lỗi trên trang chi tiết (vốn không có banner lớn).
-  // GIẢI PHÁP: Thay đổi ngưỡng cuộn tùy theo trang.
-  useEffect(() => {
-    const handleScroll = () => {
-      const scrollThreshold = isAtDetailPage ? 1 : 800;
-      if (window.scrollY > scrollThreshold) {
-        setShowFixedHeader(true);
-      } else {
-        setShowFixedHeader(false);
-      }
-    };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [isAtDetailPage]); // Thêm isAtDetailPage để logic được cập nhật khi chuyển trang
-=======
   // ====================================================================
   // FIX: ĐỒNG BỘ HIỆU ỨNG CURSOR KHI CHUYỂN TRANG
   // ====================================================================
@@ -90,7 +55,6 @@ const App: React.FC = () => {
   useEffect(() => {
     setShowFixedHeader(true);
   }, []);
->>>>>>> dev
 
   // ====================================================================
   // HIỆU ỨNG CON TRỎ CHUỘT NGHỆ THUẬT (CUSTOM MAGNETIC CURSOR)
@@ -99,8 +63,6 @@ const App: React.FC = () => {
     const cursor = cursorRef.current;
     if (!cursor) return;
 
-<<<<<<< HEAD
-=======
     // Chỉ chạy hiệu ứng trên thiết bị có con trỏ chính xác (PC/Laptop)
     if (!window.matchMedia("(pointer: fine)").matches) return;
 
@@ -109,23 +71,13 @@ const App: React.FC = () => {
     // Chúng ta chỉ cập nhật DOM (thêm/xóa class) khi trạng thái này thực sự thay đổi.
     let currentClass = '';
 
->>>>>>> dev
     let mouseX = window.innerWidth / 2;
     let mouseY = window.innerHeight / 2;
     let cursorX = mouseX;
     let cursorY = mouseY;
     let currentScale = 1;
     let isClicking = false;
-<<<<<<< HEAD
-
-    // Cập nhật tọa độ khi chuột di chuyển
-    const onMouseMove = (e: MouseEvent) => {
-      mouseX = e.clientX;
-      mouseY = e.clientY;
-    };
-=======
     let rafId: number | null = null;
->>>>>>> dev
 
     // Bắt sự kiện nhấn và nhả chuột
     const onMouseDown = () => { isClicking = true; };
@@ -135,37 +87,12 @@ const App: React.FC = () => {
     const renderCursor = () => {
       cursorX += (mouseX - cursorX) * 0.2; // 0.2 là độ trễ, số càng nhỏ càng trễ mượt
       cursorY += (mouseY - cursorY) * 0.2;
-<<<<<<< HEAD
-      
-=======
 
->>>>>>> dev
       // Nội suy hiệu ứng thu nhỏ mượt mà khi click
       const targetScale = isClicking ? 0.5 : 1; // Thu nhỏ còn 50% khi bấm chuột
       currentScale += (targetScale - currentScale) * 0.2;
 
       cursor.style.transform = `translate3d(${cursorX - cursor.offsetWidth / 2}px, ${cursorY - cursor.offsetHeight / 2}px, 0) scale(${currentScale})`;
-<<<<<<< HEAD
-      requestAnimationFrame(renderCursor);
-    };
-    const rafId = requestAnimationFrame(renderCursor);
-
-    // Kiểm tra xem chuột có đang nằm trên thẻ tương tác không để phóng to
-    const onMouseOver = (e: MouseEvent) => {
-      const target = e.target as HTMLElement;
-      if (target.closest('.hero-frame')) {
-        cursor.classList.add('dragging');
-        cursor.classList.remove('hovering', 'hidden');
-      } else if (target.closest('.news-card, .product-card')) {
-        cursor.classList.add('hovering');
-        cursor.classList.remove('dragging', 'hidden');
-      } else if (target.closest('a, button, input, .search-bar, .cart-status, .menu-burger')) {
-        // Trỏ vào nút -> Ẩn con trỏ custom đi
-        cursor.classList.add('hidden');
-        cursor.classList.remove('hovering', 'dragging');
-      } else {
-        cursor.classList.remove('hovering', 'dragging', 'hidden');
-=======
       rafId = requestAnimationFrame(renderCursor);
     };
 
@@ -211,33 +138,21 @@ const App: React.FC = () => {
         cursorText.innerText = newText;
         // Lưu lại trạng thái mới
         currentClass = newClass;
->>>>>>> dev
       }
     };
 
     window.addEventListener('mousemove', onMouseMove);
-<<<<<<< HEAD
-    document.addEventListener('mouseover', onMouseOver);
-=======
->>>>>>> dev
     window.addEventListener('mousedown', onMouseDown);
     window.addEventListener('mouseup', onMouseUp);
 
     return () => {
       window.removeEventListener('mousemove', onMouseMove);
-<<<<<<< HEAD
-      document.removeEventListener('mouseover', onMouseOver);
-      window.removeEventListener('mousedown', onMouseDown);
-      window.removeEventListener('mouseup', onMouseUp);
-      cancelAnimationFrame(rafId);
-=======
       window.removeEventListener('mousedown', onMouseDown);
       window.removeEventListener('mouseup', onMouseUp);
       // Hủy vòng lặp render khi component bị unmount
       if (rafId) {
         cancelAnimationFrame(rafId);
       }
->>>>>>> dev
     };
   }, []);
 
@@ -249,32 +164,14 @@ const App: React.FC = () => {
   return (
     <>
       {/* Khung chứa con trỏ chuột custom */}
-<<<<<<< HEAD
-      <div ref={cursorRef} className="custom-cursor"></div>
-=======
       <div ref={cursorRef} className="custom-cursor">
         <span className="cursor-text"></span>
       </div>
->>>>>>> dev
 
       <Header
         onLogoClick={handleResetHome}
         showFixedHeader={showFixedHeader}
         isAtDetailPage={isAtDetailPage}
-<<<<<<< HEAD
-      />
-
-      {/* mode="wait" đợi trang cũ biến mất hẳn rồi trang mới mới hiện ra */}
-      <AnimatePresence mode="wait">
-        <Routes location={location} key={location.pathname}>
-          <Route path="/" element={<PageTransition><HomePage /></PageTransition>} />
-          <Route path="/hero/:id" element={<PageTransition><HeroDetailPage /></PageTransition>} />
-          <Route path="/product/:id" element={<PageTransition><ProductDetailPage /></PageTransition>} />
-          <Route path="/customers" element={<PageTransition><CustomerPage /></PageTransition>} />
-          <Route path="/about" element={<PageTransition><AboutPage /></PageTransition>} />
-        </Routes>
-      </AnimatePresence>
-=======
         isMobileMenuOpen={isMobileMenuOpen}
         setIsMobileMenuOpen={setIsMobileMenuOpen}
       />
@@ -295,7 +192,6 @@ const App: React.FC = () => {
           </AnimatePresence>
         </Suspense>
       </main>
->>>>>>> dev
     </>
   );
 };

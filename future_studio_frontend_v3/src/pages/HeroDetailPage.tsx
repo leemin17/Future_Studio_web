@@ -7,17 +7,10 @@ const HeroDetailPage: React.FC = () => {
   const navigate = useNavigate();
   const selectedHeroIndex = parseInt(id || '0', 10);
 
-<<<<<<< HEAD
-  const handleResetHome = () => {
-    navigate('/');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-=======
   // const handleResetHome = () => {
   //   navigate('/');
   //   window.scrollTo({ top: 0, behavior: 'smooth' });
   // };
->>>>>>> dev
 
   const handleProductClick = (item: NewsItem) => {
     navigate(`/product/${item.id}`);
@@ -38,16 +31,6 @@ const HeroDetailPage: React.FC = () => {
 
   return (
     <section className="container" style={{ paddingTop: '60px', paddingBottom: '100px' }}>
-<<<<<<< HEAD
-      <button
-        onClick={handleResetHome}
-        className="btn-arrow"
-        style={{ marginBottom: '40px', display: 'flex', alignItems: 'center', gap: '8px', width: 'auto', padding: '0 16px', borderRadius: '8px' }}
-      >
-        ← Quay lại trang chủ
-      </button>
-=======
->>>>>>> dev
 
       <div style={{ display: 'flex', gap: '40px', flexWrap: 'wrap', alignItems: 'flex-start' }}>
         {/* CỘT TRÁI: Nội dung chính */}
