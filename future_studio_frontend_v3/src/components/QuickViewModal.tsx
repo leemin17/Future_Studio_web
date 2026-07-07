@@ -60,7 +60,25 @@ const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, onClose }) => 
             <div className="quick-view-content">
               <div className="quick-view-media">
                 {product.videoUrl ? (
-                  <video src={getAssetUrl(product.videoUrl)} poster={getAssetUrl(product.imageUrl)} controls muted autoPlay playsInline loop />
+                  product.videoUrl.includes('vimeo') ? (
+                    <div style={{
+                        position: 'relative',
+                        paddingBottom: '56.25%', // 16:9 aspect ratio
+                        height: 0,
+                        overflow: 'hidden',
+                        width: '100%',
+                        backgroundColor: '#000'
+                    }}>
+                      <iframe
+                        className="quick-view-vimeo-embed"
+                        src={`https://player.vimeo.com/video/${product.videoUrl.split('/').pop()}?autoplay=1&loop=1&autopause=0&muted=1&background=1`}
+                        allow="autoplay; fullscreen; picture-in-picture"
+                        title={product.title}
+                      ></iframe>
+                    </div>
+                  ) : (
+                    <video src={getAssetUrl(product.videoUrl)} poster={getAssetUrl(product.imageUrl)} controls muted autoPlay playsInline loop />
+                  )
                 ) : (
                   <img src={getAssetUrl(product.imageUrl)} alt={`${product.title} - ${product.clientInformation}`} />
                 )}
