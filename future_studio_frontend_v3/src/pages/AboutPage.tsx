@@ -1,24 +1,23 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
 import { newsData, type NewsItem } from '../data/database';
+import RelatedPostsSidebar from '../components/RelatedPostsSidebar';
+import { getAssetUrl } from '../utils/media';
+import { sortByDateDesc } from '../utils/date';
+import { useAppNavigation } from '../hooks/useAppNavigation';
 
 const AboutPage: React.FC = () => {
-  const navigate = useNavigate();
+  const { goHome, goToProduct } = useAppNavigation();
 
   const handleResetHome = () => {
-    navigate('/');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    goHome();
   };
 
   const handleProductClick = (item: NewsItem) => {
-    navigate(`/product/${item.id}`);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    goToProduct(item.id);
   };
 
   // Sắp xếp bài viết bên cột phải theo ngày mới nhất
-  const sortedNewsData = [...newsData].sort((a, b) => {
-    return new Date(b.date.replace(/\./g, '-')).getTime() - new Date(a.date.replace(/\./g, '-')).getTime();
-  });
+  const sortedNewsData = sortByDateDesc(newsData);
 
   return (
     <section className="container" style={{ paddingTop: '60px', paddingBottom: '100px' }}>
@@ -34,7 +33,7 @@ const AboutPage: React.FC = () => {
         {/* CỘT TRÁI: Nội dung chính */}
         <div style={{ flex: '1 1 calc(100% - 360px)', minWidth: '320px', display: 'flex', gap: '40px', flexWrap: 'wrap' }}>
           <div style={{ width: '100%', maxWidth: '500px', backgroundColor: '#f5f5f5', overflow: 'hidden', borderRadius: '8px' }}>
-            <img src={`${import.meta.env.BASE_URL}images/_mainvisual-001.png`} alt="Về Future Studio" style={{ width: '100%', height: 'auto', display: 'block' }} />
+            <img src={getAssetUrl('images/_mainvisual-001.png')} alt="Về Future Studio" style={{ width: '100%', height: 'auto', display: 'block' }} />
           </div>
           <div style={{ flex: 1, minWidth: '300px' }}>
             <span style={{ fontSize: '12px', fontWeight: '800', color: '#666666', display: 'block', marginBottom: '8px', letterSpacing: '0.1em' }}>
@@ -62,26 +61,12 @@ const AboutPage: React.FC = () => {
         </div>
 
         {/* CỘT PHẢI: Bài viết khác bên cạnh */}
-        <div style={{ width: '320px', flexGrow: 0, flexShrink: 0, backgroundColor: '#fafafa', padding: '24px', borderRadius: '12px' }}>
-          <h3 style={{ fontSize: '18px', fontWeight: '900', marginBottom: '24px', color: '#111111' }}>
-            Bài viết mới nhất
-          </h3>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-          {sortedNewsData.slice(0, 5).map((item) => (
-              <div key={item.id} onClick={() => handleProductClick(item)} style={{ display: 'flex', gap: '16px', cursor: 'pointer', alignItems: 'center' }}>
-                <div style={{ width: '72px', height: '72px', flexShrink: 0, backgroundColor: '#eaeaea', borderRadius: '8px', overflow: 'hidden' }}>
-                  <img src={`${import.meta.env.BASE_URL}${item.imageUrl}`} alt={item.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                </div>
-                <div>
-                  <span style={{ fontSize: '11px', color: '#888', fontWeight: '700', marginBottom: '4px', display: 'block' }}>{item.date}</span>
-                  <h4 style={{ fontSize: '13px', fontWeight: '700', color: '#111111', lineHeight: '1.4', margin: 0, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
-                    {item.title} - {item.clientInformation}
-                  </h4>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
+        <RelatedPostsSidebar
+          heading="Bài viết mới nhất"
+          items={sortedNewsData.slice(0, 5)}
+          onItemClick={handleProductClick}
+          getItemLabel={(item) => `${item.title} - ${item.clientInformation}`}
+        />
       </div>
     </section>
   );

@@ -2,6 +2,8 @@ import React, { useState, useRef } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { newsData, customerData, type NewsItem } from '../data/database';
 import ScrollReveal from './ScrollReveal';
+import { getAssetUrl } from '../utils/media';
+import { sortByDateDesc } from '../utils/date';
 
 interface BodyProps {
   onSelectProduct: (item: NewsItem) => void;
@@ -25,13 +27,13 @@ const ParallaxMedia: React.FC<{ item: NewsItem }> = ({ item }) => {
       <motion.div style={{ y, position: 'absolute', top: '-15%', left: 0, width: '100%', height: '130%' }}>
         {item.videoUrl ? (
           <video
-            src={`${import.meta.env.BASE_URL}${item.videoUrl}`}
-            poster={`${import.meta.env.BASE_URL}${item.imageUrl}`}
+            src={getAssetUrl(item.videoUrl)}
+            poster={getAssetUrl(item.imageUrl)}
             muted autoPlay loop playsInline
             style={{ width: '100%', height: '100%', objectFit: 'cover' }}
           />
         ) : (
-          <img src={`${import.meta.env.BASE_URL}${item.imageUrl}`} alt={item.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+          <img src={getAssetUrl(item.imageUrl)} alt={item.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
         )}
       </motion.div>
     </div>
@@ -45,9 +47,7 @@ const Body: React.FC<BodyProps> = ({ onSelectProduct }) => {
   const [hoveredNewsIndex, setHoveredNewsIndex] = useState<number | null>(null);
 
   // Sắp xếp bài viết theo ngày mới nhất (đổi định dạng yyyy.mm.dd thành yyyy-mm-dd)
-  const sortedNewsData = [...newsData].sort((a, b) => {
-    return new Date(b.date.replace(/\./g, '-')).getTime() - new Date(a.date.replace(/\./g, '-')).getTime();
-  });
+  const sortedNewsData = sortByDateDesc(newsData);
 
   const totalNewsPages = Math.ceil(sortedNewsData.length / itemsPerPage);
   const currentNews = sortedNewsData.slice((currentNewsPage - 1) * itemsPerPage, currentNewsPage * itemsPerPage);
@@ -63,9 +63,7 @@ const Body: React.FC<BodyProps> = ({ onSelectProduct }) => {
   const customersPerPage = 5;
   const [hoveredCustomerIndex, setHoveredCustomerIndex] = useState<number | null>(null);
 
-  const sortedCustomerData = [...customerData].sort((a, b) => {
-    return new Date(b.date.replace(/\./g, '-')).getTime() - new Date(a.date.replace(/\./g, '-')).getTime();
-  });
+  const sortedCustomerData = sortByDateDesc(customerData);
   const totalCustomerPages = Math.ceil(sortedCustomerData.length / customersPerPage);
   const currentCustomers = sortedCustomerData.slice((currentCustomerPage - 1) * customersPerPage, currentCustomerPage * customersPerPage);
 

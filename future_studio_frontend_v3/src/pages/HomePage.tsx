@@ -1,15 +1,14 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
 import { type NewsItem } from '../data/database';
 import HeroSlider from '../components/HeroSlider';
 import Body from '../components/Body';
+import { useAppNavigation } from '../hooks/useAppNavigation';
 
 const HomePage: React.FC = () => {
-  const navigate = useNavigate();
+  const { goToProduct } = useAppNavigation();
 
   const handleProductClick = (item: NewsItem) => {
-    navigate(`/product/${item.id}`);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    goToProduct(item.id);
   };
 
   return (

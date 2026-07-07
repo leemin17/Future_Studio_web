@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { newsData, customerData, popularSearches, type NewsItem } from '../data/database';
+import { getAssetUrl } from '../utils/media';
+import { sortByDateDesc } from '../utils/date';
 
 interface SearchOverlayProps {
   onClose: () => void;
@@ -30,11 +32,11 @@ const SearchOverlay: React.FC<SearchOverlayProps> = ({ onClose }) => {
     // Dùng setTimeout (debounce) để tạo độ trễ 500ms trước khi lọc, tạo cảm giác đang tải dữ liệu
     const delaySearch = setTimeout(() => {
       // Lọc theo từ khóa và sắp xếp theo ngày mới nhất
-      const filteredResults = allSearchableData.filter(item =>
-        item.title.toLowerCase().includes(query.toLowerCase())
-      ).sort((a, b) => {
-        return new Date(b.date.replace(/\./g, '-')).getTime() - new Date(a.date.replace(/\./g, '-')).getTime();
-      });
+      const filteredResults = sortByDateDesc(
+        allSearchableData.filter(item =>
+          item.title.toLowerCase().includes(query.toLowerCase())
+        )
+      );
       setResults(filteredResults);
       setIsLoading(false);
     }, 500);
@@ -117,7 +119,7 @@ const SearchOverlay: React.FC<SearchOverlayProps> = ({ onClose }) => {
               onClick={handleResultClick}
               style={{ animationDelay: `${index * 0.08}s` }}
             >
-              <img src={`${import.meta.env.BASE_URL}${item.imageUrl}`} alt={item.title} className="search-result-image" />
+              <img src={getAssetUrl(item.imageUrl)} alt={item.title} className="search-result-image" />
               <div className="search-result-info">
                 <span className="search-result-type">{item.type === 'product' ? 'Sản phẩm/Tin tức' : 'Khách hàng'}</span>
                 <h4 className="search-result-title">{item.title}</h4>

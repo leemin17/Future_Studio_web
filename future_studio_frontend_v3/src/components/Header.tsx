@@ -3,6 +3,7 @@ import { useLenis } from 'lenis/react';
 import { useNavigate } from 'react-router-dom';
 
 import { navItems } from '../data/database';
+import { scrollToTop } from '../utils/scroll';
 interface HeaderProps {
   onLogoClick: () => void;
   showFixedHeader: boolean;
@@ -104,7 +105,7 @@ const Header: React.FC<HeaderProps> = ({ onLogoClick, showFixedHeader, isAtDetai
                 // Nếu item có path riêng (vd: /about), ưu tiên chuyển trang
                 if (item.path) {
                   navigate(item.path);
-                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                  scrollToTop();
                 } else {
                   // Nếu không có path, mặc định là cuộn
                   if (isAtDetailPage) {
@@ -129,7 +130,7 @@ const Header: React.FC<HeaderProps> = ({ onLogoClick, showFixedHeader, isAtDetai
                       if (sub.path) {
                         // Nếu có thuộc tính path -> Chuyển trang
                         navigate(sub.path);
-                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                        scrollToTop();
                       } else {
                         // Ngược lại -> Trượt mượt xuống section
                         if (isAtDetailPage) {

@@ -2,7 +2,8 @@ import React from 'react';
 import { motion, AnimatePresence, type Variants } from 'framer-motion';
 import { type NewsItem } from '../data/database';
 import { IoClose } from "react-icons/io5";
-import { useNavigate } from 'react-router-dom';
+import { getAssetUrl } from '../utils/media';
+import { useAppNavigation } from '../hooks/useAppNavigation';
 
 interface QuickViewModalProps {
   product: NewsItem | null;
@@ -23,7 +24,7 @@ const modalVariants: Variants = {
 };
 
 const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, onClose }) => {
-  const navigate = useNavigate();
+  const { goToProduct } = useAppNavigation();
 
   const handleViewDetails = () => {
     if (product) {
@@ -32,8 +33,7 @@ const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, onClose }) => 
       // Chờ 200ms (bằng với thời gian của exit animation) rồi mới chuyển trang
       // để đảm bảo animation chạy xong, tránh bị giật.
       setTimeout(() => {
-        navigate(`/product/${product.id}`);
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        goToProduct(product.id);
       }, 200);
     }
   };
@@ -60,9 +60,9 @@ const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, onClose }) => 
             <div className="quick-view-content">
               <div className="quick-view-media">
                 {product.videoUrl ? (
-                  <video src={`${import.meta.env.BASE_URL}${product.videoUrl}`} poster={`${import.meta.env.BASE_URL}${product.imageUrl}`} controls muted autoPlay playsInline loop />
+                  <video src={getAssetUrl(product.videoUrl)} poster={getAssetUrl(product.imageUrl)} controls muted autoPlay playsInline loop />
                 ) : (
-                  <img src={`${import.meta.env.BASE_URL}${product.imageUrl}`} alt={`${product.title} - ${product.clientInformation}`} />
+                  <img src={getAssetUrl(product.imageUrl)} alt={`${product.title} - ${product.clientInformation}`} />
                 )}
               </div>
               <div className="quick-view-info">
