@@ -1922,11 +1922,7 @@ button:not(.header-nav-link):hover,
 }
 
 /* --- Cursor on Coarse Pointers --- */
-@media (hover: none) and (pointer: coarse) {
-  .custom-cursor {
-    display: none !important;
-  }
-}
+
 
 /* =====================================================================
    6. TEAM PAGE STYLES
@@ -2224,16 +2220,6 @@ button:not(.header-nav-link):hover,
 /* =====================================================================
    7. CUSTOM CURSOR HIDING (ẨN CHUỘT MẶC ĐỊNH)
    ===================================================================== */
-@media (min-width: 769px) {
-    body, html, * {
-        cursor: none !important;
-    }
-    
-    /* Ép ẩn chuột trên cả các thẻ có sẵn hiệu ứng hover chuột như link, nút bấm */
-    a, button, input, textarea, select, .polaroid-card-wrapper {
-        cursor: none !important;
-    }
-}
 /* =====================================================================
    8. MOTTO SECTION (CHÂM NGÔN)
    ===================================================================== */

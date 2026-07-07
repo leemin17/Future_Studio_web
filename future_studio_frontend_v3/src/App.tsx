@@ -4,7 +4,7 @@ import { useLocation } from 'react-router-dom';
 import Header from './components/Header';
 import AppRoutes from './pages';
 // THÊM: Import component CustomCursor mà anh đã tạo ở Bước 2
-import CustomCursor from './components/CustomCursor';
+// import CustomCursor from './components/CustomCursor';
 import { useAppNavigation } from './hooks/useAppNavigation';
 
 /* =====================================================================
@@ -28,7 +28,7 @@ const App: React.FC = () => {
   return (
     <>
       {/* THÊM: Đặt CustomCursor ở ngoài cùng ứng dụng để nó luôn chạy bất kể ở trang nào */}
-      <CustomCursor />
+      {/* <CustomCursor /> */}
 
       <Header
         onLogoClick={handleResetHome}
