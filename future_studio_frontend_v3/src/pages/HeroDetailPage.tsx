@@ -7,18 +7,6 @@ const HeroDetailPage: React.FC = () => {
   const navigate = useNavigate();
   const selectedHeroIndex = parseInt(id || '0', 10);
 
-<<<<<<< HEAD
-  const handleResetHome = () => {
-    navigate('/');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-=======
-  // const handleResetHome = () => {
-  //   navigate('/');
-  //   window.scrollTo({ top: 0, behavior: 'smooth' });
-  // };
->>>>>>> dev
-
   const handleProductClick = (item: NewsItem) => {
     navigate(`/product/${item.id}`);
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -28,26 +16,14 @@ const HeroDetailPage: React.FC = () => {
     return <div style={{ paddingTop: '100px', textAlign: 'center' }}>Chiến dịch không tồn tại.</div>;
   }
 
-  // Lấy dữ liệu nội dung tương ứng với ảnh hoặc mặc định nếu vượt số lượng
   const detailContent = heroDetails[selectedHeroIndex] || heroDetails[0];
 
-  // Sắp xếp bài viết bên cột phải theo ngày mới nhất
   const sortedNewsData = [...newsData].sort((a, b) => {
     return new Date(b.date.replace(/\./g, '-')).getTime() - new Date(a.date.replace(/\./g, '-')).getTime();
   });
 
   return (
     <section className="container" style={{ paddingTop: '60px', paddingBottom: '100px' }}>
-<<<<<<< HEAD
-      <button
-        onClick={handleResetHome}
-        className="btn-arrow"
-        style={{ marginBottom: '40px', display: 'flex', alignItems: 'center', gap: '8px', width: 'auto', padding: '0 16px', borderRadius: '8px' }}
-      >
-        ← Quay lại trang chủ
-      </button>
-=======
->>>>>>> dev
 
       <div style={{ display: 'flex', gap: '40px', flexWrap: 'wrap', alignItems: 'flex-start' }}>
         {/* CỘT TRÁI: Nội dung chính */}

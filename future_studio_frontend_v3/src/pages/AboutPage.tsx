@@ -15,7 +15,6 @@ const AboutPage: React.FC = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  // Sắp xếp bài viết bên cột phải theo ngày mới nhất
   const sortedNewsData = [...newsData].sort((a, b) => {
     return new Date(b.date.replace(/\./g, '-')).getTime() - new Date(a.date.replace(/\./g, '-')).getTime();
   });
@@ -75,11 +74,7 @@ const AboutPage: React.FC = () => {
                 <div>
                   <span style={{ fontSize: '11px', color: '#888', fontWeight: '700', marginBottom: '4px', display: 'block' }}>{item.date}</span>
                   <h4 style={{ fontSize: '13px', fontWeight: '700', color: '#111111', lineHeight: '1.4', margin: 0, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
-<<<<<<< HEAD
-                    {item.title}
-=======
                     {item.title} - {item.clientInformation}
->>>>>>> dev
                   </h4>
                 </div>
               </div>
