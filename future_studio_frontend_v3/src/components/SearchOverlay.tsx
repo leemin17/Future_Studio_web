@@ -1,10 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-<<<<<<< HEAD
-import { newsData, customerData, type NewsItem } from '../data/database';
-=======
 import { newsData, customerData, popularSearches, type NewsItem } from '../data/database';
->>>>>>> dev
+import { compareDateDesc } from '../utils/dateUtils';
 
 interface SearchOverlayProps {
   onClose: () => void;
@@ -21,12 +18,6 @@ const SearchOverlay: React.FC<SearchOverlayProps> = ({ onClose }) => {
   const [results, setResults] = useState<typeof allSearchableData>([]);
   const [isLoading, setIsLoading] = useState(false);
 
-<<<<<<< HEAD
-  // Danh sách các từ khóa gợi ý
-  const popularSearches = ['Quà tặng', 'Phim hoạt hình', 'Khóa học 3D', 'VIP', 'Kỷ niệm', 'Sáng tạo', 'Tri ân', 'Đối tác'];
-
-=======
->>>>>>> dev
   // Lọc kết quả mỗi khi người dùng gõ
   useEffect(() => {
     if (query.trim() === '') {
@@ -42,9 +33,7 @@ const SearchOverlay: React.FC<SearchOverlayProps> = ({ onClose }) => {
       // Lọc theo từ khóa và sắp xếp theo ngày mới nhất
       const filteredResults = allSearchableData.filter(item =>
         item.title.toLowerCase().includes(query.toLowerCase())
-      ).sort((a, b) => {
-        return new Date(b.date.replace(/\./g, '-')).getTime() - new Date(a.date.replace(/\./g, '-')).getTime();
-      });
+      ).sort((a, b) => compareDateDesc(a.date, b.date));
       setResults(filteredResults);
       setIsLoading(false);
     }, 500);
