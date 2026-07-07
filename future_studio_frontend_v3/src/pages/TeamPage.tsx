@@ -44,6 +44,12 @@ const TeamPage = () => {
     const trackWrapperRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
+        const handleResize = () => setIsMobile(window.innerWidth <= 768);
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
+    useEffect(() => {
         const calculateOffset = () => {
             if (!trackWrapperRef.current) return;
             const wrapperWidth = trackWrapperRef.current.offsetWidth;
