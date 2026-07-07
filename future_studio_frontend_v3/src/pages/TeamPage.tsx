@@ -1,37 +1,20 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { motion, useScroll, useMotionValue, useSpring, useTransform } from 'framer-motion';
+import { motion, useScroll, useTransform } from 'framer-motion';
 import { teamMembers } from '../data/database';
+import ScrollReveal from '../components/ScrollReveal'; // Import ScrollReveal
 
 const TeamPage = () => {
-    // --- LOGIC HIỆU ỨNG MOTTO (SCROLL HIJACKING) ---
-    const scrollProgress = useMotionValue(0);
-    
-    // Sử dụng useSpring để hiệu ứng mượt mà, không bị giật
-    const smoothProgress = useSpring(scrollProgress, {
-        stiffness: 100,
-        damping: 30,
-        restDelta: 0.001
+    // --- LOGIC HIỆU ỨNG MOTTO (NATURAL SCROLL) ---
+    const mottoRef = useRef<HTMLDivElement>(null);
+    const { scrollYProgress: mottoScrollProgress } = useScroll({
+        target: mottoRef,
+        offset: ["start center", "end center"] // Bắt đầu animation khi giữa section chạm giữa viewport, kết thúc khi cuối section chạm giữa viewport
     });
 
     // Ánh xạ tiến trình (0 -> 1) sang opacity và scale
     // 0 -> 0.5: Hiện dần | 0.5 -> 1: Mất dần
-    const opacity = useTransform(smoothProgress, [0, 0.5, 1], [0, 1, 0]);
-    const scale = useTransform(smoothProgress, [0, 0.5, 1], [0.8, 1, 0.8]);
-
-    const handleWheel = (e: React.WheelEvent) => {
-        const current = scrollProgress.get();
-        const delta = e.deltaY;
-        
-        // delta / 1000 là tốc độ cuộn. Tăng số này nếu muốn cuộn chậm hơn.
-        const next = Math.max(0, Math.min(1, current + delta / 1000));
-        
-        scrollProgress.set(next);
-
-        // Chặn cuộn trang mặc định nếu hiệu ứng đang chạy (chưa đạt 0 hoặc 1)
-        if (next > 0 && next < 1) {
-            e.preventDefault();
-        }
-    };
+    const opacity = useTransform(mottoScrollProgress, [0, 0.5, 1], [0, 1, 0]);
+    const scale = useTransform(mottoScrollProgress, [0, 0.5, 1], [0.8, 1, 0.8]);
 
     // --- LOGIC CAROUSEL ---
     const { scrollYProgress } = useScroll();
@@ -91,70 +74,87 @@ const TeamPage = () => {
             <motion.div className="page-scroll-progress-bar" style={{ scaleX: scrollYProgress }} />
 
             <div className="team-stacking-container">
-                <section className="team-banner-section">
-                    <img src="images/team.jpg" alt="Team Banner" className="team-banner" />
-                </section>
+                <ScrollReveal>
+                    <section className="team-banner-section">
+                        <img src="images/team.jpg" alt="Team Banner" className="team-banner" />
+                    </section>
+                </ScrollReveal>
                 
-                {/* Section Motto - Bắt sự kiện cuộn tại đây */}
-                <section 
-                    className="motto-section" 
-                    onWheel={handleWheel}
-                    style={{ height: "100vh", display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden" }}
-                >
-                    <motion.div 
-                        className="motto-modern"
-                        style={{ opacity, scale }}
+                {/* Section Motto - Hiệu ứng được điều khiển bằng vị trí cuộn tự nhiên */}
+                <ScrollReveal>
+                    <section
+                        ref={mottoRef}
+                        className="motto-section"
+                        style={{ height: "200vh", position: "relative" }} // Tăng chiều cao để có không gian cuộn
                     >
-                        <h2 className="motto-text">
-                            "Excellence is not an act, but a habit. We <span className="motto-highlight">shape the future</span> through the solid steps we take today."
-                        </h2>
-                        <p className="motto-author">Your Company Name</p>
-                    </motion.div>
-                </section>
+                        <div style={{ position: "sticky", top: 0, height: "100vh", display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden" }}>
+                            <motion.div
+                                className="motto-modern"
+                                style={{ opacity, scale }}
+                            >
+                                <h2 className="motto-text">
+                                    "Excellence is not an act, but a habit. We <span className="motto-highlight">shape the future</span> through the solid steps we take today."
+                                </h2>
+                                <p className="motto-author">Your Company Name</p>
+                            </motion.div>
+                        </div>
+                    </section>
+                </ScrollReveal>
 
-                <section className="team-carousel-section">
-                    <div className="container">
-                        <div className="team-carousel-coverflow">
-                            <div className="team-carousel-track-wrapper" ref={trackWrapperRef}>
-                                <motion.div
-                                    className="team-carousel-track"
-                                    style={{ 
-                                        transform: `translateX(${offset + (isSwiping ? touchDeltaX : 0)}px)`,
-                                        transition: isSwiping ? 'none' : 'transform 0.6s cubic-bezier(0.25, 0.8, 0.25, 1)'
-                                    }}
-                                    onTouchStart={handleTouchStart}
-                                    onTouchMove={handleTouchMove}
-                                    onTouchEnd={handleTouchEnd}
-                                >
-                                    {teamMembers.map((member, index) => (
-                                        <motion.div
-                                            key={member.id}
-                                            className={`polaroid-card-wrapper ${index === currentIndex ? 'active' : ''}`}
-                                            onClick={() => setCurrentIndex(index)}
-                                            animate={{ scale: index === currentIndex ? 1.1 : 1 }}
-                                            transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-                                        >
-                                            <div className="polaroid-card">
-                                                <div className="polaroid-image-wrapper">
-                                                    <img src={member.image} alt={member.name} loading="lazy" />
-                                                </div>
-                                                <div className="polaroid-caption">
-                                                    <h3>{member.name}</h3>
-                                                    <p>{member.role}</p>
-                                                </div>
-                                            </div>
-                                        </motion.div>
-                                    ))}
-                                </motion.div>
-                            </div>
-                            
-                            <div className="carousel-controls">
-                                <button className="btn-arrow" onClick={handlePrev} disabled={currentIndex === 0}>←</button>
-                                <button className="btn-arrow" onClick={handleNext} disabled={currentIndex === teamMembers.length - 1}>→</button>
+                <ScrollReveal>
+                    <section className="team-carousel-section">
+                        <div className="container">
+                            <div className="team-carousel-coverflow">
+                                <div className="team-carousel-track-wrapper" ref={trackWrapperRef}>
+                                    <motion.div
+                                        className="team-carousel-track"
+                                        style={{ 
+                                            transform: `translateX(${offset + (isSwiping ? touchDeltaX : 0)}px)`,
+                                            transition: isSwiping ? 'none' : 'transform 0.6s cubic-bezier(0.25, 0.8, 0.25, 1)'
+                                        }}
+                                        onTouchStart={handleTouchStart}
+                                        onTouchMove={handleTouchMove}
+                                        onTouchEnd={handleTouchEnd}
+                                    >
+                                        {teamMembers.map((member, index) => {
+                                            const distance = index - currentIndex;
+                                            const zIndex = teamMembers.length - Math.abs(distance);
+                                            return (
+                                                <motion.div
+                                                    key={member.id}
+                                                    className={`polaroid-card-wrapper ${index === currentIndex ? 'active' : ''}`}
+                                                    onClick={() => setCurrentIndex(index)}
+                                                    animate={{
+                                                        rotateY: distance * -35, // Góc xoay cho các thẻ ở xa
+                                                        scale: 1 - Math.abs(distance) * 0.15, // Thu nhỏ các thẻ ở xa
+                                                        zIndex: zIndex, // Đưa thẻ gần hơn lên trước
+                                                        x: `${distance * 50}%`, // Dịch chuyển các thẻ để chúng không chồng hoàn toàn lên nhau
+                                                    }}
+                                                    transition={{ type: 'spring', stiffness: 250, damping: 25 }}
+                                                >
+                                                    <div className="polaroid-card">
+                                                        <div className="polaroid-image-wrapper">
+                                                            <img src={member.image} alt={member.name} loading="lazy" />
+                                                        </div>
+                                                        <div className="polaroid-caption">
+                                                            <h3>{member.name}</h3>
+                                                            <p>{member.role}</p>
+                                                        </div>
+                                                    </div>
+                                                </motion.div>
+                                            );
+                                        })}
+                                    </motion.div>
+                                </div>
+                                
+                                <div className="carousel-controls">
+                                    <button className="btn-arrow" onClick={handlePrev} disabled={currentIndex === 0}>←</button>
+                                    <button className="btn-arrow" onClick={handleNext} disabled={currentIndex === teamMembers.length - 1}>→</button>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </section>
+                    </section>
+                </ScrollReveal>
             </div>
         </div>
     );

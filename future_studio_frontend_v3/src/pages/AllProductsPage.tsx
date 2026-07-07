@@ -5,25 +5,6 @@ import QuickViewModal from '../components/QuickViewModal';
 import Player from '@vimeo/player';
 import { useInView } from 'react-intersection-observer';
 
-// --- ĐỊNH NGHĨA HIỆU ỨNG SO LE (STAGGERED ANIMATION) ---
-// 1. Định nghĩa cho khung lưới bọc ngoài
-const gridContainerVariants = {
-  hidden: { opacity: 0 },
-  show: {
-    opacity: 1,
-    transition: {
-      // Hiệu ứng sẽ áp dụng lần lượt cho các "con" với khoảng trễ 0.1s
-      staggerChildren: 0.1,
-    },
-  },
-};
-
-// 2. Định nghĩa cho từng sản phẩm bên trong
-const gridItemVariants = {
-  hidden: { y: 20, opacity: 0 }, // Bắt đầu từ dưới 20px và trong suốt
-  show: { y: 0, opacity: 1 }, // Di chuyển về vị trí 0 và hiện ra
-};
-
 // Hàm tiện ích để lấy ID video từ URL của Vimeo
 const getVimeoId = (url: string) => {
   const match = /vimeo.*\/(\d+)/i.exec(url);
@@ -140,8 +121,15 @@ const ProductCard: React.FC<ProductCardProps> = ({ item, onClick }) => {
     <motion.div
       ref={ref} // Gắn ref từ useInView vào đây
       className="news-card"
-      variants={gridItemVariants}
       layout
+      initial={{ opacity: 0, y: 60, scale: 0.8, rotate: -5 }}
+      whileInView={{ opacity: 1, y: 0, scale: 1, rotate: 0 }}
+      viewport={{ once: true, amount: 0.2 }}
+      transition={{ 
+        type: "spring",
+        stiffness: 120,
+        damping: 10,
+      }}
     >
       <div
         className="news-image natural-size"
@@ -239,11 +227,8 @@ const AllProductsPage: React.FC = () => {
     <section className="all-products-section">
 
       {/* Bọc lưới sản phẩm bằng motion.div và áp dụng hiệu ứng container */}
-      <motion.div
+      <div
         className="all-products-grid"
-        variants={gridContainerVariants}
-        initial="hidden"
-        animate="show"
       >
         {allProducts.map((item) => (
           <ProductCard 
@@ -252,7 +237,7 @@ const AllProductsPage: React.FC = () => {
             onClick={() => handleProductClick(item)}
           />
         ))}
-      </motion.div>
+      </div>
     </section>
     </>
   );
