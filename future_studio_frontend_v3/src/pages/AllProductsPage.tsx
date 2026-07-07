@@ -4,6 +4,7 @@ import { newsData, customerData, type NewsItem } from '../data/database';
 import QuickViewModal from '../components/QuickViewModal';
 import Player from '@vimeo/player';
 import { useInView } from 'react-intersection-observer';
+import { getVimeoId, resolveAssetUrl } from '../utils';
 
 // --- ĐỊNH NGHĨA HIỆU ỨNG SO LE (STAGGERED ANIMATION) ---
 // 1. Định nghĩa cho khung lưới bọc ngoài
@@ -22,12 +23,6 @@ const gridContainerVariants = {
 const gridItemVariants = {
   hidden: { y: 20, opacity: 0 }, // Bắt đầu từ dưới 20px và trong suốt
   show: { y: 0, opacity: 1 }, // Di chuyển về vị trí 0 và hiện ra
-};
-
-// Hàm tiện ích để lấy ID video từ URL của Vimeo
-const getVimeoId = (url: string) => {
-  const match = /vimeo.*\/(\d+)/i.exec(url);
-  return match ? match[1] : null;
 };
 
 // =====================================================================
@@ -128,14 +123,6 @@ const ProductCard: React.FC<ProductCardProps> = ({ item, onClick }) => {
     }
   };
 
-  // Hàm tiện ích để xử lý cả URL tuyệt đối (từ Vimeo) và tương đối (local)
-  const getFullImageUrl = (url: string) => {
-    if (url.startsWith('http://') || url.startsWith('https://')) {
-      return url;
-    }
-    return `${import.meta.env.BASE_URL}${url}`;
-  };
-
   return (
     <motion.div
       ref={ref} // Gắn ref từ useInView vào đây
@@ -155,7 +142,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ item, onClick }) => {
         />
         {/* Lớp ảnh thumbnail, luôn hiển thị làm nền */}
         <img
-          src={getFullImageUrl(thumbnailUrl)}
+          src={resolveAssetUrl(thumbnailUrl)}
           alt={`${item.title} - ${item.clientInformation}`}
         />
 
