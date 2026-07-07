@@ -41,7 +41,7 @@ const HeroSlider: React.FC = () => {
     isDragging.current = true;
     dragDistance.current = 0;
     lastX.current = e.touches[0].clientX;
-    lastY.current = e.touches[0].clientY;
+    lastY.current = e.touches[0].clientY; 
   };
 
   const handleTouchMove = (e: React.TouchEvent) => {

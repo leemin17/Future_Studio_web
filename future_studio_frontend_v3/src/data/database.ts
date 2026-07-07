@@ -47,6 +47,10 @@ export interface TeamMember {
   name: string;
   role: string;
   image: string;
+  color: string;
+  bio: string;
+  skills: { name: string; level: number }[];
+  socials: { github?: string; linkedin?: string; behance?: string; dribbble?: string };
 }
 
 
@@ -103,35 +107,61 @@ export const heroDetails = [
 
 export const teamMembers: TeamMember[] = [
   {
-    id: 1,
-    name: 'Sarah & Chloe',
-    role: 'Creative Duo',
-    image: 'images/anhcuong.jpg'
-  },
-  {
-    id: 2,
-    name: 'Mark',
-    role: 'Head of Dev',
-    image: 'images/anhdat.jpg'
-  },
-  {
-    id: 3,
-    name: 'Lê Minh',
-    role: 'Frontend Developer',
-    image: 'images/anhcuong.jpg'
-  },
-  {
-    id: 4,
-    name: 'Anna',
-    role: 'UI/UX Designer',
-    image: 'images/anhdat.jpg'
-  },
-  {
-    id: 5,
-    name: 'Amee',
-    role: 'UI/UX Designer',
-    image: 'images/anhdat.jpg'
-  }
+        id: 1,
+        name: "Lê Minh",
+        role: "AI & Computer Vision Engineer",
+        image: "images/anhdat.jpg",
+        color: "rgba(255, 255, 255, 0.15)", // Màu Mint (Xanh ngọc) mờ
+        bio: "Đam mê khám phá các giới hạn của Deep Learning. Hiện đang tập trung phát triển các mô hình Computer Vision hiệu suất cao ứng dụng kiến trúc YOLOv8 và tối ưu hóa hệ thống nhận diện theo thời gian thực tại Đà Nẵng.",
+        skills: [
+            { name: "Computer Vision (YOLOv8)", level: 95 },
+            { name: "Deep Learning", level: 85 },
+            { name: "Frontend Development", level: 75 }
+        ],
+        socials: { github: "#", linkedin: "#" }
+    },
+    {
+        id: 2,
+        name: "Sarah & Chloe",
+        role: "Creative Duo",
+        image: "images/anhcuong.jpg",
+        color: " rgba(255, 255, 255, 0.15)", // Màu Cam mờ
+        bio: "Bộ đôi sáng tạo đứng đằng sau các concept thị giác đột phá. Chuyên trị các chiến dịch Branding và thiết kế giao diện UI/UX với phong cách tối giản nhưng đầy quyền lực.",
+        skills: [
+            { name: "UI/UX Design", level: 90 },
+            { name: "Brand Identity", level: 88 },
+            { name: "Motion Graphics", level: 80 }
+        ],
+        socials: { behance: "#", dribbble: "#" }
+    },
+    {
+        id: 3,
+        name: "Sarah & Chloe",
+        role: "Creative Duo",
+        image: "images/anhdat.jpg",
+        color: "rgba(255, 255, 255, 0.15)", // Màu Mint (Xanh ngọc) mờ
+        bio: "Bộ đôi sáng tạo đứng đằng sau các concept thị giác đột phá. Chuyên trị các chiến dịch Branding và thiết kế giao diện UI/UX với phong cách tối giản nhưng đầy quyền lực.",
+        skills: [
+            { name: "UI/UX Design", level: 90 },
+            { name: "Brand Identity", level: 88 },
+            { name: "Motion Graphics", level: 80 }
+        ],
+        socials: { behance: "#", dribbble: "#" }
+    },
+    {
+        id: 4,
+        name: "Sarah & Chloe",
+        role: "Creative Duo",
+        image: "images/anhcuong.jpg",
+        color: "rgba(255, 255, 255, 0.15)", // Màu Cam mờ
+        bio: "Bộ đôi sáng tạo đứng đằng sau các concept thị giác đột phá. Chuyên trị các chiến dịch Branding và thiết kế giao diện UI/UX với phong cách tối giản nhưng đầy quyền lực.",
+        skills: [
+            { name: "UI/UX Design", level: 90 },
+            { name: "Brand Identity", level: 88 },
+            { name: "Motion Graphics", level: 80 }
+        ],
+        socials: { behance: "#", dribbble: "#" }
+    },
 ];
 
 /* =====================================================================

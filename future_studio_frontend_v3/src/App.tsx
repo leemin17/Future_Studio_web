@@ -1,44 +1,48 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
+import { AnimatePresence } from 'framer-motion';
 
 import Header from './components/Header';
 import AppRoutes from './pages';
-// THÊM: Import component CustomCursor mà anh đã tạo ở Bước 2
-// import CustomCursor from './components/CustomCursor';
+import Preloader from './components/Preloader';
 import { useAppNavigation } from './hooks/useAppNavigation';
 
-/* =====================================================================
-   5. COMPONENT GỐC (APP) LẮP RÁP CÁC ROUTE
-   ===================================================================== */
 const App: React.FC = () => {
   const location = useLocation();
   const { goHome } = useAppNavigation();
 
-  // Biến kiểm tra xem có đang ở trang phụ (trang chi tiết) hay không
-  const isAtDetailPage = location.pathname !== '/';
+  // 1. Quản lý trạng thái loading
+  const [isLoading, setIsLoading] = useState(true);
 
-  // SỬA LỖI: Header chỉ "dính" lại (sticky) sau khi cuộn 800px trên mọi trang,
-  // gây ra lỗi trên trang chi tiết (vốn không có banner lớn).
-  // YÊU CẦU MỚI: Bỏ hiệu ứng tự hiện ra khi cuộn, cho Header luôn cố định ở trên cùng.
+  // 2. Mỗi khi location.pathname thay đổi, reset lại trạng thái loading
+  useEffect(() => {
+    setIsLoading(true); // Kích hoạt Preloader
+  }, [location.pathname]); // Lắng nghe sự thay đổi URL
+
+  const isAtDetailPage = location.pathname !== '/';
   const showFixedHeader = true;
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  const handleResetHome = goHome;
-
   return (
     <>
-      {/* THÊM: Đặt CustomCursor ở ngoài cùng ứng dụng để nó luôn chạy bất kể ở trang nào */}
-      {/* <CustomCursor /> */}
+      {/* Preloader sẽ xuất hiện mỗi khi isLoading = true */}
+      <AnimatePresence mode="wait">
+        {isLoading && (
+          <Preloader 
+            key={location.pathname} // Key giúp reset animation mỗi khi chuyển trang
+            onComplete={() => setIsLoading(false)} 
+          />
+        )}
+      </AnimatePresence>
 
       <Header
-        onLogoClick={handleResetHome}
+        onLogoClick={goHome}
         showFixedHeader={showFixedHeader}
         isAtDetailPage={isAtDetailPage}
         isMobileMenuOpen={isMobileMenuOpen}
         setIsMobileMenuOpen={setIsMobileMenuOpen}
       />
 
-      {/* Thêm thẻ main để bọc nội dung và xử lý padding cho header cố định */}
       <main className={isAtDetailPage ? 'main-content-padding' : ''}>
         <AppRoutes />
       </main>
