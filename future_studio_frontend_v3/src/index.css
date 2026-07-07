@@ -2231,7 +2231,9 @@ button:not(.header-nav-link):hover,
 .motto-section {
   padding: 0 100px;
   /* ÉP CHIẾM TRỌN 1 MÀN HÌNH */
-  height: 100vh;
+  height: 1000vh;
+  /*vh;
+  
   width: 100%;
   
   /* Bắt buộc phải có màu nền để che ảnh banner sticky ở dưới */
