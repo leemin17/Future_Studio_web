@@ -144,16 +144,13 @@ export const navItems: NavItem[] = [
     label: 'Products',
     id: 'showcase',
     subItems: [
-      { label: 'All', id: 'showcase-all', path: '/all-products' },
-      { label: '3D', id: 'showcase-3d' },
-      { label: 'Cartoon', id: 'showcase-cartoon' }
+      { label: 'All', id: 'showcase-all', path: '/all-products' }
     ]
   },
   {
     label: 'About',
     id: 'about',
     subItems: [
-      { label: 'Our Story', id: 'about-story', path: '/about' },
       { label: 'Team', id: 'about-team', path: '/team' }
     ]
   },

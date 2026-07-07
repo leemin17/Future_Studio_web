@@ -1,12 +1,16 @@
 import React, { useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { newsData, customerData, type NewsItem } from '../data/database';
 import ModelViewer from '../components/ModelViewer';
 import DetailPageLayout from '../components/DetailPageLayout'; // 1. Import layout chung
+import RelatedPostsSidebar from '../components/RelatedPostsSidebar';
+import { getAssetUrl } from '../utils/media';
+import { sortByDateDesc } from '../utils/date';
+import { useAppNavigation } from '../hooks/useAppNavigation';
 
 const ProductDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
+  const { navigate, goToProduct } = useAppNavigation();
   const productId = parseInt(id || '0', 10);
   
   // Gộp chung data để đảm bảo click từ Product hay Customer đều tìm thấy bài
@@ -21,18 +25,12 @@ const ProductDetailPage: React.FC = () => {
   const [viewMode, setViewMode] = useState<'2D' | '3D'>('3D');
 
   // Logic kiểm tra xem data bài viết có chứa file 3D không
-  const has3DModel = Boolean(selectedProduct && (selectedProduct as any).modelUrl);
+  const has3DModel = Boolean(selectedProduct && selectedProduct.modelUrl);
   // Nếu có model thì tuân theo viewMode (2D/3D), nếu không có thì ép hệ thống hiển thị 2D
   const currentView = has3DModel ? viewMode : '2D';
 
-  // const handleResetHome = () => {
-  //   navigate('/');
-  //   window.scrollTo({ top: 0, behavior: 'smooth' });
-  // };
-
   const handleProductClick = (item: NewsItem) => {
-    navigate(`/product/${item.id}`);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    goToProduct(item.id);
   };
 
   if (!selectedProduct) {
@@ -44,9 +42,7 @@ const ProductDetailPage: React.FC = () => {
   const relatedData = isCustomer ? [...customerData] : [...newsData];
   
   // Sắp xếp bài viết bên cột phải
-  const sortedRelatedData = relatedData.sort((a, b) => {
-    return new Date(b.date.replace(/\./g, '-')).getTime() - new Date(a.date.replace(/\./g, '-')).getTime();
-  });
+  const sortedRelatedData = sortByDateDesc(relatedData);
 
   // --- LOGIC XỬ LÝ VUỐT ĐỂ QUAY LẠI ---
   const onTouchStart = (e: React.TouchEvent) => {
@@ -94,18 +90,18 @@ const ProductDetailPage: React.FC = () => {
         {/* Hiển thị Nội dung tùy theo Mode */}
         <div style={{ width: '100%', backgroundColor: '#f5f2f2', overflow: 'hidden', borderRadius: '8px', minHeight: '500px', aspectRatio: currentView === '3D' ? '1 / 1' : 'auto', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
           {currentView === '3D' ? (
-            <ModelViewer modelUrl={(selectedProduct as any).modelUrl} /> 
+            <ModelViewer modelUrl={selectedProduct.modelUrl} /> 
           ) : (
             selectedProduct.videoUrl ? (
               <video
-                src={`${import.meta.env.BASE_URL}${selectedProduct.videoUrl}`}
-                poster={`${import.meta.env.BASE_URL}${selectedProduct.imageUrl}`}
+                src={getAssetUrl(selectedProduct.videoUrl)}
+                poster={getAssetUrl(selectedProduct.imageUrl)}
                 controls
                 autoPlay
                 style={{ width: '100%', height: 'auto', display: 'block' }}
               />
             ) : (
-              <img src={`${import.meta.env.BASE_URL}${selectedProduct.imageUrl}`} alt={selectedProduct.title} style={{ width: '100%', height: 'auto', display: 'block' }} />
+              <img src={getAssetUrl(selectedProduct.imageUrl)} alt={selectedProduct.title} style={{ width: '100%', height: 'auto', display: 'block' }} />
             )
           )}
         </div>
@@ -145,26 +141,11 @@ const ProductDetailPage: React.FC = () => {
 
   // 3. Tách riêng nội dung cho cột phải (sidebar)
   const sidebarContent = (
-    <div style={{ width: '320px', flexGrow: 0, flexShrink: 0, backgroundColor: '#fafafa', padding: '24px', borderRadius: '12px' }}>
-      <h3 style={{ fontSize: '18px', fontWeight: '900', marginBottom: '24px', color: '#111111' }}>
-        {isCustomer ? 'Khách hàng và quà tặng' : 'Bài viết mới nhất'}
-      </h3>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-      {sortedRelatedData.filter(item => item.id !== selectedProduct.id).slice(0, 5).map((item) => (
-          <div key={item.id} onClick={() => handleProductClick(item)} style={{ display: 'flex', gap: '16px', cursor: 'pointer', alignItems: 'center' }}>
-            <div style={{ width: '72px', height: '72px', flexShrink: 0, backgroundColor: '#eaeaea', borderRadius: '8px', overflow: 'hidden' }}>
-              <img src={`${import.meta.env.BASE_URL}${item.imageUrl}`} alt={item.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-            </div>
-            <div>
-              <span style={{ fontSize: '11px', color: '#888', fontWeight: '700', marginBottom: '4px', display: 'block' }}>{item.date}</span>
-              <h4 style={{ fontSize: '13px', fontWeight: '700', color: '#111111', lineHeight: '1.4', margin: 0, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
-                {item.title}
-              </h4>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
+    <RelatedPostsSidebar
+      heading={isCustomer ? 'Khách hàng và quà tặng' : 'Bài viết mới nhất'}
+      items={sortedRelatedData.filter(item => item.id !== selectedProduct.id).slice(0, 5)}
+      onItemClick={handleProductClick}
+    />
   );
 
   return (

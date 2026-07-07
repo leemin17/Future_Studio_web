@@ -9,7 +9,6 @@ const HomePage = React.lazy(() => import('./HomePage'));
 const HeroDetailPage = React.lazy(() => import('./HeroDetailPage'));
 const ProductDetailPage = React.lazy(() => import('./ProductDetailPage'));
 const AllProductsPage = React.lazy(() => import('./AllProductsPage'));
-const AboutPage = React.lazy(() => import('./AboutPage'));
 const TeamPage = React.lazy(() => import('./TeamPage'));
 
 // Component hiển thị trong lúc chờ tải trang
@@ -29,7 +28,6 @@ const AppRoutes: React.FC = () => {
                     <Route path="/hero/:id" element={<PageTransition><HeroDetailPage /></PageTransition>} />
                     <Route path="/product/:id" element={<PageTransition><ProductDetailPage /></PageTransition>} />
                     <Route path="/all-products" element={<PageTransition><AllProductsPage /></PageTransition>} />
-                    <Route path="/about" element={<PageTransition><AboutPage /></PageTransition>} />
                     <Route path="/team" element={<PageTransition><TeamPage /></PageTransition>} />
                 </Routes>
             </AnimatePresence>

@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { scrollToTop } from '../utils/scroll';
 
 const Footer: React.FC = () => {
   return (
@@ -19,7 +20,7 @@ const Footer: React.FC = () => {
         </div>
         <nav className="footer-primary-nav">
           <a href="#1">Tìm quà</a>
-          <Link to="/about" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
+          <Link to="/about" onClick={scrollToTop}>
             Future là gì?
           </Link>
           <a href="#3">Cách cho và nhận</a>

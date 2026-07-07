@@ -4,25 +4,8 @@ import { newsData, customerData, type NewsItem } from '../data/database';
 import QuickViewModal from '../components/QuickViewModal';
 import Player from '@vimeo/player';
 import { useInView } from 'react-intersection-observer';
-
-// --- ĐỊNH NGHĨA HIỆU ỨNG SO LE (STAGGERED ANIMATION) ---
-// 1. Định nghĩa cho khung lưới bọc ngoài
-const gridContainerVariants = {
-  hidden: { opacity: 0 },
-  show: {
-    opacity: 1,
-    transition: {
-      // Hiệu ứng sẽ áp dụng lần lượt cho các "con" với khoảng trễ 0.1s
-      staggerChildren: 0.1,
-    },
-  },
-};
-
-// 2. Định nghĩa cho từng sản phẩm bên trong
-const gridItemVariants = {
-  hidden: { y: 20, opacity: 0 }, // Bắt đầu từ dưới 20px và trong suốt
-  show: { y: 0, opacity: 1 }, // Di chuyển về vị trí 0 và hiện ra
-};
+import { getAssetUrl, resolveMediaUrl } from '../utils/media';
+import { sortByDateDesc } from '../utils/date';
 
 // Hàm tiện ích để lấy ID video từ URL của Vimeo
 const getVimeoId = (url: string) => {
@@ -128,20 +111,19 @@ const ProductCard: React.FC<ProductCardProps> = ({ item, onClick }) => {
     }
   };
 
-  // Hàm tiện ích để xử lý cả URL tuyệt đối (từ Vimeo) và tương đối (local)
-  const getFullImageUrl = (url: string) => {
-    if (url.startsWith('http://') || url.startsWith('https://')) {
-      return url;
-    }
-    return `${import.meta.env.BASE_URL}${url}`;
-  };
-
   return (
     <motion.div
       ref={ref} // Gắn ref từ useInView vào đây
       className="news-card"
-      variants={gridItemVariants}
       layout
+      initial={{ opacity: 0, y: 60, scale: 0.8, rotate: -5 }}
+      whileInView={{ opacity: 1, y: 0, scale: 1, rotate: 0 }}
+      viewport={{ once: true, amount: 0.2 }}
+      transition={{ 
+        type: "spring",
+        stiffness: 120,
+        damping: 10,
+      }}
     >
       <div
         className="news-image natural-size"
@@ -155,7 +137,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ item, onClick }) => {
         />
         {/* Lớp ảnh thumbnail, luôn hiển thị làm nền */}
         <img
-          src={getFullImageUrl(thumbnailUrl)}
+          src={resolveMediaUrl(thumbnailUrl)}
           alt={`${item.title} - ${item.clientInformation}`}
         />
 
@@ -178,7 +160,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ item, onClick }) => {
             ) : (
               <video
                 ref={videoRef}
-                src={`${import.meta.env.BASE_URL}${item.videoUrl}`}
+                src={getAssetUrl(item.videoUrl)}
                 muted
                 loop
                 playsInline
@@ -201,27 +183,10 @@ const AllProductsPage: React.FC = () => {
 
   // SỬA LỖI: Sắp xếp sản phẩm một cách an toàn, xử lý các giá trị ngày không hợp lệ
   // để tránh lỗi sắp xếp không nhất quán trên các trình duyệt khác nhau.
-  const allProducts = useMemo(() => {
-    return [...newsData, ...customerData].sort((a, b) => {
-      const dateA = new Date(a.date.replace(/\./g, '-'));
-      const dateB = new Date(b.date.replace(/\./g, '-'));
-
-      const timeA = dateA.getTime();
-      const timeB = dateB.getTime();
-
-      const isAValid = !isNaN(timeA);
-      const isBValid = !isNaN(timeB);
-
-      if (isAValid && isBValid) {
-        // Cả hai ngày đều hợp lệ, sắp xếp theo thứ tự mới nhất trước
-        return timeB - timeA;
-      }
-      // Đẩy các mục có ngày không hợp lệ (ví dụ: "THANK YOU") xuống cuối danh sách
-      if (isAValid) return -1;
-      if (isBValid) return 1;
-      return 0; // Giữ nguyên thứ tự nếu cả hai đều không hợp lệ
-    });
-  }, []);
+  const allProducts = useMemo(
+    () => sortByDateDesc([...newsData, ...customerData]),
+    [],
+  );
 
   const handleProductClick = (item: NewsItem) => {
     setSelectedProduct(item);
@@ -239,11 +204,8 @@ const AllProductsPage: React.FC = () => {
     <section className="all-products-section">
 
       {/* Bọc lưới sản phẩm bằng motion.div và áp dụng hiệu ứng container */}
-      <motion.div
+      <div
         className="all-products-grid"
-        variants={gridContainerVariants}
-        initial="hidden"
-        animate="show"
       >
         {allProducts.map((item) => (
           <ProductCard 
@@ -252,7 +214,7 @@ const AllProductsPage: React.FC = () => {
             onClick={() => handleProductClick(item)}
           />
         ))}
-      </motion.div>
+      </div>
     </section>
     </>
   );

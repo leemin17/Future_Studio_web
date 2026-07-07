@@ -1,20 +1,18 @@
 import React from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { heroImages, newsData, heroDetails, type NewsItem } from '../data/database';
+import RelatedPostsSidebar from '../components/RelatedPostsSidebar';
+import { getAssetUrl } from '../utils/media';
+import { sortByDateDesc } from '../utils/date';
+import { useAppNavigation } from '../hooks/useAppNavigation';
 
 const HeroDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
+  const { goToProduct } = useAppNavigation();
   const selectedHeroIndex = parseInt(id || '0', 10);
 
-  // const handleResetHome = () => {
-  //   navigate('/');
-  //   window.scrollTo({ top: 0, behavior: 'smooth' });
-  // };
-
   const handleProductClick = (item: NewsItem) => {
-    navigate(`/product/${item.id}`);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    goToProduct(item.id);
   };
 
   if (isNaN(selectedHeroIndex) || selectedHeroIndex < 0 || selectedHeroIndex >= heroImages.length) {
@@ -25,9 +23,7 @@ const HeroDetailPage: React.FC = () => {
   const detailContent = heroDetails[selectedHeroIndex] || heroDetails[0];
 
   // Sắp xếp bài viết bên cột phải theo ngày mới nhất
-  const sortedNewsData = [...newsData].sort((a, b) => {
-    return new Date(b.date.replace(/\./g, '-')).getTime() - new Date(a.date.replace(/\./g, '-')).getTime();
-  });
+  const sortedNewsData = sortByDateDesc(newsData);
 
   return (
     <section className="container" style={{ paddingTop: '60px', paddingBottom: '100px' }}>
@@ -36,7 +32,7 @@ const HeroDetailPage: React.FC = () => {
         {/* CỘT TRÁI: Nội dung chính */}
         <div style={{ flex: '1 1 calc(100% - 360px)', minWidth: '320px', display: 'flex', gap: '40px', flexWrap: 'wrap' }}>
           <div style={{ width: '100%', maxWidth: '600px', backgroundColor: '#f5f5f5', overflow: 'hidden', borderRadius: '8px' }}>
-            <img src={`${import.meta.env.BASE_URL}${heroImages[selectedHeroIndex]}`} alt={`Banner event ${selectedHeroIndex + 1}`} style={{ width: '100%', height: 'auto', display: 'block' }} />
+            <img src={getAssetUrl(heroImages[selectedHeroIndex])} alt={`Banner event ${selectedHeroIndex + 1}`} style={{ width: '100%', height: 'auto', display: 'block' }} />
           </div>
 
           <div style={{ flex: 1, minWidth: '300px' }}>
@@ -59,26 +55,11 @@ const HeroDetailPage: React.FC = () => {
         </div>
 
         {/* CỘT PHẢI: Bài viết khác bên cạnh */}
-        <div style={{ width: '320px', flexGrow: 0, flexShrink: 0, backgroundColor: '#fafafa', padding: '24px', borderRadius: '12px' }}>
-          <h3 style={{ fontSize: '18px', fontWeight: '900', marginBottom: '24px', color: '#111111' }}>
-            Khám phá thêm
-          </h3>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-          {sortedNewsData.slice(0, 4).map((item) => (
-              <div key={item.id} onClick={() => handleProductClick(item)} style={{ display: 'flex', gap: '16px', cursor: 'pointer', alignItems: 'center' }}>
-                <div style={{ width: '72px', height: '72px', flexShrink: 0, backgroundColor: '#eaeaea', borderRadius: '8px', overflow: 'hidden' }}>
-                  <img src={`${import.meta.env.BASE_URL}${item.imageUrl}`} alt={item.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                </div>
-                <div>
-                  <span style={{ fontSize: '11px', color: '#888', fontWeight: '700', marginBottom: '4px', display: 'block' }}>{item.date}</span>
-                  <h4 style={{ fontSize: '13px', fontWeight: '700', color: '#111111', lineHeight: '1.4', margin: 0, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
-                    {item.title}
-                  </h4>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
+        <RelatedPostsSidebar
+          heading="Khám phá thêm"
+          items={sortedNewsData.slice(0, 4)}
+          onItemClick={handleProductClick}
+        />
       </div>
     </section>
   );
