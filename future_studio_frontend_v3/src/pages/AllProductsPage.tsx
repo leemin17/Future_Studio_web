@@ -63,9 +63,13 @@ const ProductCard: React.FC<ProductCardProps> = ({ item, onClick }) => {
     // Chỉ fetch khi card hiện ra trong màn hình
     if (inView && isVimeo && item.videoUrl) {
       fetch(`https://vimeo.com/api/oembed.json?url=${item.videoUrl}`)
-        .then(response => response.json())
+        .then(response => {
+          if (!response.ok) {
+            throw new Error(`Vimeo API returned ${response.status}: ${response.statusText}`);
+          }
+          return response.json();
+        })
         .then(data => {
-          // Lấy thumbnail chất lượng cao nhất
           if (data && data.thumbnail_url) {
             setThumbnailUrl(data.thumbnail_url);
           }
