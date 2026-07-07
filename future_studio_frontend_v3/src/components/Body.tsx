@@ -2,6 +2,14 @@ import React, { useState, useRef } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { newsData, customerData, type NewsItem } from '../data/database';
 import ScrollReveal from './ScrollReveal';
+import {
+  parseDotDate,
+  getTotalPages,
+  getPageItems,
+  getPrevPage,
+  getNextPage,
+  formatPageNumber,
+} from '../utils';
 
 interface BodyProps {
   onSelectProduct: (item: NewsItem) => void;
@@ -45,35 +53,31 @@ const Body: React.FC<BodyProps> = ({ onSelectProduct }) => {
   const [hoveredNewsIndex, setHoveredNewsIndex] = useState<number | null>(null);
 
   // Sắp xếp bài viết theo ngày mới nhất (đổi định dạng yyyy.mm.dd thành yyyy-mm-dd)
-  const sortedNewsData = [...newsData].sort((a, b) => {
-    return new Date(b.date.replace(/\./g, '-')).getTime() - new Date(a.date.replace(/\./g, '-')).getTime();
-  });
+  const sortedNewsData = [...newsData].sort((a, b) => parseDotDate(b.date) - parseDotDate(a.date));
 
-  const totalNewsPages = Math.ceil(sortedNewsData.length / itemsPerPage);
-  const currentNews = sortedNewsData.slice((currentNewsPage - 1) * itemsPerPage, currentNewsPage * itemsPerPage);
+  const totalNewsPages = getTotalPages(sortedNewsData.length, itemsPerPage);
+  const currentNews = getPageItems(sortedNewsData, currentNewsPage, itemsPerPage);
 
-  const handlePrevNews = () => { if (currentNewsPage > 1) setCurrentNewsPage(currentNewsPage - 1); };
-  const handleNextNews = () => { if (currentNewsPage < totalNewsPages) setCurrentNewsPage(currentNewsPage + 1); };
+  const handlePrevNews = () => setCurrentNewsPage(getPrevPage(currentNewsPage));
+  const handleNextNews = () => setCurrentNewsPage(getNextPage(currentNewsPage, totalNewsPages));
 
-  const formattedCurrentPage = String(currentNewsPage).padStart(2, '0');
-  const formattedTotalPages = String(totalNewsPages).padStart(2, '0');
+  const formattedCurrentPage = formatPageNumber(currentNewsPage);
+  const formattedTotalPages = formatPageNumber(totalNewsPages);
 
   // LOGIC PHÂN TRANG: OUR CUSTOMERS
   const [currentCustomerPage, setCurrentCustomerPage] = useState(1);
   const customersPerPage = 5;
   const [hoveredCustomerIndex, setHoveredCustomerIndex] = useState<number | null>(null);
 
-  const sortedCustomerData = [...customerData].sort((a, b) => {
-    return new Date(b.date.replace(/\./g, '-')).getTime() - new Date(a.date.replace(/\./g, '-')).getTime();
-  });
-  const totalCustomerPages = Math.ceil(sortedCustomerData.length / customersPerPage);
-  const currentCustomers = sortedCustomerData.slice((currentCustomerPage - 1) * customersPerPage, currentCustomerPage * customersPerPage);
+  const sortedCustomerData = [...customerData].sort((a, b) => parseDotDate(b.date) - parseDotDate(a.date));
+  const totalCustomerPages = getTotalPages(sortedCustomerData.length, customersPerPage);
+  const currentCustomers = getPageItems(sortedCustomerData, currentCustomerPage, customersPerPage);
 
-  const handlePrevCustomer = () => { if (currentCustomerPage > 1) setCurrentCustomerPage(currentCustomerPage - 1); };
-  const handleNextCustomer = () => { if (currentCustomerPage < totalCustomerPages) setCurrentCustomerPage(currentCustomerPage + 1); };
+  const handlePrevCustomer = () => setCurrentCustomerPage(getPrevPage(currentCustomerPage));
+  const handleNextCustomer = () => setCurrentCustomerPage(getNextPage(currentCustomerPage, totalCustomerPages));
 
-  const formattedCustomerPage = String(currentCustomerPage).padStart(2, '0');
-  const formattedTotalCustomerPages = String(totalCustomerPages).padStart(2, '0');
+  const formattedCustomerPage = formatPageNumber(currentCustomerPage);
+  const formattedTotalCustomerPages = formatPageNumber(totalCustomerPages);
   return (
     null
   );
