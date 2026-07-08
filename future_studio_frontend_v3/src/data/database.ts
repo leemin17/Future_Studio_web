@@ -66,23 +66,25 @@ export const heroImages = [
 
 // Data cho Tin tức (What's new / All Products!)
 export const newsData: NewsItem[] = [
-  { id: 4, date: '2026.04.26', title: 'project', clientInformation: 'client', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1204801368' },
-  { id: 2, date: '2024.03.26', title: 'project', clientInformation: 'client', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1204790802' },
-  { id: 1, date: '2026.04.05', title: 'project', clientInformation: 'client', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1206377241' },
-  { id: 3, date: '2024.03.18', title: 'project', clientInformation: 'client', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1206377241' },
-  { id: 5, date: '2024.03.10', title: 'project', clientInformation: 'client', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1204801368', modelUrl: 'models/Lipstick.glb' },
-  { id: 6, date: '2024.02.28', title: 'project', clientInformation: 'client', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1204790802' },
-  { id: 7, date: '2024.02.15', title: 'project', clientInformation: 'client', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1206377241' },
-  { id: 8, date: '2024.01.20', title: 'project', clientInformation: 'client', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1204790802' }
+  { id: 1, date: '2026.04.26', title: '"BITI\'S HUNTER X QUANG HÙNG 2K TVC"', clientInformation: 'BITI\'S', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1204801368' },
+  { id: 2, date: '2024.03.26', title: 'BITI\'S KIDS BUTTERFLY', clientInformation: 'BITI\'S', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1204790802' },
+  { id: 3, date: '2026.04.05', title: 'CHÍNH THỨC RA MẮT HELIO BY BITI\'S', clientInformation: 'BITI\'S', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1206377241' },
+  { id: 4, date: '2024.03.18', title: 'HUY THANH x SOOBIN - SOOBIN\'S QUEEN COLLECTION', clientInformation: 'HUY THANH', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1208125419' },
+  { id: 9, date: '2024.03.10', title: 'project', clientInformation: 'client', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1204801368', modelUrl: 'models/Lipstick.glb' },
+  { id: 6, date: '2024.02.28', title: 'HOVAZ CHU DU KÝ', clientInformation: 'client', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1208129419' },
+  { id: 7, date: '2024.02.15', title: 'Nhạc thiếu nhi AKOOLAND', clientInformation: 'THIEN LONG', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1208131264' },
+  { id: 8, date: '2024.01.20', title: 'VƯƠNG QUỐC GIÀY tập 1', clientInformation: 'BITI\'S', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1208150552' },
+  { id: 9, date: '2024.01.20', title: 'VƯƠNG QUỐC GIÀY tập 2', clientInformation: 'BITI\'S', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1208152403' },
+  { id: 10, date: '2024.01.20', title: 'VƯƠNG QUỐC GIÀY tập 3', clientInformation: 'BITI\'S', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1208153783' },
+  { id: 11, date: '2024.01.20', title: 'VƯƠNG QUỐC GIÀY tập 4', clientInformation: 'BITI\'S', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1208154874' },
+  { id: 12, date: '2024.01.20', title: 'VƯƠNG QUỐC GIÀY tập 5', clientInformation: 'BITI\'S', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1208157311' }
 ];
 
 // Data cho Khách hàng (Our Customers!)
 export const customerData: NewsItem[] = [
-  { id: 101, date: 'THANK YOU', title: 'project', clientInformation: 'client', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1204801368' },
-  { id: 102, date: 'CREATIVE', title: 'project', clientInformation: 'client', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1204790802' },
-  { id: 103, date: 'STUDIO', title: 'project', clientInformation: 'client', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1204801368' },
-  { id: 104, date: 'TRUSTED', title: 'project', clientInformation: 'client', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1204801368' },
-  { id: 105, date: '2026', title: 'project', clientInformation: 'client', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1204801368' }
+  { id: 101, date: '2024.01.20', title: 'THANK YOU', clientInformation: 'client', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1204801368' },
+  { id: 103, date: '2024.01.20', title: 'STUDIO', clientInformation: 'client', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1204801368' },
+  { id: 105, date: '2024.01.20', title: '2026', clientInformation: 'client', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1204801368' }
 ];
 export const heroDetails = [
   {
