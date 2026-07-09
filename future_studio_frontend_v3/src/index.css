@@ -638,22 +638,53 @@ button:not(.header-nav-link):hover,
 
   width: 100%;
   height: 100vh;
-  background-size: cover;
+  background-size: 100%;
   background-position: center;
   background-repeat: no-repeat;
   z-index: 1;
   opacity: 1;
+  transition: background-size 1.2s cubic-bezier(0.16, 1, 0.3, 1), filter 0.8s ease;
+  will-change: background-size, filter;
+}
+
+.hero-slider-wrapper .hero-frame .hero-slide:hover {
+  background-size: 104%;
+  filter: saturate(1.05) contrast(1.03);
+}
+
+.hero-slider-wrapper .hero-frame .hero-slide::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg, rgba(0, 0, 0, 0.18) 0%, rgba(0, 0, 0, 0) 36%, rgba(0, 0, 0, 0.2) 100%),
+    radial-gradient(circle at 50% 45%, rgba(255, 255, 255, 0.08) 0%, rgba(0, 0, 0, 0.16) 100%);
+  opacity: 0.68;
+  transition: opacity 0.45s ease;
+}
+
+.hero-slider-wrapper .hero-frame .hero-slide:hover::before {
+  opacity: 0.42;
 }
 
 .hero-running-overlay {
   position: absolute;
   top: auto;
   bottom: 40px;
-  left: 0;
-  width: 100%;
+  left: auto;
+  right: 32px;
+  width: min(560px, calc(100% - 64px));
   z-index: 15;
   overflow: hidden;
   pointer-events: none;
+  padding: 10px 0;
+  box-shadow: 0 16px 44px rgba(0, 0, 0, 0.36);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 7%, #000 93%, transparent 100%);
+  mask-image: linear-gradient(90deg, transparent 0%, #000 7%, #000 93%, transparent 100%);
 }
 
 .hero-running-track {
@@ -666,12 +697,11 @@ button:not(.header-nav-link):hover,
 
 .hero-running-item {
   display: inline-block;
-  color: var(--background-primary);
-  font-size: 140px;
+  font-size: 500%;
   font-weight: 900;
   white-space: nowrap;
-  padding: 0;
-  opacity: 0.6;
+  padding: 0 44px;
+  opacity: 1;
   text-transform: uppercase;
 }
 
@@ -679,7 +709,7 @@ button:not(.header-nav-link):hover,
   height: 1.5em;
   width: auto;
   vertical-align: middle;
-  filter: invert(1);
+  filter: brightness(0) invert(1) drop-shadow(0 8px 24px rgba(0, 0, 0, 0.82));
 }
 
 /* --- Body Sections --- */
@@ -1543,25 +1573,28 @@ button:not(.header-nav-link):hover,
   -webkit-backdrop-filter: none;
   z-index: 10000;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
   padding: clamp(12px, 3vw, 22px);
   touch-action: none;
   overscroll-behavior: contain;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .quick-view-modal {
   position: relative;
   width: min(1340px, calc(100vw - 22px));
-  max-height: 90vh;
-  height: min(90vh, 920px);
+  max-height: none;
+  height: auto;
+  min-height: auto;
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   background: #111212;
   border: 1px solid #2a2a2a;
   color: var(--text-primary);
   border-radius: 14px;
   box-shadow: 0 32px 90px rgba(0, 0, 0, 0.75);
-  overflow: hidden;
+  overflow: visible;
   display: grid;
   grid-template-columns: 1fr;
   grid-template-rows: 1fr;
@@ -1571,8 +1604,10 @@ button:not(.header-nav-link):hover,
   min-width: 0;
   display: flex;
   flex-direction: column;
-  min-height: 0;
+  min-height: auto;
   background: #101112;
+  overflow: hidden;
+  border-radius: 14px;
 }
 
 .quick-view-header {
@@ -1586,15 +1621,12 @@ button:not(.header-nav-link):hover,
 }
 
 .quick-view-header-title {
-  margin: 0;
   color: #f5f5f5;
-  font-size: 15px;
-  line-height: 1.25;
+  font-size: 26px;
+  line-height: 1.18;
+  margin: 0;
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   font-weight: 700;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 .quick-view-close-btn {
@@ -1612,10 +1644,144 @@ button:not(.header-nav-link):hover,
 
 .quick-view-media-full {
   padding: 18px 20px 12px;
-  flex: 1;
-  min-height: 0;
-  overflow: hidden;
+  flex: 0 0 auto;
+  min-height: auto;
+  overflow-y: visible;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  scrollbar-width: none;
+}
+
+.quick-view-media-full::-webkit-scrollbar {
+  display: none;
+}
+
+.quick-view-media-stack {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.quick-view-media-stack + .quick-view-media-stack {
+  margin-top: 28px;
+}
+
+.quick-view-media-stack--full,
+.quick-view-media-stack--cols-1 {
+  grid-template-columns: 1fr;
+}
+
+.quick-view-media-stack--cols-2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.quick-view-media-stack--cols-3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.quick-view-media-stack--cols-4 {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.quick-view-media-card {
   position: relative;
+  width: 100%;
+  flex: 0 0 auto;
+  overflow: hidden;
+  border-radius: 0;
+  background: #040404;
+}
+
+.quick-view-media-card--featured,
+.quick-view-media-card--video {
+  grid-column: 1 / -1;
+  aspect-ratio: 16 / 9;
+}
+
+.quick-view-media-card--image {
+  background: transparent;
+}
+
+.quick-view-media-strip {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  overflow-x: auto;
+  padding-bottom: 2px;
+  scrollbar-width: none;
+}
+
+.quick-view-media-strip--video {
+  flex-direction: column;
+  align-items: stretch;
+  overflow: visible;
+  max-height: none;
+  padding-bottom: 0;
+}
+
+.quick-view-media-strip::-webkit-scrollbar {
+  display: none;
+}
+
+.quick-view-media-thumb {
+  appearance: none;
+  border: 1px solid transparent;
+  background: #121212;
+  padding: 0;
+  border-radius: 8px;
+  width: 96px;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  flex: 0 0 auto;
+  cursor: pointer;
+  transition: border-color 0.2s ease, transform 0.2s ease;
+}
+
+.quick-view-media-thumb--active {
+  border-color: #f0f0f0;
+}
+
+.quick-view-media-thumb:hover {
+  transform: translateY(-1px);
+}
+
+.quick-view-media-thumb-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.quick-view-media-thumb img,
+.quick-view-media-thumb video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.quick-view-media-thumb span {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  color: #d5d5d5;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.quick-view-thumb-video {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: #0f0f0f;
+  display: grid;
+  place-items: center;
+  color: #d5d5d5;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
 }
 
 .quick-view-media-full--image {
@@ -1624,24 +1790,45 @@ button:not(.header-nav-link):hover,
 
 .quick-view-media-full--video {
   isolation: auto;
+  padding: 18px 20px 12px;
+  align-items: stretch;
 }
 
 .quick-view-vimeo-wrap,
 .quick-view-video,
 .quick-view-image {
   width: 100%;
-  height: 100%;
+  height: auto;
   max-height: 100%;
-  object-fit: cover;
+  object-fit: contain;
   background: #040404;
-  border-radius: 10px;
+  border-radius: 0;
   border: 0;
   outline: none;
   box-shadow: none;
 }
 
+.quick-view-media-card .quick-view-vimeo-wrap,
+.quick-view-media-card .quick-view-video {
+  border-radius: 2;
+  height: 100%;
+}
+
+.quick-view-media-card .quick-view-image {
+  border-radius: 2px;
+  background: transparent;
+  height: auto;
+}
+
 .quick-view-media-full--image .quick-view-image {
-  border-radius: 10px;
+  border-radius: 2px;
+}
+
+.quick-view-media-full--video .quick-view-media-card,
+.quick-view-media-full--video .quick-view-vimeo-wrap,
+.quick-view-media-full--video .quick-view-video {
+  border-radius: 2px;
+  width: 100%;
 }
 
 .quick-view-floating-actions {
@@ -1703,6 +1890,32 @@ button:not(.header-nav-link):hover,
 
 .quick-view-video {
   display: block;
+  accent-color: #ffffff;
+}
+
+.quick-view-video::-webkit-media-controls-panel {
+  background: linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.58) 100%);
+}
+
+.quick-view-video::-webkit-media-controls-timeline {
+  height: 4px;
+  margin: 0 8px;
+  border-radius: 999px;
+  background-color: rgba(255, 255, 255, 0.18);
+}
+
+.quick-view-video::-webkit-media-controls-current-time-display,
+.quick-view-video::-webkit-media-controls-time-remaining-display {
+  color: #ffffff;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-size: 10px;
+  text-shadow: none;
+}
+
+.quick-view-video::-webkit-media-controls-play-button,
+.quick-view-video::-webkit-media-controls-mute-button,
+.quick-view-video::-webkit-media-controls-fullscreen-button {
+  filter: brightness(1.15);
 }
 
 .quick-view-image {
@@ -1835,6 +2048,11 @@ button:not(.header-nav-link):hover,
   .all-products-section {
     padding-left: 24px;
     padding-right: 24px;
+  }
+
+  .quick-view-media-stack--cols-3,
+  .quick-view-media-stack--cols-4 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 @media (max-width: 768px) {
@@ -2021,8 +2239,8 @@ button:not(.header-nav-link):hover,
 
   .quick-view-modal {
     width: calc(100vw - 24px);
-    max-height: 95vh;
-    height: 95vh;
+    max-height: none;
+    height: auto;
     grid-template-columns: 1fr;
     grid-template-rows: 1fr;
   }
@@ -2034,6 +2252,17 @@ button:not(.header-nav-link):hover,
   .quick-view-media-full {
     min-height: 220px;
     padding: 12px 12px 10px;
+  }
+
+  .quick-view-media-stack {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .quick-view-media-stack--cols-2,
+  .quick-view-media-stack--cols-3,
+  .quick-view-media-stack--cols-4 {
+    grid-template-columns: 1fr;
   }
 
   .quick-view-header {
@@ -2054,6 +2283,7 @@ button:not(.header-nav-link):hover,
     margin-left: -50vw;
     margin-right: -50vw;
   }
+
   /* Restore horizontal padding for the content inside the track wrapper */
   .team-carousel-track-wrapper {
     padding-left: 24px;
@@ -2177,7 +2407,9 @@ button:not(.header-nav-link):hover,
    /* Tạo khoảng trống để carousel không bị che bởi banner */
   position: relative; /* Đảm bảo nó có thể đè lên trên */
   z-index: 2; /* Nằm trên banner */
-  background-color: var(--background-primary);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.035) 0%, transparent 28%, rgba(255, 255, 255, 0.025) 100%),
+    var(--background-primary);
   display: flex;
   align-items: center;
 }
@@ -2288,10 +2520,11 @@ button:not(.header-nav-link):hover,
   align-items: center;
 }
 
-
 .team-carousel-track-wrapper {
   width: 100%;
   overflow: hidden;
+  position: relative;
+  z-index: 3;
   /* Ẩn các phần tử tràn ra ngoài */
   -webkit-mask-image: linear-gradient(to right,
       transparent 0%,
@@ -2324,7 +2557,10 @@ button:not(.header-nav-link):hover,
   flex-shrink: 0;
   transition: all 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
   cursor: pointer;
-  opacity: 0.5;
+  opacity: 0.46;
+  filter: grayscale(0.35) brightness(0.82);
+  position: relative;
+  pointer-events: auto;
   /* Mặc định làm mờ các thẻ không active */
 }
 
@@ -2343,6 +2579,7 @@ button:not(.header-nav-link):hover,
 /* --- Style cho thẻ active (ở giữa) --- */
 .polaroid-card-wrapper.active {
   opacity: 1;
+  filter: grayscale(0) brightness(1);
   /* Hiện rõ */
   transform: scale(1.05);
   /* Phóng to nhẹ để nổi bật */
@@ -2351,7 +2588,9 @@ button:not(.header-nav-link):hover,
 .polaroid-card-wrapper.active .polaroid-card {
   width: 25vw;
   max-width: 400px; /* THÊM: Chặn thẻ active ở mức vừa phải */
-  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+  box-shadow:
+    0 24px 70px rgba(0, 0, 0, 0.48),
+    0 0 0 1px rgba(255, 255, 255, 0.08);
 }
 
 .polaroid-card-wrapper.active .polaroid-image-wrapper {
@@ -2393,7 +2632,7 @@ button:not(.header-nav-link):hover,
    THỂ POLAROID (KHUNG ẢNH LẤY LIỀN)
 ========================================= */
 .polaroid-card {
-  background-color: var(--background-secondary);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.055), rgba(255, 255, 255, 0.025));
   /* Nền xám tối thay vì trắng */
   padding: 15px;
   /* Bỏ min-width để kích thước được kiểm soát bởi wrapper */
@@ -2401,10 +2640,10 @@ button:not(.header-nav-link):hover,
 
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
   /* Tăng độ tối của bóng đổ trên nền tối */
-  border: 1px solid var(--border-default);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 4px;
   /* Bo góc nhẹ */
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
 }
 
 .polaroid-card-wrapper:not(.active):hover {
@@ -2603,6 +2842,10 @@ button:not(.header-nav-link):hover,
   cursor: none !important; /* Ẩn con trỏ mặc định */
 }
 
+.carousel-interactive-zone.is-over-card {
+  cursor: pointer !important;
+}
+
 /* Giao diện hình tròn của con trỏ chuột giả (Phong cách Minimalist Premium) */
 /* =====================================================================
    9. PREMIUM CUSTOM CAROUSEL CURSOR (IMAGE & BLEND MODE)
@@ -2665,6 +2908,10 @@ button:not(.header-nav-link):hover,
   height: 100%;
   z-index: 0; /* Nằm dưới cùng của section */
   pointer-events: none;
+  background:
+    radial-gradient(circle at 50% 42%, rgba(255, 255, 255, 0.14) 0%, rgba(255, 255, 255, 0.045) 26%, transparent 58%),
+    linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.045) 48%, rgba(255, 255, 255, 0.055) 52%, transparent 100%);
+  filter: blur(1px);
 }
 
 /* Lớp kính mờ che toàn màn hình khi mở Modal */

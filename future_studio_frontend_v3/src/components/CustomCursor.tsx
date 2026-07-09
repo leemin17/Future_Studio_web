@@ -41,7 +41,7 @@ const CustomCursor = () => {
 
     return (
         <motion.img
-            src="images/logo_text.png" 
+            src="images/next.png" 
             alt="cursor"
             style={{
                 position: 'fixed',

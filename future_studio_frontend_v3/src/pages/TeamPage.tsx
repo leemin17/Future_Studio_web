@@ -66,9 +66,25 @@ const TeamPage = () => {
     // --- LOGIC CUSTOM CURSOR & INTERACTIVE ZONE ---
     const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
     const [cursorDirection, setCursorDirection] = useState<'left' | 'right' | null>(null);
+    const [isCursorOverCard, setIsCursorOverCard] = useState(false);
 
     const handleMouseMove = (e: React.MouseEvent) => {
         setMousePos({ x: e.clientX, y: e.clientY });
+        const cards = trackWrapperRef.current?.querySelectorAll<HTMLDivElement>('.polaroid-card-wrapper');
+        const isOverCard = cards
+            ? Array.from(cards).some((card) => {
+                const rect = card.getBoundingClientRect();
+                return e.clientX >= rect.left && e.clientX <= rect.right && e.clientY >= rect.top && e.clientY <= rect.bottom;
+            })
+            : false;
+
+        if (isOverCard) {
+            setIsCursorOverCard(true);
+            setCursorDirection(null);
+            return;
+        }
+
+        setIsCursorOverCard(false);
         const { width, left } = e.currentTarget.getBoundingClientRect();
         const xPosition = e.clientX - left;
         if (xPosition < width / 2) {
@@ -80,9 +96,27 @@ const TeamPage = () => {
 
     const handleMouseLeave = () => {
         setCursorDirection(null);
+        setIsCursorOverCard(false);
     };
 
-    const handleZoneClick = () => {
+    const handleZoneClick = (e: React.MouseEvent) => {
+        const cards = trackWrapperRef.current?.querySelectorAll<HTMLDivElement>('.polaroid-card-wrapper');
+        const clickedIndex = cards
+            ? Array.from(cards).findIndex((card) => {
+                const rect = card.getBoundingClientRect();
+                return e.clientX >= rect.left && e.clientX <= rect.right && e.clientY >= rect.top && e.clientY <= rect.bottom;
+            })
+            : -1;
+
+        if (clickedIndex >= 0) {
+            if (clickedIndex === currentIndex) {
+                setSelectedMember(teamMembers[clickedIndex]);
+            } else {
+                setCurrentIndex(clickedIndex);
+            }
+            return;
+        }
+
         if (cursorDirection === 'left') handlePrev();
         if (cursorDirection === 'right') handleNext();
     };
@@ -169,7 +203,8 @@ const TeamPage = () => {
                         <motion.div 
                             className="carousel-dynamic-bg"
                             animate={{
-                                background: `radial-gradient(circle at 50% 50%, ${teamMembers[currentIndex]?.color || 'rgba(0,0,0,0)'} 0%, transparent 70%)`
+                                opacity: isMobile ? 0.28 : 0.42,
+                                scale: isMobile ? 1 : 1.04,
                             }}
                             transition={{ duration: 1.2, ease: "easeInOut" }}
                         />
@@ -178,7 +213,7 @@ const TeamPage = () => {
                             <div className="team-carousel-coverflow">
                                 
                                 <div 
-                                    className="carousel-interactive-zone"
+                                    className={`carousel-interactive-zone ${isCursorOverCard ? 'is-over-card' : ''}`}
                                     onMouseMove={handleMouseMove}
                                     onMouseLeave={handleMouseLeave}
                                     onClick={handleZoneClick}
