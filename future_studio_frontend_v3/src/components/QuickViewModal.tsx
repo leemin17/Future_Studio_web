@@ -42,16 +42,19 @@ const getVimeoId = (url: string): string => {
 };
 
 const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, onClose }) => {
-  const hasVideo = Boolean(product?.videoUrl);
+  const videoUrl = (product?.videoUrl ?? '').trim();
+  const hasVideo = Boolean(videoUrl);
+  const description = ((product as { description?: string } | null)?.description ?? product?.describe ?? '').trim();
+
   const media = !product
     ? null
     : hasVideo
-      ? product.videoUrl.includes('vimeo')
+      ? videoUrl.includes('vimeo')
         ? (
           <div className="quick-view-vimeo-wrap">
             <iframe
               className="quick-view-vimeo-embed"
-              src={`https://player.vimeo.com/video/${getVimeoId(product.videoUrl)}?autoplay=0&title=0&byline=0&portrait=0`}
+              src={`https://player.vimeo.com/video/${getVimeoId(videoUrl)}?autoplay=0&title=0&byline=0&portrait=0`}
               allow="autoplay; fullscreen; picture-in-picture"
               title={product.title}
             ></iframe>
@@ -60,7 +63,7 @@ const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, onClose }) => 
         : (
           <video
             className="quick-view-video"
-            src={getAssetUrl(product.videoUrl)}
+            src={getAssetUrl(videoUrl)}
             poster={getAssetUrl(product.imageUrl)}
             controls
             muted
@@ -119,6 +122,7 @@ const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, onClose }) => 
                 <p className="quick-view-date">{product.date}</p>
                 <h2 className="quick-view-title">{product.title}</h2>
                 <p className="quick-view-client">{product.clientInformation}</p>
+                {description && <p className="quick-view-description">{description}</p>}
               </div>
             </div>
           </motion.div>

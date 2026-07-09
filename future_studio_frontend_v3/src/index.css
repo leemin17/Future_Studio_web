@@ -1675,7 +1675,9 @@ button:not(.header-nav-link):hover,
 
 .quick-view-vimeo-wrap {
   position: relative;
-  padding-top: 56.25%;
+  aspect-ratio: 16 / 9;
+  width: 100%;
+  height: auto;
   overflow: hidden;
 }
 
@@ -1737,6 +1739,14 @@ button:not(.header-nav-link):hover,
   font-size: 13px;
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   font-weight: 500;
+}
+
+.quick-view-description {
+  margin-top: 2px;
+  color: #9b9b9b;
+  font-size: 13px;
+  line-height: 1.6;
+  max-width: 980px;
 }
 
 /* --- Portfolio Navbar --- */

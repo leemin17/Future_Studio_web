@@ -19,6 +19,7 @@ export interface NewsItem {
   date: string;
   title: string;
   clientInformation: string;
+  describe: string;
   imageUrl: string;
   videoUrl?: string; // Thêm đường dẫn cho video (tùy chọn)
   modelUrl?: string; // Thêm đường dẫn cho mô hình 3D (tùy chọn)
@@ -65,29 +66,29 @@ export const heroImages = [
 
 // Data cho Tin tức (What's new / All Products!)
 export const newsData: NewsItem[] = [
-  { id: 1, date: '2026.04.26', title: '"BITI\'S HUNTER X QUANG HÙNG 2K TVC"', clientInformation: 'BITI\'S', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1204801368' },
-  { id: 2, date: '2024.03.26', title: 'BITI\'S KIDS BUTTERFLY', clientInformation: 'BITI\'S', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1204790802' },
-  { id: 3, date: '2026.04.05', title: 'CHÍNH THỨC RA MẮT HELIO BY BITI\'S', clientInformation: 'BITI\'S', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1206377241' },
-  { id: 4, date: '2024.03.18', title: 'HUY THANH x SOOBIN - SOOBIN\'S QUEEN COLLECTION', clientInformation: 'HUY THANH', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1208125419' },
-  { id: 9, date: '2024.03.10', title: 'project', clientInformation: 'client', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1204801368', modelUrl: 'models/Lipstick.glb' },
-  { id: 6, date: '2024.02.28', title: 'HOVAZ CHU DU KÝ', clientInformation: 'client', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1208129419' },
-  { id: 7, date: '2024.02.15', title: 'Nhạc thiếu nhi AKOOLAND', clientInformation: 'THIEN LONG', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1208131264' },
-  { id: 8, date: '2024.01.20', title: 'VƯƠNG QUỐC GIÀY tập 1', clientInformation: 'BITI\'S', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1208150552' },
-  { id: 9, date: '2024.01.20', title: 'VƯƠNG QUỐC GIÀY tập 2', clientInformation: 'BITI\'S', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1208152403' },
-  { id: 10, date: '2024.01.20', title: 'VƯƠNG QUỐC GIÀY tập 3', clientInformation: 'BITI\'S', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1208153783' },
-  { id: 11, date: '2024.01.20', title: 'VƯƠNG QUỐC GIÀY tập 4', clientInformation: 'BITI\'S', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1208154874' },
-  { id: 12, date: '2024.01.20', title: 'VƯƠNG QUỐC GIÀY tập 5', clientInformation: 'BITI\'S', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1208157311' },
-  { id: 13, date: '2024.02.15', title: 'VPBANK MARATHON MOTION', clientInformation: 'VPBANK', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1208134719' },
-  { id: 14, date: '2024.02.15', title: 'HUNTER VELOCITY', clientInformation: 'BITI\'S', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1208122932' },
-  { id: 15, date: '2024.02.15', title: 'Nhạc thiếu nhi AKOOLAND', clientInformation: 'THIEN LONG', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1208131264' },
+  { id: 1, date: '2026.04.26', title: '"BITI\'S HUNTER X QUANG HÙNG 2K TVC"', clientInformation: 'BITI\'S', describe: 'Description for BITI\'S HUNTER X QUANG HÙNG 2K TVC', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1204801368' },
+  { id: 2, date: '2024.03.26', title: 'BITI\'S KIDS BUTTERFLY', clientInformation: 'BITI\'S', describe: 'Description for BITI\'S KIDS BUTTERFLY', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1204790802' },
+  { id: 3, date: '2026.04.05', title: 'CHÍNH THỨC RA MẮT HELIO BY BITI\'S', clientInformation: 'BITI\'S', describe: 'Description for CHÍNH THỨC RA MẮT HELIO BY BITI\'S', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1206377241' },
+  { id: 4, date: '2024.03.18', title: 'HUY THANH x SOOBIN - SOOBIN\'S QUEEN COLLECTION', clientInformation: 'HUY THANH', describe: 'Description for HUY THANH x SOOBIN - SOOBIN\'S QUEEN COLLECTION', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1208125419' },
+  { id: 5, date: '2024.03.10', title: 'project', clientInformation: 'client', describe: 'Description for project', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1204801368', modelUrl: 'models/Lipstick.glb' },
+  { id: 6, date: '2024.02.28', title: 'HOVAZ CHU DU KÝ', clientInformation: 'client', describe: 'Description for HOVAZ CHU DU KÝ', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1208129419' },
+  { id: 7, date: '2024.02.15', title: 'Nhạc thiếu nhi AKOOLAND', clientInformation: 'THIEN LONG', describe: 'Description for Nhạc thiếu nhi AKOOLAND', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1208131264' },
+  { id: 8, date: '2024.01.20', title: 'VƯƠNG QUỐC GIÀY tập 1', clientInformation: 'BITI\'S', describe: 'Description for VƯƠNG QUỐC GIÀY tập 1', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1208150552' },
+  { id: 9, date: '2024.01.20', title: 'VƯƠNG QUỐC GIÀY tập 2', clientInformation: 'BITI\'S', describe: 'Description for VƯƠNG QUỐC GIÀY tập 2', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1208152403' },
+  { id: 10, date: '2024.01.20', title: 'VƯƠNG QUỐC GIÀY tập 3', clientInformation: 'BITI\'S', describe: 'Description for VƯƠNG QUỐC GIÀY tập 3', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1208153783' },
+  { id: 11, date: '2024.01.20', title: 'VƯƠNG QUỐC GIÀY tập 4', clientInformation: 'BITI\'S', describe: 'Description for VƯƠNG QUỐC GIÀY tập 4', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1208154874' },
+  { id: 12, date: '2024.01.20', title: 'VƯƠNG QUỐC GIÀY tập 5', clientInformation: 'BITI\'S', describe: 'Description for VƯƠNG QUỐC GIÀY tập 5', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1208157311' },
+  { id: 13, date: '2024.02.15', title: 'VPBANK MARATHON MOTION', clientInformation: 'VPBANK', describe: 'Description for VPBANK MARATHON MOTION', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1208134719' },
+  { id: 14, date: '2024.02.15', title: 'HUNTER VELOCITY', clientInformation: 'BITI\'S', describe: 'Description for HUNTER VELOCITY', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1208122932' },
+  { id: 15, date: '2024.02.15', title: 'Nhạc thiếu nhi AKOOLAND', clientInformation: 'THIEN LONG', describe: 'Description for Nhạc thiếu nhi AKOOLAND', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1208131264' },
 
 ];
 
 // Data cho Khách hàng (Our Customers!)
 export const customerData: NewsItem[] = [
-  { id: 101, date: '2024.01.20', title: 'THANK YOU', clientInformation: 'client', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1204801368' },
-  { id: 103, date: '2024.01.20', title: 'STUDIO', clientInformation: 'client', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1204801368' },
-  { id: 105, date: '2024.01.20', title: '2026', clientInformation: 'client', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1204801368' }
+  { id: 101, date: '2024.01.20', title: 'THANK YOU', clientInformation: 'client', describe: 'Description for THANK YOU', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1204801368' },
+  { id: 103, date: '2024.01.20', title: 'STUDIO', clientInformation: 'client', describe: 'Description for STUDIO', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1204801368' },
+  { id: 105, date: '2024.01.20', title: '2026', clientInformation: 'client', describe: 'Description for 2026', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1204801368' }
 ];
 export const heroDetails = [
   {
