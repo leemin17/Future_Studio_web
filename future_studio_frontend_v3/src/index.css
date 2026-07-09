@@ -1,4 +1,4 @@
-/* =====================================================================
+﻿/* =====================================================================
    1. CORE & GLOBAL STYLES
    ===================================================================== */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=Montserrat:wght@400;500;600;800&family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Titan+One&display=swap');
@@ -743,12 +743,14 @@ button:not(.header-nav-link):hover,
   grid-template-columns: repeat(3, 1fr);
   gap: 24px;
   margin-bottom: 40px;
+  align-items: stretch;
 }
 
 .all-products-grid .news-card {
   /* Thuộc tính break-inside không còn cần thiết với display: grid */
   /* break-inside: avoid; */
   margin-bottom: 0;
+  position: relative;
   /* Khoảng cách đã được xử lý bởi 'gap' của grid */
 }
 
@@ -769,6 +771,8 @@ button:not(.header-nav-link):hover,
   gap: 12px;
   cursor: pointer;
   transition: transform 0.3s ease, opacity 0.4s ease;
+  position: relative;
+  isolation: isolate;
 }
 
 .news-card:hover {
@@ -809,6 +813,9 @@ button:not(.header-nav-link):hover,
   background-color: var(--background-secondary);
   overflow: hidden;
   position: relative;
+  border-radius: 8px;
+  border: 1px solid var(--border-default);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.25);
   /* Tạo gốc tọa độ cho text overlay */
 }
 
@@ -818,7 +825,7 @@ button:not(.header-nav-link):hover,
   height: 100%;
   object-fit: cover;
   display: block;
-  transition: transform 0.3s ease;
+  transition: transform 0.45s ease;
   /* Thuộc tính pointer-events được tách ra cho ảnh và video ở dưới */
 }
 
@@ -862,8 +869,9 @@ button:not(.header-nav-link):hover,
   padding: 40px 20px 20px;
   /* Tăng padding để tạo khoảng trống cho gradient */
   background: linear-gradient(to top, rgba(0, 0, 0, 0.8) 0%, transparent 100%);
-  opacity: 0;
-  /* Mặc định ẩn đi */
+  opacity: 1;
+  z-index: 3;
+  /* Mặc định hiện tên project */
   transition: opacity 0.3s ease;
   box-sizing: border-box;
   pointer-events: none;
@@ -871,8 +879,18 @@ button:not(.header-nav-link):hover,
 }
 
 .all-products-grid .news-card:hover .news-text {
-  opacity: 1;
-  /* Hiện ra khi hover vào card cha */
+  opacity: 0;
+  /* Ẩn tên khi hover để xem preview rõ hơn */
+}
+
+.all-products-grid .news-card:hover .news-image img,
+.all-products-grid .news-card:hover .news-image video {
+  transform: scale(1.05);
+}
+
+.all-products-grid .news-card:focus-within {
+  outline: 1px solid var(--accent-secondary);
+  outline-offset: 6px;
 }
 
 .interaction-overlay {
@@ -882,10 +900,25 @@ button:not(.header-nav-link):hover,
   width: 100%;
   height: 100%;
   z-index: 2;
+  cursor: pointer;
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.05) 0%,
+    rgba(0, 0, 0, 0) 65%
+  );
+  transition: background 0.25s ease;
   /* Nằm trên video/ảnh nhưng dưới lớp text */
   /* Lớp này trong suốt nhưng sẽ bắt tất cả sự kiện chuột,
      giải quyết xung đột với iframe và đảm bảo hover/click hoạt động nhất quán.
      Con trỏ custom cũng sẽ tương tác với lớp này, không bị kẹt. */
+}
+
+.all-products-grid .news-card:hover .interaction-overlay {
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0) 0%,
+    rgba(0, 0, 0, 0.08) 100%
+  );
 }
 
 .video-play-overlay {
@@ -903,6 +936,17 @@ button:not(.header-nav-link):hover,
   /* Cho phép click xuyên qua overlay */
   opacity: 1;
   transition: opacity 0.3s ease;
+}
+
+.media-preview-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  transition: opacity 0.3s ease;
+  z-index: 1;
+  pointer-events: none;
 }
 
 .news-card:hover .video-play-overlay {
@@ -1480,124 +1524,220 @@ button:not(.header-nav-link):hover,
 }
 
 /* --- Quick View Modal --- */
+.all-products-page--modal-open .all-products-section,
+.all-products-page--modal-open .all-products-section * {
+  pointer-events: none;
+}
+
+.all-products-page--modal-open {
+  user-select: none;
+}
+
 .quick-view-backdrop {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.7);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.76);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
   z-index: 10000;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 24px;
+  padding: clamp(12px, 3vw, 22px);
+  touch-action: none;
+  overscroll-behavior: contain;
 }
 
 .quick-view-modal {
   position: relative;
-  background-color: var(--background-primary);
-  border: 1px solid var(--border-default);
+  width: min(1340px, calc(100vw - 22px));
+  max-height: 90vh;
+  height: min(90vh, 920px);
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background: #111212;
+  border: 1px solid #2a2a2a;
   color: var(--text-primary);
-  border-radius: 12px;
-  max-width: 900px;
-  width: 100%;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  border-radius: 14px;
+  box-shadow: 0 32px 90px rgba(0, 0, 0, 0.75);
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: 1fr;
+}
+
+.quick-view-main {
+  min-width: 0;
   display: flex;
+  flex-direction: column;
+  min-height: 0;
+  background: #101112;
+}
+
+.quick-view-header {
+  min-height: 54px;
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  border-bottom: 1px solid #2a2a2a;
+}
+
+.quick-view-header-title {
+  margin: 0;
+  color: #f5f5f5;
+  font-size: 15px;
+  line-height: 1.25;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.quick-view-close-btn {
+  width: 34px;
+  height: 34px;
+  border: 1px solid #3a3a3a;
+  border-radius: 999px;
+  background: #151515;
+  color: #f8f8f8;
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  cursor: pointer;
+}
+
+.quick-view-media-full {
+  padding: 18px 20px 12px;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  position: relative;
+}
+
+.quick-view-media-full--image {
+  isolation: isolate;
+}
+
+.quick-view-media-full--video {
+  isolation: auto;
+}
+
+.quick-view-vimeo-wrap,
+.quick-view-video,
+.quick-view-image {
+  width: 100%;
+  height: 100%;
+  max-height: 100%;
+  object-fit: cover;
+  background: #040404;
+  border-radius: 10px;
+  border: 0;
+  outline: none;
+  box-shadow: none;
+}
+
+.quick-view-media-full--image .quick-view-image {
+  border-radius: 10px;
+}
+
+.quick-view-floating-actions {
+  position: absolute;
+  left: 32px;
+  bottom: 26px;
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.quick-view-floating-pill {
+  min-height: 36px;
+  padding: 0 15px;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(17, 17, 17, 0.72);
+  color: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12px;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-weight: 700;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.quick-view-vimeo-wrap {
+  position: relative;
+  padding-top: 56.25%;
   overflow: hidden;
 }
 
-
-.quick-view-close {
-  position: absolute;
-  top: 16px;
-  right: 16px;
-  background: transparent;
-  border: none;
-  color: var(--text-primary);
-  cursor: pointer;
-  z-index: 1;
-  transition: transform 0.2s ease;
-}
-
-.quick-view-close:hover {
-  color: var(--accent-primary);
-  transform: scale(1.1);
-}
-
+.quick-view-vimeo-wrap iframe,
 .quick-view-vimeo-embed {
   position: absolute;
-  top: 0;
-  left: 0;
+  inset: 0;
   width: 100%;
   height: 100%;
+  border: 0;
+  display: block;
+  outline: none;
+  box-shadow: none;
+  background: #040404;
 }
 
-.quick-view-content {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  width: 100%;
+.quick-view-vimeo-wrap iframe:focus,
+.quick-view-vimeo-embed:focus,
+.quick-view-video:focus {
+  outline: none;
+  box-shadow: none;
 }
 
-.quick-view-media {
-  width: 100%;
-  aspect-ratio: 1 / 1;
-  background-color: var(--background-secondary);
+.quick-view-video {
+  display: block;
 }
 
-.quick-view-media img,
-.quick-view-media video {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+.quick-view-image {
+  display: block;
 }
-/* Căn chỉnh lại khung chứa thông tin */
-.quick-view-info {
-  padding: 48px; /* Tăng padding để text không bị ép sát vào cạnh */
+
+.quick-view-detail {
+  padding: 10px 20px 14px;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  gap: 20px; /* Tăng khoảng cách giữa ngày, tiêu đề và nút */
+  gap: 6px;
+  border-top: 0;
+  min-height: 80px;
 }
 
-/* Định dạng tiêu đề */
+.quick-view-date {
+  color: #919191;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
 .quick-view-title {
-  font-size: 28px;
-  font-weight: 800; /* Làm đậm tiêu đề */
-  line-height: 1.2;
-  color: var(--text-primary);
-  text-transform: capitalize; /* Giúp chữ "project - client" trông đẹp hơn */
-}
-
-/* Chỉnh lại nút "Xem chi tiết sản phẩm" */
-.btn-primary-black {
-  background-color: var(--text-primary); /* Nền trắng */
-  color: var(--background-primary);     /* Chữ đen */
-  border: 1px solid var(--text-primary);
-  border-radius: 30px;
-  padding: 14px 24px;
-  font-size: 14px;
+  color: #f5f5f5;
+  font-size: 26px;
+  line-height: 1.18;
+  margin: 0;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
   font-weight: 700;
-  cursor: pointer;
-  width: fit-content; /* Nút chỉ dài vừa đủ nội dung */
-  transition: all 0.3s ease;
 }
 
-.btn-primary-black:hover {
-  background-color: transparent; /* Hiệu ứng đổi màu khi hover */
-  color: var(--text-primary);
+.quick-view-client {
+  color: #d5d5d5;
+  font-size: 13px;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-weight: 500;
 }
-
-/* Đóng modal */
-.quick-view-close {
-  color: var(--text-primary);
-  top: 20px;
-  right: 20px;
-  opacity: 0.7;
-}
-.quick-view-close:hover { opacity: 1; }
 
 /* --- Portfolio Navbar --- */
 .portfolio-navbar {
@@ -1647,11 +1787,8 @@ button:not(.header-nav-link):hover,
 
 
 
-/* Lớp CSS mới thay cho style inline */
 .all-products-section {
-  padding-bottom: 100px;
-  padding-left: 40px;
-  padding-right: 40px;
+  padding: 104px 40px 100px;
 }
 
 /* =====================================================================
@@ -1683,6 +1820,11 @@ button:not(.header-nav-link):hover,
 
   .all-products-grid {
     grid-template-columns: repeat(3, 1fr);
+  }
+
+  .all-products-section {
+    padding-left: 24px;
+    padding-right: 24px;
   }
 }
 @media (max-width: 768px) {
@@ -1863,17 +2005,30 @@ button:not(.header-nav-link):hover,
     font-size: 40px;
   }
 
+  .quick-view-backdrop {
+    padding: 12px;
+  }
+
   .quick-view-modal {
-    flex-direction: column;
-    max-height: 80vh;
-  }
-
-  .quick-view-content {
+    width: calc(100vw - 24px);
+    max-height: 95vh;
+    height: 95vh;
     grid-template-columns: 1fr;
+    grid-template-rows: 1fr;
   }
 
-  .quick-view-info {
-    padding: 24px;
+  .quick-view-main {
+    grid-row: auto;
+  }
+
+  .quick-view-media-full {
+    min-height: 220px;
+    padding: 12px 12px 10px;
+  }
+
+  .quick-view-header {
+    min-height: 50px;
+    padding: 0 16px;
   }
 
   .quick-view-title {

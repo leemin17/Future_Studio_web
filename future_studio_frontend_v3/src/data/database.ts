@@ -49,7 +49,6 @@ export interface TeamMember {
   image: string;
   color: string;
   bio: string;
-  skills: { name: string; level: number }[];
   socials: { github?: string; linkedin?: string; behance?: string; dribbble?: string };
 }
 
@@ -77,7 +76,11 @@ export const newsData: NewsItem[] = [
   { id: 9, date: '2024.01.20', title: 'VƯƠNG QUỐC GIÀY tập 2', clientInformation: 'BITI\'S', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1208152403' },
   { id: 10, date: '2024.01.20', title: 'VƯƠNG QUỐC GIÀY tập 3', clientInformation: 'BITI\'S', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1208153783' },
   { id: 11, date: '2024.01.20', title: 'VƯƠNG QUỐC GIÀY tập 4', clientInformation: 'BITI\'S', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1208154874' },
-  { id: 12, date: '2024.01.20', title: 'VƯƠNG QUỐC GIÀY tập 5', clientInformation: 'BITI\'S', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1208157311' }
+  { id: 12, date: '2024.01.20', title: 'VƯƠNG QUỐC GIÀY tập 5', clientInformation: 'BITI\'S', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1208157311' },
+  { id: 13, date: '2024.02.15', title: 'VPBANK MARATHON MOTION', clientInformation: 'VPBANK', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1208134719' },
+  { id: 14, date: '2024.02.15', title: 'HUNTER VELOCITY', clientInformation: 'BITI\'S', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1208122932' },
+  { id: 15, date: '2024.02.15', title: 'Nhạc thiếu nhi AKOOLAND', clientInformation: 'THIEN LONG', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1208131264' },
+
 ];
 
 // Data cho Khách hàng (Our Customers!)
@@ -115,11 +118,6 @@ export const teamMembers: TeamMember[] = [
         image: "images/anhdat.jpg",
         color: "rgba(255, 255, 255, 0.15)", // Màu Mint (Xanh ngọc) mờ
         bio: "Đam mê khám phá các giới hạn của Deep Learning. Hiện đang tập trung phát triển các mô hình Computer Vision hiệu suất cao ứng dụng kiến trúc YOLOv8 và tối ưu hóa hệ thống nhận diện theo thời gian thực tại Đà Nẵng.",
-        skills: [
-            { name: "Computer Vision (YOLOv8)", level: 95 },
-            { name: "Deep Learning", level: 85 },
-            { name: "Frontend Development", level: 75 }
-        ],
         socials: { github: "#", linkedin: "#" }
     },
     {
@@ -129,11 +127,6 @@ export const teamMembers: TeamMember[] = [
         image: "images/anhcuong.jpg",
         color: " rgba(255, 255, 255, 0.15)", // Màu Cam mờ
         bio: "Bộ đôi sáng tạo đứng đằng sau các concept thị giác đột phá. Chuyên trị các chiến dịch Branding và thiết kế giao diện UI/UX với phong cách tối giản nhưng đầy quyền lực.",
-        skills: [
-            { name: "UI/UX Design", level: 90 },
-            { name: "Brand Identity", level: 88 },
-            { name: "Motion Graphics", level: 80 }
-        ],
         socials: { behance: "#", dribbble: "#" }
     },
     {
@@ -143,11 +136,6 @@ export const teamMembers: TeamMember[] = [
         image: "images/anhdat.jpg",
         color: "rgba(255, 255, 255, 0.15)", // Màu Mint (Xanh ngọc) mờ
         bio: "Bộ đôi sáng tạo đứng đằng sau các concept thị giác đột phá. Chuyên trị các chiến dịch Branding và thiết kế giao diện UI/UX với phong cách tối giản nhưng đầy quyền lực.",
-        skills: [
-            { name: "UI/UX Design", level: 90 },
-            { name: "Brand Identity", level: 88 },
-            { name: "Motion Graphics", level: 80 }
-        ],
         socials: { behance: "#", dribbble: "#" }
     },
     {
@@ -157,11 +145,6 @@ export const teamMembers: TeamMember[] = [
         image: "images/anhcuong.jpg",
         color: "rgba(255, 255, 255, 0.15)", // Màu Cam mờ
         bio: "Bộ đôi sáng tạo đứng đằng sau các concept thị giác đột phá. Chuyên trị các chiến dịch Branding và thiết kế giao diện UI/UX với phong cách tối giản nhưng đầy quyền lực.",
-        skills: [
-            { name: "UI/UX Design", level: 90 },
-            { name: "Brand Identity", level: 88 },
-            { name: "Motion Graphics", level: 80 }
-        ],
         socials: { behance: "#", dribbble: "#" }
     },
 ];
@@ -187,14 +170,6 @@ export const navItems: NavItem[] = [
     ]
   },
   { label: 'Contact', id: 'contact' },
-];
-
-// Data cho trang Music Video
-export const mvData: MvItem[] = [
-  { id: 1, title: 'Future Studio - Bức tranh tương lai', date: '2024.04.10', embedUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ', description: 'MV chính thức giới thiệu không gian sáng tạo của Future Studio. Khám phá những câu chuyện chưa từng được kể.' },
-  { id: 2, title: 'Hậu trường sản xuất - Animation 3D', date: '2024.03.20', embedUrl: 'https://www.youtube.com/embed/tgbNymZ7vqY', description: 'Cùng xem các nghệ sĩ của chúng tôi tạo ra những thước phim 3D đỉnh cao như thế nào qua hàng ngàn giờ làm việc miệt mài.' },
-  { id: 3, title: 'Sự kiện ra mắt bộ sưu tập mới', date: '2024.02.15', embedUrl: 'https://www.youtube.com/embed/y8Yv4pnO7qc', description: 'Toàn cảnh sự kiện hoành tráng ra mắt các sản phẩm giới hạn của năm cùng những vị khách mời đặc biệt.' },
-  { id: 4, title: 'Phim ngắn: The Last Guardian', date: '2024.01.05', embedUrl: 'https://www.youtube.com/embed/jNQXAC9IVRw', description: 'Một dự án phim ngắn tâm huyết do đội ngũ Future Studio thực hiện nhằm truyền tải thông điệp bảo vệ thiên nhiên.' }
 ];
 
 // Data cho các từ khóa tìm kiếm gợi ý
