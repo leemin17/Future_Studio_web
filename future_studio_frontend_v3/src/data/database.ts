@@ -1,4 +1,6 @@
-﻿/* =====================================================================
+﻿import { href } from "react-router-dom";
+
+/* =====================================================================
    1. ĐỊNH NGHĨA KIỂU DỮ LIỆU (INTERFACES)
    ===================================================================== */
 export interface NavSubItem {
@@ -12,6 +14,13 @@ export interface NavItem {
   id: string;
   path?: string;
   subItems?: NavSubItem[];
+}
+
+export interface ContactLink {
+  label: string;
+  value: string;
+  href: string;
+  icon: 'instagram' | 'gmail' | 'facebook' | 'phone' | 'location';
 }
 
 export interface NewsItem {
@@ -53,14 +62,12 @@ export interface MvItem {
   description: string;
 }
 
-export interface TeamMember {
-  id: number;
-  name: string;
-  role: string;
-  image: string;
-  color: string;
-  bio: string;
-  socials: { github?: string; linkedin?: string; behance?: string; dribbble?: string };
+
+export interface HeroMedia {
+  type: 'image' | 'vimeo';
+  src: string;
+  title: string;
+  poster?: string;
 }
 
 
@@ -68,10 +75,25 @@ export interface TeamMember {
    2. KHO DỮ LIỆU TÁCH RIÊNG (MOCK DATABASE)
    ===================================================================== */
 // Data cho Slider (Hero)
-export const heroImages = [
-  'images/bitisbutterfly.webp',
-  'images/helio.webp',
-  'images/bitishunter.webp',
+export const heroImages: HeroMedia[] = [
+  {
+    type: 'vimeo',
+    src: 'https://vimeo.com/1204790802',
+    title: "BITI'S Kids Butterfly",
+    poster: 'images/bitisbutterfly.webp',
+  },
+  {
+    type: 'vimeo',
+    src: 'https://vimeo.com/1206377241',
+    title: 'Helio',
+    poster: 'images/helio.webp',
+  },
+  {
+    type: 'vimeo',
+    src: 'https://vimeo.com/1204801368',
+    title: "BITI'S Hunter",
+    poster: 'images/bitishunter.webp',
+  },
 ];
 
 type QuickViewLayout = NonNullable<NewsItem['quickViewLayout']>;
@@ -102,21 +124,21 @@ const quickGalleryLayout = (
 
 // Data cho Tin tức (What's new / All Products!)
 export const newsData: NewsItem[] = [
-  { id: 1, date: '2026.04.26', title: 'BITI\'S HUNTER X QUANG HÙNG 2K TVC', clientInformation: 'BITI\'S', describe: 'Description for BITI\'S HUNTER X QUANG HÙNG 2K TVC', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1204801368', videoGallery: ['https://vimeo.com/1204801368'], quickViewLayout: quickGalleryLayout(2, ['images/product1_1.webp', 'images/product1_2.webp'], ['https://vimeo.com/1204801368']) },
+  { id: 1, date: '2026.04.26', title: 'BITI\'S HUNTER X QUANG HÙNG 2K TVC', clientInformation: 'BITI\'S', describe: 'Description for BITI\'S HUNTER X QUANG HÙNG 2K TVC', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1204801368', videoGallery: ['https://vimeo.com/1204801368'], quickViewLayout: quickGalleryLayout(2, [''], ['https://vimeo.com/1204801368']) },
   { id: 2, date: '2024.03.26', title: 'BITI\'S KIDS BUTTERFLY', clientInformation: 'BITI\'S', describe: 'Description for BITI\'S KIDS BUTTERFLY', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1204790802', quickViewLayout: quickVideoLayout('https://vimeo.com/1204790802') },
   { id: 3, date: '2026.04.05', title: 'CHÍNH THỨC RA MẮT HELIO BY BITI\'S', clientInformation: 'BITI\'S', describe: 'Description for CHÍNH THỨC RA MẮT HELIO BY BITI\'S', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1206377241', quickViewLayout: quickVideoLayout('https://vimeo.com/1206377241') },
   { id: 4, date: '2024.03.18', title: 'HUY THANH x SOOBIN - SOOBIN\'S QUEEN COLLECTION', clientInformation: 'HUY THANH', describe: 'Description for HUY THANH x SOOBIN - SOOBIN\'S QUEEN COLLECTION', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1208125419', quickViewLayout: quickVideoLayout('https://vimeo.com/1208125419') },
   { id: 5, date: '2024.03.10', title: 'project', clientInformation: 'client', describe: 'Description for project', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1204801368', modelUrl: 'models/Lipstick.glb', quickViewLayout: quickVideoLayout('https://vimeo.com/1204801368') },
   { id: 6, date: '2024.02.28', title: 'HOVAZ CHU DU KÝ', clientInformation: 'client', describe: 'Description for HOVAZ CHU DU KÝ', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1208129419', quickViewLayout: quickVideoLayout('https://vimeo.com/1208129419') },
   { id: 7, date: '2024.02.15', title: 'Nhạc thiếu nhi AKOOLAND', clientInformation: 'THIEN LONG', describe: 'Description for Nhạc thiếu nhi AKOOLAND', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1208131264', quickViewLayout: quickVideoLayout('https://vimeo.com/1208131264') },
-  { id: 8, date: '2024.01.20', title: 'VƯƠNG QUỐC GIÀY tập 1', clientInformation: 'BITI\'S', describe: 'Description for VƯƠNG QUỐC GIÀY tập 1', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1208150552', quickViewLayout: quickVideoLayout('https://vimeo.com/1208150552') },
-  { id: 9, date: '2024.01.20', title: 'VƯƠNG QUỐC GIÀY tập 2', clientInformation: 'BITI\'S', describe: 'Description for VƯƠNG QUỐC GIÀY tập 2', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1208152403', quickViewLayout: quickVideoLayout('https://vimeo.com/1208152403') },
-  { id: 10, date: '2024.01.20', title: 'VƯƠNG QUỐC GIÀY tập 3', clientInformation: 'BITI\'S', describe: 'Description for VƯƠNG QUỐC GIÀY tập 3', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1208153783', quickViewLayout: quickVideoLayout('https://vimeo.com/1208153783') },
-  { id: 11, date: '2024.01.20', title: 'VƯƠNG QUỐC GIÀY tập 4', clientInformation: 'BITI\'S', describe: 'Description for VƯƠNG QUỐC GIÀY tập 4', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1208154874', quickViewLayout: quickVideoLayout('https://vimeo.com/1208154874') },
-  { id: 12, date: '2024.01.20', title: 'VƯƠNG QUỐC GIÀY tập 5', clientInformation: 'BITI\'S', describe: 'Description for VƯƠNG QUỐC GIÀY tập 5', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1208157311', quickViewLayout: quickVideoLayout('https://vimeo.com/1208157311') },
+  { id: 8, date: '2024.01.20', title: 'VƯƠNG QUỐC GIÀY tập 1', clientInformation: 'BITI\'S', describe: 'Description for VƯƠNG QUỐC GIÀY tập 1', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1208150552', quickViewLayout: quickVideoLayout('https://youtu.be/_q-QgAcUtdU?si=mcfa01QhOVi3UFWQ') },
+  { id: 9, date: '2024.01.20', title: 'VƯƠNG QUỐC GIÀY tập 2', clientInformation: 'BITI\'S', describe: 'Description for VƯƠNG QUỐC GIÀY tập 2', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1208152403', quickViewLayout: quickVideoLayout('https://youtu.be/9xTWZ_wu3Ts?si=RKinC8hhUA5dlYmn') },
+  { id: 10, date: '2024.01.20', title: 'VƯƠNG QUỐC GIÀY tập 3', clientInformation: 'BITI\'S', describe: 'Description for VƯƠNG QUỐC GIÀY tập 3', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1208153783', quickViewLayout: quickVideoLayout('https://youtu.be/XGTcW6suw9c?si=RFB3GT4xjGOX5D6l') },
+  { id: 11, date: '2024.01.20', title: 'VƯƠNG QUỐC GIÀY tập 4', clientInformation: 'BITI\'S', describe: 'Description for VƯƠNG QUỐC GIÀY tập 4', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1208154874', quickViewLayout: quickVideoLayout('https://youtu.be/L_ElBFhRzi8?si=iQO12cbLm4onkUMz') },
+  { id: 12, date: '2024.01.20', title: 'VƯƠNG QUỐC GIÀY tập 5', clientInformation: 'BITI\'S', describe: 'Description for VƯƠNG QUỐC GIÀY tập 5', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1208157311', quickViewLayout: quickVideoLayout('https://youtu.be/Pxdx1buchs4?si=kMj23k6BWF0ixtui')},
   { id: 13, date: '2024.02.15', title: 'VPBANK MARATHON MOTION', clientInformation: 'VPBANK', describe: 'Description for VPBANK MARATHON MOTION', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1208134719', quickViewLayout: quickVideoLayout('https://vimeo.com/1208134719') },
   { id: 14, date: '2024.02.15', title: 'HUNTER VELOCITY', clientInformation: 'BITI\'S', describe: 'Description for HUNTER VELOCITY', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1208122932', quickViewLayout: quickVideoLayout('https://vimeo.com/1208122932') },
-  { id: 15, date: '2024.02.15', title: 'MÙA HÈ MỘNG MƠ', clientInformation: 'BITI\'S', describe: 'Description for MÙA HÈ MỘNG MƠ', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1208307630', quickViewLayout: quickVideoLayout('https://vimeo.com/1208307630') },
+  { id: 15, date: '2024.02.15', title: 'MÙA HÈ MỘNG MƠ', clientInformation: 'BITI\'S', describe: 'Description for MÙA HÈ MỘNG MƠ', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1208307630', quickViewLayout: quickVideoLayout('https://youtu.be/f9mTTEAL3zg?si=nDyD7u_FexUFN6Mu') },
   { id: 16, date: '2024.02.15', title: 'ELLE', clientInformation: 'ELLE', describe: 'Description for ELLE', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1208324489', quickViewLayout: quickVideoLayout('https://vimeo.com/1208324489') },
   { id: 17, date: '2024.02.15', title: 'TH true milk', clientInformation: 'TH TRUE MILK', describe: 'Description for TH true milk', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1208325217', videoGallery: ['https://vimeo.com/1208327469', 'https://vimeo.com/1208329980', 'https://vimeo.com/1208333202'], quickViewLayout: quickVideoLayout('https://vimeo.com/1208325217', 'https://vimeo.com/1208327469', 'https://vimeo.com/1208329980', 'https://vimeo.com/1208333202') },
   { id: 18, date: '2024.02.15', title: 'Dự án cầu Bình Lợi', clientInformation: '_', describe: 'Description for Dự án cầu Bình Lợi', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1208326945', quickViewLayout: quickVideoLayout('https://vimeo.com/1208326945') },
@@ -177,17 +199,17 @@ export const heroDetails = [
 export const teamMembers: TeamMember[] = [
   {
     id: 1,
-    name: "Lê Minh",
-    role: "AI & Computer Vision Engineer",
+    name: "Trần Tiến Đặt",
+    role: "BOSS & Founder",
     image: "images/anhdat.jpg",
     color: "rgba(255, 255, 255, 0.15)", // Màu Mint (Xanh ngọc) mờ
-    bio: "Đam mê khám phá các giới hạn của Deep Learning. Hiện đang tập trung phát triển các mô hình Computer Vision hiệu suất cao ứng dụng kiến trúc YOLOv8 và tối ưu hóa hệ thống nhận diện theo thời gian thực tại Đà Nẵng.",
+    bio: "Thiết kế không chỉ là tạo ra cái đẹp, mà là nghệ thuật kể câu chuyện của thương hiệu bằng ngôn ngữ thị giác.",
     socials: { github: "#", linkedin: "#" }
   },
   {
     id: 2,
-    name: "Sarah & Chloe",
-    role: "Creative Duo",
+    name: "Lê Chí Cường",
+    role: "3D Artist",
     image: "images/anhcuong.jpg",
     color: " rgba(255, 255, 255, 0.15)", // Màu Cam mờ
     bio: "Bộ đôi sáng tạo đứng đằng sau các concept thị giác đột phá. Chuyên trị các chiến dịch Branding và thiết kế giao diện UI/UX với phong cách tối giản nhưng đầy quyền lực.",
@@ -195,8 +217,8 @@ export const teamMembers: TeamMember[] = [
   },
   {
     id: 3,
-    name: "Sarah & Chloe",
-    role: "Creative Duo",
+    name: "Trà My",
+    role: "Lighting Artist",
     image: "images/anhdat.jpg",
     color: "rgba(255, 255, 255, 0.15)", // Màu Mint (Xanh ngọc) mờ
     bio: "Bộ đôi sáng tạo đứng đằng sau các concept thị giác đột phá. Chuyên trị các chiến dịch Branding và thiết kế giao diện UI/UX với phong cách tối giản nhưng đầy quyền lực.",
@@ -204,8 +226,8 @@ export const teamMembers: TeamMember[] = [
   },
   {
     id: 4,
-    name: "Sarah & Chloe",
-    role: "Creative Duo",
+    name: "Thiều Sinh Tuấn",
+    role: "2D Artist",
     image: "images/anhcuong.jpg",
     color: "rgba(255, 255, 255, 0.15)", // Màu Cam mờ
     bio: "Bộ đôi sáng tạo đứng đằng sau các concept thị giác đột phá. Chuyên trị các chiến dịch Branding và thiết kế giao diện UI/UX với phong cách tối giản nhưng đầy quyền lực.",
@@ -222,6 +244,7 @@ export const navItems: NavItem[] = [
   {
     label: 'Products',
     id: 'showcase',
+    path: '/all-products',
     subItems: [
       { label: 'All', id: 'showcase-all', path: '/all-products' }
     ]
@@ -229,11 +252,45 @@ export const navItems: NavItem[] = [
   {
     label: 'About',
     id: 'about',
+    path: '/team',
     subItems: [
       { label: 'Team', id: 'about-team', path: '/team' }
     ]
   },
-  { label: 'Contact', id: 'contact' },
+  { label: 'Contact', id: 'contact', path: '/contact' },
+];
+
+export const contactLinks: ContactLink[] = [
+  {
+    label: 'Instagram',
+    value: '@futurestudio.vn',
+    href: 'https://www.instagram.com/',
+    icon: 'instagram',
+  },
+  {
+    label: 'Gmail',
+    value: 'futurestudio.vn@gmail.com',
+    href: 'mailto:futurestudio.vn@gmail.com',
+    icon: 'gmail',
+  },
+  {
+    label: 'Facebook',
+    value: 'Future Studio',
+    href: 'https://www.facebook.com/Futurestudiovn?locale=vi_VN',
+    icon: 'facebook',
+  },
+  {
+    label: 'Phone',
+    value: '097 177 31 34',
+    href: 'tel:+840971773134',
+    icon: 'phone',
+  },
+  {
+    label: 'Office address',
+    value: '91 Nghiem Xuân Yêm, Dang Nang City, Vietnam',
+    href: 'https://maps.app.goo.gl/bqL3tWeV2Fs5bEsh9',
+    icon: 'location',
+  },
 ];
 
 // Data cho các từ khóa tìm kiếm gợi ý
@@ -247,3 +304,4 @@ export const popularSearches: string[] = [
   'Tri ân',
   'Đối tác'
 ];
+

@@ -1,7 +1,8 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { motion, AnimatePresence, type Variants } from 'framer-motion';
 import { type NewsItem } from '../data/database';
-import { IoClose } from 'react-icons/io5';
+import { IoClose, IoRefresh } from 'react-icons/io5';
+import Player from '@vimeo/player';
 import { getAssetUrl } from '../utils/media';
 
 interface QuickViewModalProps {
@@ -36,11 +37,19 @@ const getVimeoId = (url: string): string => {
   return match ? match[1] : '';
 };
 
+const getYouTubeId = (url: string): string => {
+  const match = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([A-Za-z0-9_-]{6,})/i);
+  return match ? match[1] : '';
+};
+
+const isYouTubeUrl = (url: string): boolean => /(?:youtube\.com|youtu\.be)/i.test(url);
+
 type MediaType = 'image' | 'video';
 type MediaItem = {
   kind: MediaType;
   url: string;
   isVimeo?: boolean;
+  isYouTube?: boolean;
 };
 
 type QuickLayoutBlock = {
@@ -51,7 +60,7 @@ type QuickLayoutBlock = {
 
 const inferMediaKind = (url: string, kind?: MediaType): MediaType => {
   if (kind) return kind;
-  return /\.(mp4|webm|mov|m4v)$/i.test(url) || url.includes('vimeo') ? 'video' : 'image';
+  return /\.(mp4|webm|mov|m4v)$/i.test(url) || url.includes('vimeo') || isYouTubeUrl(url) ? 'video' : 'image';
 };
 
 const toMediaItem = (url: string, kind?: MediaType): MediaItem => {
@@ -60,6 +69,7 @@ const toMediaItem = (url: string, kind?: MediaType): MediaItem => {
     kind: normalizedKind,
     url,
     isVimeo: normalizedKind === 'video' && url.includes('vimeo'),
+    isYouTube: normalizedKind === 'video' && isYouTubeUrl(url),
   };
 };
 
@@ -120,6 +130,102 @@ const buildQuickLayout = (product: NewsItem | null, mediaItems: MediaItem[]): Qu
   return [{ type: 'grid', columns: 2, items: mediaItems }];
 };
 
+interface QuickViewVideoProps {
+  item: MediaItem;
+  product: NewsItem | null;
+}
+
+const QuickViewVideo: React.FC<QuickViewVideoProps> = ({ item, product }) => {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const vimeoIframeRef = useRef<HTMLIFrameElement>(null);
+  const vimeoPlayerRef = useRef<Player | null>(null);
+  const [hasEnded, setHasEnded] = useState(false);
+
+  useEffect(() => {
+    setHasEnded(false);
+
+    if (!item.isVimeo || !vimeoIframeRef.current) return;
+
+    const player = new Player(vimeoIframeRef.current);
+    vimeoPlayerRef.current = player;
+
+    const handleEnded = () => setHasEnded(true);
+    const handlePlay = () => setHasEnded(false);
+
+    player.on('ended', handleEnded);
+    player.on('play', handlePlay);
+
+    return () => {
+      player.off('ended', handleEnded);
+      player.off('play', handlePlay);
+      vimeoPlayerRef.current = null;
+    };
+  }, [item.isVimeo, item.url]);
+
+  const handleReplay = () => {
+    setHasEnded(false);
+
+    if (item.isVimeo) {
+      vimeoPlayerRef.current?.setCurrentTime(0).then(() => {
+        vimeoPlayerRef.current?.play().catch(() => undefined);
+      });
+      return;
+    }
+
+    if (videoRef.current) {
+      videoRef.current.currentTime = 0;
+      videoRef.current.play().catch(() => undefined);
+    }
+  };
+
+  return (
+    <div className="quick-view-video-shell">
+      {item.isVimeo ? (
+        <div className="quick-view-vimeo-wrap">
+          <iframe
+            ref={vimeoIframeRef}
+            className="quick-view-vimeo-embed"
+            src={`https://player.vimeo.com/video/${getVimeoId(item.url)}?autoplay=0&loop=1&title=0&byline=0&portrait=0&badge=0&pip=0&dnt=1`}
+            allow="autoplay; fullscreen; picture-in-picture"
+            title={product?.title}
+          ></iframe>
+        </div>
+      ) : item.isYouTube ? (
+        <div className="quick-view-vimeo-wrap">
+          <iframe
+            className="quick-view-vimeo-embed"
+            src={`https://www.youtube.com/embed/${getYouTubeId(item.url)}?rel=0&modestbranding=1&playsinline=1`}
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            allowFullScreen
+            title={product?.title}
+          ></iframe>
+        </div>
+      ) : (
+        <video
+          ref={videoRef}
+          className="quick-view-video"
+          src={getAssetUrl(item.url)}
+          poster={product ? getAssetUrl(product.imageUrl) : ''}
+          controls
+          muted
+          playsInline
+          onEnded={() => setHasEnded(true)}
+          onPlay={() => setHasEnded(false)}
+        />
+      )}
+
+      {hasEnded && (
+        <div className="quick-view-replay-overlay">
+          <button type="button" className="quick-view-replay-btn" onClick={handleReplay}>
+            <IoRefresh size={18} />
+            Xem lại
+          </button>
+        </div>
+      )}
+    </div>
+  );
+};
+
 const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, onClose }) => {
   const description = ((product as { description?: string } | null)?.description ?? product?.describe ?? '').trim();
   const mediaItems = useMemo(() => buildQuickMedia(product), [product]);
@@ -140,29 +246,7 @@ const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, onClose }) => 
       );
     }
 
-    if (item.isVimeo) {
-      return (
-        <div className="quick-view-vimeo-wrap">
-          <iframe
-            className="quick-view-vimeo-embed"
-            src={`https://player.vimeo.com/video/${getVimeoId(item.url)}?autoplay=0&title=0&byline=0&portrait=0&badge=0&pip=0&dnt=1`}
-            allow="autoplay; fullscreen; picture-in-picture"
-            title={product?.title}
-          ></iframe>
-        </div>
-      );
-    }
-
-    return (
-      <video
-        className="quick-view-video"
-        src={getAssetUrl(item.url)}
-        poster={product ? getAssetUrl(product.imageUrl) : ''}
-        controls
-        muted
-        playsInline
-      />
-    );
+    return <QuickViewVideo item={item} product={product} />;
   };
 
   return (
