@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { motion, AnimatePresence, type Variants } from 'framer-motion';
 import { type NewsItem } from '@data/database';
-import { IoClose, IoRefresh } from 'react-icons/io5';
+import { IoRefresh } from 'react-icons/io5';
 import Player from '@vimeo/player';
 import { getAssetUrl } from '../utils/media';
 
@@ -227,7 +227,6 @@ const QuickViewVideo: React.FC<QuickViewVideoProps> = ({ item, product }) => {
 };
 
 const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, onClose }) => {
-  const description = ((product as { description?: string } | null)?.description ?? product?.describe ?? '').trim();
   const mediaItems = useMemo(() => buildQuickMedia(product), [product]);
   const mediaLayout = useMemo(() => buildQuickLayout(product, mediaItems), [product, mediaItems]);
   const hasCustomLayout = Boolean(product?.quickViewLayout?.length);
