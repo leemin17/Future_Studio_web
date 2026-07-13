@@ -146,7 +146,6 @@ export const newsData: NewsItem[] = [
   { id: 2, date: '2024.03.26', title: 'BITI\'S KIDS BUTTERFLY', clientInformation: 'BITI\'S', describe: 'Description for BITI\'S KIDS BUTTERFLY', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1204790802', quickViewLayout: quickVideoLayout('https://vimeo.com/1204790802') },
   { id: 3, date: '2026.04.05', title: 'CHÍNH THỨC RA MẮT HELIO BY BITI\'S', clientInformation: 'BITI\'S', describe: 'Description for CHÍNH THỨC RA MẮT HELIO BY BITI\'S', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1206377241', quickViewLayout: quickVideoLayout('https://vimeo.com/1206377241') },
   { id: 4, date: '2024.03.18', title: 'HUY THANH x SOOBIN - SOOBIN\'S QUEEN COLLECTION', clientInformation: 'HUY THANH', describe: 'Description for HUY THANH x SOOBIN - SOOBIN\'S QUEEN COLLECTION', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1208125419', quickViewLayout: quickVideoLayout('https://vimeo.com/1208125419') },
-  { id: 5, date: '2024.03.10', title: 'project', clientInformation: 'client', describe: 'Description for project', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1204801368', modelUrl: 'models/Lipstick.glb', quickViewLayout: quickVideoLayout('https://vimeo.com/1204801368') },
   { id: 6, date: '2024.02.28', title: 'HOVAZ CHU DU KÝ', clientInformation: 'client', describe: 'Description for HOVAZ CHU DU KÝ', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1208129419', quickViewLayout: quickVideoLayout('https://vimeo.com/1208129419') },
   { id: 7, date: '2024.02.15', title: 'Nhạc thiếu nhi AKOOLAND', clientInformation: 'THIEN LONG', describe: 'Description for Nhạc thiếu nhi AKOOLAND', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1208131264', quickViewLayout: quickVideoLayout('https://vimeo.com/1208131264') },
   { id: 8, date: '2024.01.20', title: 'VƯƠNG QUỐC GIÀY tập 1', clientInformation: 'BITI\'S', describe: 'Description for VƯƠNG QUỐC GIÀY tập 1', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1208150552', quickViewLayout: quickVideoLayout('https://youtu.be/_q-QgAcUtdU?si=mcfa01QhOVi3UFWQ') },
@@ -192,8 +191,8 @@ export const newsData: NewsItem[] = [
    Chuyển ID giữa ba mảng dưới đây để thay đổi nhóm của sản phẩm.
    ===================================================================== */
 export const productCategoryIds: Record<ProductCategory, number[]> = {
-  'cartoon-3d': [ 8, 9, 10, 11, 12],
-  ctv: [1, 2, 3, 4, 5, 6, 13, 14, 15, 16, 17, 18],
+  'cartoon-3d': [ 8, 9, 10, 11, 12, 15],
+  ctv: [1, 2, 3, 4, 6, 13, 14, 16, 17, 18],
   art: [19],
   music: [7],
 };
