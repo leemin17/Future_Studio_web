@@ -7,7 +7,6 @@ import { artData, cartoon3DData, ctvData, musicData} from '@data/database';
 
 // --- LAZY LOADING COMPONENTS ---
 const HomePage = React.lazy(() => import('./HomePage'));
-const ProductDetailPage = React.lazy(() => import('./ProductDetailPage'));
 const AllProductsPage = React.lazy(() => import('./AllProductsPage'));
 const TeamPage = React.lazy(() => import('./TeamPage'));
 const ContactPage = React.lazy(() => import('./ContactPage'));
@@ -26,7 +25,6 @@ const AppRoutes: React.FC = () => {
             <AnimatePresence mode="wait">
                 <Routes location={location} key={location.pathname}>
                     <Route path="/" element={<PageTransition><HomePage /></PageTransition>} />
-                    <Route path="/product/:id" element={<PageTransition><ProductDetailPage /></PageTransition>} />
                     <Route path="/all-products" element={<PageTransition><AllProductsPage /></PageTransition>} />
                     <Route path="/cartoon-3d" element={<PageTransition><AllProductsPage products={cartoon3DData} /></PageTransition>} />
                     <Route path="/ctv" element={<PageTransition><AllProductsPage products={ctvData} /></PageTransition>} />
