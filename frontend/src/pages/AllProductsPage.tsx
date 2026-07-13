@@ -33,7 +33,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ item, onClick }) => {
 
   useEffect(() => {
     if (inView && isVimeo && item.videoUrl) {
-      fetch(`https://vimeo.com/api/oembed.json?url=${item.videoUrl}`)
+      fetch(`https://vimeo.com/api/oembed.json?url=${encodeURIComponent(item.videoUrl)}&width=1920`)
         .then((response) => response.json())
         .then((data) => {
           if (data && data.thumbnail_url) {

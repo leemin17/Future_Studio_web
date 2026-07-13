@@ -4,14 +4,13 @@ import {
   artData,
   contactLinks,
   cartoon3DData,
-  ctvData,
+  tvcData,
   heroDetails,
   heroImages,
   navItems,
   newsData,
   popularSearches,
-  teamMembers,
-  musicData,
+  teamMembers
 } from '../../data/database.ts';
 
 const app = express();
@@ -24,9 +23,8 @@ app.use(express.json());
 app.get('/api/health', (_request, response) => response.json({ status: 'ok' }));
 app.get('/api/products', (_request, response) => response.json(newsData));
 app.get('/api/products/cartoon-3d', (_request, response) => response.json(cartoon3DData));
-app.get('/api/products/ctv', (_request, response) => response.json(ctvData));
+app.get('/api/products/tvc', (_request, response) => response.json(tvcData));
 app.get('/api/products/art', (_request, response) => response.json(artData));
-app.get('/api/products/music', (_request, response) => response.json(musicData));
 app.get('/api/products/:id', (request, response) => {
   const product = newsData.find((item) => item.id === Number(request.params.id));
   if (!product) return response.status(404).json({ message: 'Product not found' });

@@ -23,7 +23,7 @@ export interface ContactLink {
   icon: 'instagram' | 'gmail' | 'facebook' | 'phone' | 'location';
 }
 
-export type ProductCategory = 'cartoon-3d' | 'ctv' | 'art' | 'music';
+export type ProductCategory = 'cartoon-3d' | 'tvc' | 'art';
 
 export interface NewsItem {
   id: number;
@@ -192,9 +192,8 @@ export const newsData: NewsItem[] = [
    ===================================================================== */
 export const productCategoryIds: Record<ProductCategory, number[]> = {
   'cartoon-3d': [ 8, 9, 10, 11, 12, 15],
-  ctv: [1, 2, 3, 4, 6, 13, 14, 16, 17, 18],
-  art: [19],
-  music: [7],
+  tvc: [1, 2, 3, 4, 6, 7, 13, 14, 16, 17, 18],
+  art: [19]
 };
 
 const productsByCategory = (category: ProductCategory): NewsItem[] =>
@@ -203,9 +202,8 @@ const productsByCategory = (category: ProductCategory): NewsItem[] =>
     .map((item) => ({ ...item, category }));
 
 export const cartoon3DData = productsByCategory('cartoon-3d');
-export const ctvData = productsByCategory('ctv');
+export const tvcData = productsByCategory('tvc');
 export const artData = productsByCategory('art');
-export const musicData = productsByCategory('music');
 
 // Data cho Khách hàng (Our Customers!)
 export const heroDetails = [
@@ -232,7 +230,7 @@ export const heroDetails = [
 export const teamMembers: TeamMember[] = [
   {
     id: 1,
-    name: "Trần Tiến Đặt",
+    name: "Trần Tiến Đạt",
     role: "BOSS & Founder",
     image: "images/anhdat.jpg",
     color: "rgba(255, 255, 255, 0.15)", 
@@ -245,7 +243,7 @@ export const teamMembers: TeamMember[] = [
     role: "3D Artist",
     image: "images/anhcuong.jpg",
     color: " rgba(255, 255, 255, 0.15)", 
-    bio: "Bộ đôi sáng tạo đứng đằng sau các concept thị giác đột phá. Chuyên trị các chiến dịch Branding và thiết kế giao diện UI/UX với phong cách tối giản nhưng đầy quyền lực.",
+    bio: "Đưa ý tưởng của bạn bước ra ngoài mặt giấy.",
     socials: { behance: "#", dribbble: "#" }
   },
   {
@@ -254,7 +252,7 @@ export const teamMembers: TeamMember[] = [
     role: "Lighting Artist",
     image: "images/anhdat.jpg",
     color: "rgba(255, 255, 255, 0.15)",
-    bio: "Bộ đôi sáng tạo đứng đằng sau các concept thị giác đột phá. Chuyên trị các chiến dịch Branding và thiết kế giao diện UI/UX với phong cách tối giản nhưng đầy quyền lực.",
+    bio: "Nơi ánh sáng làm chủ khung hình và bóng tối kể những câu chuyện bí ẩn.",
     socials: { behance: "#", dribbble: "#" }
   },
   {
@@ -263,7 +261,16 @@ export const teamMembers: TeamMember[] = [
     role: "2D Artist",
     image: "images/anhcuong.jpg",
     color: "rgba(255, 255, 255, 0.15)",
-    bio: "Bộ đôi sáng tạo đứng đằng sau các concept thị giác đột phá. Chuyên trị các chiến dịch Branding và thiết kế giao diện UI/UX với phong cách tối giản nhưng đầy quyền lực.",
+    bio: "Kiến tạo những thế giới mới trên mặt phẳng 2D.",
+    socials: { behance: "#", dribbble: "#" }
+  },
+  {
+    id: 5,
+    name: "Nguyễn Hà Vi",
+    role: "2D Artist",
+    image: "images/anhcuong.jpg",
+    color: "rgba(255, 255, 255, 0.15)",
+    bio: "Sáng tạo không giới hạn. Vẽ nên mọi ý tưởng.",
     socials: { behance: "#", dribbble: "#" }
   },
 ];
@@ -281,9 +288,8 @@ export const navItems: NavItem[] = [
     subItems: [
       { label: 'All', id: 'showcase-all', path: '/all-products' },
       { label: 'Cartoon 3D', id: 'showcase-cartoon-3d', path: '/cartoon-3d' },
-      { label: 'CTV', id: 'showcase-ctv', path: '/ctv' },
+      { label: 'TVC', id: 'showcase-tvc', path: '/tvc' },
       { label: 'Art', id: 'showcase-art', path: '/art' },
-      { label: 'Music', id: 'showcase-music', path: '/music' }
     ]
   },
   {

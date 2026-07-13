@@ -232,14 +232,14 @@ const HeroSlider: React.FC<HeroSliderProps> = ({ onSelectProduct }) => {
                   />
                 )}
 
-                <div className="hero-running-overlay">
+                {/* <div className="hero-running-overlay">
                   <div className="hero-running-track">
                     <div className="hero-running-item"><img src="/images/LOGObitis.png" alt="bitis logo" /></div>
                     <div className="hero-running-item"><img src="/images/logofuturesymbol.png" alt="Future Studio Logo" /></div>
                     <div className="hero-running-item"><img src="/images/LOGObitis.png" alt="bitis logo" /></div>
                     <div className="hero-running-item"><img src="/images/logofuturesymbol.png" alt="Future Studio Logo" /></div>
                   </div>
-                </div>
+                </div> */}
               </div>
             );
           })}

@@ -1620,7 +1620,7 @@ button:not(.header-nav-link):hover,
   display: flex;
   flex-direction: column;
   min-height: auto;
-  background: #fbfbfc;
+  background: #7c7c7c00;
   overflow: hidden;
 }
 
@@ -2569,7 +2569,6 @@ button:not(.header-nav-link):hover,
   overflow: hidden;
   display: block;
   box-shadow: 0 32px 90px rgba(0, 0, 0, 0.42);
-  will-change: transform;
   position: relative;
 }
 
@@ -2578,12 +2577,6 @@ button:not(.header-nav-link):hover,
   height: 100%;
   display: block;
   object-fit: cover;
-  transition: filter 0.75s ease;
-  will-change: filter;
-}
-
-.team-showcase-main:hover img {
-  filter: contrast(1.04) brightness(1.02);
 }
 
 .team-showcase-info {
@@ -2642,7 +2635,6 @@ button:not(.header-nav-link):hover,
   scrollbar-width: none;
   -webkit-overflow-scrolling: touch;
   padding-bottom: 2px;
-  will-change: contents;
 }
 
 .team-showcase-thumbs::-webkit-scrollbar {
@@ -2658,23 +2650,9 @@ button:not(.header-nav-link):hover,
   background: transparent;
   cursor: pointer;
   overflow: hidden;
-  opacity: 0.72;
-  filter: grayscale(0.25) brightness(0.78);
-  position: relative;
-  transition: width 0.45s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s ease, filter 0.45s ease, transform 0.45s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.35s ease;
-  will-change: width, transform, opacity, filter;
-}
-
-.team-showcase-thumb:hover,
-.team-showcase-thumb.active {
-  width: clamp(82px, 6.4vw, 112px);
   opacity: 1;
-  filter: grayscale(0) brightness(1);
-  transform: translateY(-4px);
-  border-color: rgba(255, 255, 255, 0.85);
-  box-shadow:
-    0 0 0 1px rgba(255, 255, 255, 0.32),
-    0 18px 38px rgba(0, 0, 0, 0.32);
+  filter: none;
+  position: relative;
 }
 
 .team-showcase-thumb.active::after {
@@ -4350,101 +4328,12 @@ iframe {
   width: 100%;
 }
 
-/* Team showcase: smooth horizontal roll animation */
+/* Team showcase: image positioning for shared layout morph */
 .team-showcase-main img {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
-}
-
-.team-showcase-main {
-  transform: translateZ(0);
-  contain: paint;
-}
-
-.team-showcase-thumbs {
-  scroll-behavior: smooth;
-}
-
-/* Team showcase: cylindrical 3D roll effect */
-.team-showcase-main {
-  perspective: 1100px;
-  transform-style: preserve-3d;
-}
-
-.team-showcase-main img {
-  backface-visibility: hidden;
-  transform-style: preserve-3d;
-  transform-origin: center center;
-}
-
-/* Team showcase: keep large and small images in the same 3D rhythm */
-.team-showcase-thumbs {
-  perspective: 900px;
-  transform-style: preserve-3d;
-}
-
-.team-showcase-thumb {
-  transform-style: preserve-3d;
-  backface-visibility: hidden;
-}
-
-.team-showcase-thumb img {
-  backface-visibility: hidden;
-  transform-style: preserve-3d;
-}
-
-/* Team showcase: smoother thumbnail rolling */
-.team-showcase-thumb {
-  transition: opacity 0.28s ease, filter 0.28s ease, border-color 0.28s ease, box-shadow 0.28s ease;
-  will-change: transform;
-  transform: translateZ(0);
-}
-
-.team-showcase-thumb:hover,
-.team-showcase-thumb.active {
-  transform: none;
-}
-
-/* Team showcase: card dealing feel */
-.team-showcase-main {
-  perspective: 900px;
-}
-
-.team-showcase-main img {
-  transform-origin: 50% 85%;
-  box-shadow: 0 26px 70px rgba(0, 0, 0, 0.28);
-}
-
-.team-showcase-thumb {
-  transform-origin: 50% 100%;
-  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.18);
-}
-
-.team-showcase-thumb:nth-child(2n) {
-  rotate: 1.2deg;
-}
-
-.team-showcase-thumb:nth-child(2n + 1) {
-  rotate: -0.8deg;
-}
-
-/* Team showcase: softer card dealing refinement */
-.team-showcase-main img {
-  box-shadow: 0 22px 58px rgba(0, 0, 0, 0.22);
-}
-
-.team-showcase-thumb {
-  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.14);
-}
-
-.team-showcase-thumb:nth-child(2n) {
-  rotate: 0.55deg;
-}
-
-.team-showcase-thumb:nth-child(2n + 1) {
-  rotate: -0.4deg;
 }
 
 /* Team page: lock background pattern so it never moves or zooms */
@@ -4474,6 +4363,18 @@ iframe {
 .all-products-grid:hover .news-card,
 .all-products-grid .news-card:hover {
   opacity: 1 !important;
+}
+
+/* All products: use the source pixels without softening the thumbnail */
+.all-products-grid .news-image > img {
+  opacity: 1;
+  filter: none;
+  image-rendering: auto;
+  transform: none;
+}
+
+.all-products-grid .news-card:hover .news-image > img {
+  transform: none;
 }
 
 /* Contact page */

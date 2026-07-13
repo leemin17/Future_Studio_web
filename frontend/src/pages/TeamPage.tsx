@@ -3,6 +3,10 @@ import { motion, useScroll, useTransform, useMotionValueEvent, AnimatePresence, 
 import { teamMembers } from '@data/database';
 import ScrollReveal from '../components/ScrollReveal';
 
+const memberIndicesById = teamMembers
+    .map((_, index) => index)
+    .sort((firstIndex, secondIndex) => teamMembers[firstIndex].id - teamMembers[secondIndex].id);
+
 const TeamPage = () => {
     // --- LOGIC HIỆU ỨNG MOTTO (NATURAL SCROLL) ---
     const mottoRef = useRef<HTMLDivElement>(null);
@@ -29,11 +33,9 @@ const TeamPage = () => {
 
     // --- LOGIC CAROUSEL & MODAL ---
     const { scrollYProgress } = useScroll();
-    const [currentIndex, setCurrentIndex] = useState(0); 
-    const [memberQueue, setMemberQueue] = useState(() => teamMembers.map((_, index) => index).filter(index => index !== 0));
+    const [memberOrder, setMemberOrder] = useState(() => [...memberIndicesById]);
     const [selectedMember, setSelectedMember] = useState<any>(null); 
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
-    const [slideDirection, setSlideDirection] = useState(1);
     const lastScrollMemberIndex = useRef(0);
     const teamCarouselRef = useRef<HTMLElement>(null);
     const { scrollYProgress: teamCarouselScrollProgress } = useScroll({
@@ -47,49 +49,41 @@ const TeamPage = () => {
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
-    const goToMember = useCallback((index: number, direction = 1) => {
-        if (index === currentIndex) return;
+    const currentIndex = memberOrder[0] ?? 0;
+    const memberQueue = memberOrder.slice(1);
 
-        setSlideDirection(direction);
-        setMemberQueue(previousQueue => [
-            ...previousQueue.filter(memberIndex => memberIndex !== index && memberIndex !== currentIndex),
-            currentIndex
-        ]);
-        setCurrentIndex(index);
-    }, [currentIndex]);
+    const goToMember = useCallback((index: number) => {
+        setMemberOrder(previousOrder => {
+            const previousCurrentIndex = previousOrder[0];
+            if (index === previousCurrentIndex || !previousOrder.includes(index)) return previousOrder;
 
-    const rotateToNextMember = useCallback(() => {
-        setSlideDirection(1);
-        setMemberQueue(previousQueue => {
-            const [nextIndex, ...restQueue] = previousQueue;
-            if (nextIndex === undefined) return previousQueue;
-
-            setCurrentIndex(previousCurrentIndex => {
-                if (nextIndex === previousCurrentIndex) return previousCurrentIndex;
-                return nextIndex;
-            });
-
-            return [...restQueue, currentIndex];
+            return [
+                index,
+                ...previousOrder.filter(memberIndex => memberIndex !== index && memberIndex !== previousCurrentIndex),
+                previousCurrentIndex,
+            ];
         });
-    }, [currentIndex]);
+    }, []);
 
     const handlePrev = useCallback(() => {
-        goToMember(Math.max(0, currentIndex - 1), -1);
+        const currentPosition = memberIndicesById.indexOf(currentIndex);
+        const previousPosition = Math.max(0, currentPosition - 1);
+        goToMember(memberIndicesById[previousPosition]);
     }, [currentIndex, goToMember]);
 
     const handleNext = useCallback(() => {
-        goToMember(Math.min(teamMembers.length - 1, currentIndex + 1), 1);
+        const currentPosition = memberIndicesById.indexOf(currentIndex);
+        const nextPosition = Math.min(memberIndicesById.length - 1, currentPosition + 1);
+        goToMember(memberIndicesById[nextPosition]);
     }, [currentIndex, goToMember]);
 
     useMotionValueEvent(teamCarouselScrollProgress, "change", (latest) => {
         if (selectedMember || isMobile) return;
-        const nextIndex = Math.round(latest * (teamMembers.length - 1));
-        if (nextIndex > lastScrollMemberIndex.current) {
-            rotateToNextMember();
-        } else if (nextIndex < lastScrollMemberIndex.current) {
-            goToMember(nextIndex, -1);
+        const nextPosition = Math.round(latest * (memberIndicesById.length - 1));
+        if (nextPosition !== lastScrollMemberIndex.current) {
+            goToMember(memberIndicesById[nextPosition]);
+            lastScrollMemberIndex.current = nextPosition;
         }
-        lastScrollMemberIndex.current = nextIndex;
     });
 
     // --- ĐIỀU KHIỂN BẰNG BÀN PHÍM ---
@@ -106,7 +100,7 @@ const TeamPage = () => {
     }, [handlePrev, handleNext]);
 
     const handleSelectMember = useCallback((index: number) => {
-        goToMember(index, 1);
+        goToMember(index);
     }, [goToMember]);
 
     const showcaseIndex = currentIndex;
@@ -169,41 +163,27 @@ const TeamPage = () => {
                                 <div className="team-showcase">
                                     <div className="team-showcase-label">Team</div>
 
-                                    <motion.button
+                                    <button
                                         type="button"
                                         className="team-showcase-main"
                                         onClick={() => setSelectedMember(showcaseMember)}
-                                        layout
-                                        transition={{ type: "spring", stiffness: 190, damping: 32, mass: 0.72 }}
                                     >
-                                        <AnimatePresence initial={false}>
-                                            <motion.img
-                                                key={showcaseMember.id}
-                                                src={showcaseMember.image}
-                                                alt={showcaseMember.name}
-                                                loading="lazy"
-                                                initial={{
-                                                    rotateZ: slideDirection * 2.2,
-                                                    y: 18,
-                                                    scale: 0.97,
-                                                    opacity: 0.68
-                                                }}
-                                                animate={{
-                                                    rotateZ: 0,
-                                                    y: 0,
-                                                    scale: 1,
-                                                    opacity: 1
-                                                }}
-                                                exit={{
-                                                    rotateZ: slideDirection * -2.8,
-                                                    y: 38,
-                                                    scale: 0.93,
-                                                    opacity: 0.55
-                                                }}
-                                                transition={{ type: "spring", stiffness: 170, damping: 30, mass: 0.82 }}
-                                            />
-                                        </AnimatePresence>
-                                    </motion.button>
+                                        <motion.img
+                                            key={showcaseMember.id}
+                                            src={showcaseMember.image}
+                                            alt={showcaseMember.name}
+                                            draggable={false}
+                                            initial={{
+                                                scale: 0.992,
+                                                opacity: 1
+                                            }}
+                                            animate={{
+                                                scale: 1,
+                                                opacity: 1
+                                            }}
+                                            transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+                                        />
+                                    </button>
 
                                     <motion.div
                                         className="team-showcase-info"
@@ -249,36 +229,28 @@ const TeamPage = () => {
                                         </motion.p>
                                     </motion.div>
 
-                                    <motion.div className="team-showcase-thumbs" layout transition={{ duration: 0.54, ease: [0.76, 0, 0.24, 1] }}>
+                                    <div className="team-showcase-thumbs">
                                         {memberQueue.map((index) => {
                                             const member = teamMembers[index];
                                             if (!member || index === showcaseIndex) return null;
 
                                             return (
-                                                <motion.button
+                                                <button
                                                     type="button"
                                                     key={member.id}
                                                     className="team-showcase-thumb"
-                                                    onPointerDown={() => handleSelectMember(index)}
-                                                    onFocus={() => handleSelectMember(index)}
+                                                    onClick={() => handleSelectMember(index)}
                                                     aria-label={`View ${member.name}`}
-                                                    layout
-                                                    animate={{
-                                                        x: 0,
-                                                        rotateZ: 0,
-                                                        opacity: 1
-                                                    }}
-                                                    transition={{ type: "spring", stiffness: 170, damping: 30, mass: 0.82 }}
                                                 >
                                                     <img
                                                         src={member.image}
                                                         alt={member.name}
-                                                        loading="lazy"
+                                                        draggable={false}
                                                     />
-                                                </motion.button>
+                                                </button>
                                             );
                                         })}
-                                    </motion.div>
+                                    </div>
                                 </div>
                             </LayoutGroup>
                         </div>
