@@ -1,6 +1,6 @@
 import React, { useMemo, useRef, useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { newsData, customerData, type NewsItem } from '@data/database';
+import { newsData, type NewsItem } from '@data/database';
 import QuickViewModal from '../components/QuickViewModal';
 import Player from '@vimeo/player';
 import { useInView } from 'react-intersection-observer';
@@ -154,7 +154,7 @@ const AllProductsPage: React.FC<AllProductsPageProps> = ({ products }) => {
   const [selectedProduct, setSelectedProduct] = useState<NewsItem | null>(null);
 
   const allProducts = useMemo(
-    () => sortByDateDesc(products ? [...products] : [...newsData, ...customerData]),
+    () => sortByDateDesc(products ? [...products] : [...newsData]),
     [products],
   );
 

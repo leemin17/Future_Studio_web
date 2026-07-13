@@ -208,11 +208,6 @@ export const artData = productsByCategory('art');
 export const musicData = productsByCategory('music');
 
 // Data cho Khách hàng (Our Customers!)
-export const customerData: NewsItem[] = [
-  { id: 101, date: '2024.01.20', title: 'THANK YOU', clientInformation: 'client', describe: 'Description for THANK YOU', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1204801368' },
-  { id: 103, date: '2024.01.20', title: 'STUDIO', clientInformation: 'client', describe: 'Description for STUDIO', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1204801368' },
-  { id: 105, date: '2024.01.20', title: '2026', clientInformation: 'client', describe: 'Description for 2026', imageUrl: 'images/logo_text.png', videoUrl: 'https://vimeo.com/1204801368' }
-];
 export const heroDetails = [
   {
     subtitle: 'FUTURE STUDIO — CHIẾN DỊCH 01',

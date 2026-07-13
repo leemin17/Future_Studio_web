@@ -5,7 +5,6 @@ import {
   contactLinks,
   cartoon3DData,
   ctvData,
-  customerData,
   heroDetails,
   heroImages,
   navItems,
@@ -33,7 +32,6 @@ app.get('/api/products/:id', (request, response) => {
   if (!product) return response.status(404).json({ message: 'Product not found' });
   return response.json(product);
 });
-app.get('/api/customers', (_request, response) => response.json(customerData));
 app.get('/api/hero', (_request, response) => response.json({ media: heroImages, details: heroDetails }));
 app.get('/api/team', (_request, response) => response.json(teamMembers));
 app.get('/api/contact', (_request, response) => response.json(contactLinks));
@@ -43,7 +41,6 @@ app.get('/api/data', (_request, response) => response.json({
   heroImages,
   heroDetails,
   newsData,
-  customerData,
   teamMembers,
   navItems,
   contactLinks,
