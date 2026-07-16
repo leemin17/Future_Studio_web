@@ -93,17 +93,17 @@ export interface TeamMember {
 export const heroImages: HeroMedia[] = [
   {
     type: 'vimeo',
-    src: 'https://vimeo.com/1204790802',
-    title: "BITI'S Kids Butterfly",
-    poster: 'images/bitisbutterfly.webp',
-    productId: 2,
-  },
-  {
-    type: 'vimeo',
     src: 'https://vimeo.com/1206377241',
     title: 'Helio',
     poster: 'images/helio.webp',
     productId: 3,
+  },
+  {
+    type: 'vimeo',
+    src: 'https://vimeo.com/1204790802',
+    title: "BITI'S Kids Butterfly",
+    poster: 'images/bitisbutterfly.webp',
+    productId: 2,
   },
   {
     type: 'vimeo',

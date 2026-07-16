@@ -3583,13 +3583,58 @@ iframe {
 }
 
 @media (max-width: 768px) {
+  html:has(.teampage-wrapper),
+  html:has(.all-products-section),
+  html:has(.contact-page) {
+    scroll-behavior: smooth;
+    scroll-snap-type: y proximity;
+  }
+
+  .team-banner-section,
+  .team-carousel-section,
+  .motto-section,
+  .all-products-grid .news-card,
+  .contact-page > * {
+    scroll-snap-align: center;
+    scroll-snap-stop: normal;
+  }
+
+  .team-banner-section,
+  .team-carousel-section,
+  .motto-section {
+    scroll-snap-align: start;
+  }
+
   html,
   body {
     overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior-y: auto;
+    touch-action: pan-y pinch-zoom;
+  }
+
+  .all-products-grid .news-card,
+  .all-products-grid .interaction-overlay,
+  .team-showcase-main,
+  .team-showcase-thumb,
+  .contact-page a,
+  .contact-page button {
+    touch-action: pan-y pinch-zoom;
   }
 
   .teampage-wrapper {
     overflow-x: clip;
+    overflow-y: visible;
+    touch-action: pan-y pinch-zoom;
+  }
+
+  main,
+  main > div,
+  .all-products-section,
+  .team-stacking-container,
+  .contact-page {
+    overflow-y: visible;
+    touch-action: pan-y pinch-zoom;
   }
 
   .teampage-wrapper::before {
@@ -3619,6 +3664,26 @@ iframe {
     height: 100svh;
     min-height: 100svh;
     flex-basis: 100svh;
+  }
+
+  .hero-slider-wrapper .hero-frame {
+    max-height: 100svh;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior-y: auto;
+    touch-action: pan-y pinch-zoom;
+    scroll-snap-type: y mandatory;
+    scroll-behavior: smooth;
+    cursor: default !important;
+  }
+
+  .hero-slider-wrapper .hero-frame .hero-slide,
+  .hero-slider-wrapper .hero-frame .hero-slide:hover {
+    background-size: cover;
+    filter: none;
+    transition: none;
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
   }
 
   .hero-running-overlay {
@@ -3753,6 +3818,7 @@ iframe {
     align-items: center;
     justify-content: center;
     overflow: visible;
+    touch-action: pan-y pinch-zoom;
   }
 
   .team-scroll-progress {
@@ -3826,6 +3892,8 @@ iframe {
     gap: 10px;
     align-items: center;
     padding: 2px 0 4px;
+    touch-action: pan-x pan-y;
+    overscroll-behavior-x: contain;
   }
 
   .team-showcase-thumb {
@@ -4336,6 +4404,174 @@ iframe {
   height: 100%;
 }
 
+/* Team showcase: focused editorial layout on phones */
+@media (max-width: 768px) {
+  .team-banner-section,
+  .team-banner {
+    width: 100%;
+    height: auto;
+    min-height: 0;
+    max-height: none;
+  }
+
+  .team-banner-section {
+    position: relative;
+    top: auto;
+  }
+
+  .team-banner {
+    display: block;
+    object-fit: contain;
+    object-position: center;
+  }
+
+  .team-carousel-section--sticky,
+  .team-carousel-section--swipe {
+    height: auto;
+    min-height: 100svh;
+    padding: 72px 0 32px;
+  }
+
+  .team-carousel-sticky {
+    position: relative;
+    height: auto;
+    min-height: 0;
+    overflow: visible;
+    align-items: flex-start;
+  }
+
+  .team-showcase {
+    width: 100%;
+    height: auto;
+    padding: 0 16px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto;
+    gap: 14px;
+    align-items: stretch;
+  }
+
+  .team-showcase-main {
+    grid-column: 1;
+    grid-row: 1;
+    width: 100%;
+    max-width: none;
+    height: min(64svh, 620px);
+    aspect-ratio: auto;
+    justify-self: stretch;
+    box-shadow: 0 24px 70px rgba(0, 0, 0, 0.38);
+  }
+
+  .team-showcase-main::after {
+    content: '';
+    position: absolute;
+    inset: 38% 0 0;
+    z-index: 1;
+    pointer-events: none;
+    background: linear-gradient(to bottom, transparent, rgba(0, 0, 0, 0.9));
+  }
+
+  .team-showcase-main img {
+    object-position: center top;
+  }
+
+  .team-showcase-label {
+    grid-column: 1;
+    grid-row: 1;
+    align-self: start;
+    justify-self: start;
+    z-index: 2;
+    margin: 14px;
+    padding: 7px 10px;
+    writing-mode: horizontal-tb;
+    transform: none;
+    color: #ffffff;
+    background: rgba(0, 0, 0, 0.48);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    font-size: 10px;
+    line-height: 1;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    pointer-events: none;
+  }
+
+  .team-showcase-info {
+    grid-column: 1;
+    grid-row: 1;
+    align-self: end;
+    z-index: 2;
+    width: 100%;
+    max-width: none;
+    padding: 90px 20px 20px;
+    color: #ffffff;
+    text-align: left;
+    pointer-events: none;
+  }
+
+  .team-showcase-info h2 {
+    max-width: 12ch;
+    font-size: clamp(30px, 10vw, 46px);
+    line-height: 0.92;
+    letter-spacing: -0.035em;
+    text-wrap: balance;
+  }
+
+  .team-showcase-role {
+    margin-top: 10px;
+    color: rgba(255, 255, 255, 0.86);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .team-showcase-bio {
+    display: -webkit-box;
+    width: 100%;
+    margin-top: 8px;
+    overflow: hidden;
+    color: rgba(255, 255, 255, 0.68);
+    font-size: 11px;
+    line-height: 1.5;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+
+  .team-showcase-thumbs {
+    grid-column: 1;
+    grid-row: 2;
+    width: calc(100% + 32px);
+    margin-left: -16px;
+    padding: 2px 16px 10px;
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: 72px;
+    gap: 10px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x mandatory;
+    mask-image: none;
+    -webkit-mask-image: none;
+  }
+
+  .team-showcase-thumb,
+  .team-showcase-thumb:hover,
+  .team-showcase-thumb.active {
+    width: 72px;
+    min-width: 72px;
+    aspect-ratio: 0.78;
+    padding: 0;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    opacity: 0.72;
+    transform: none;
+    scroll-snap-align: start;
+  }
+
+  .team-showcase-thumb:active {
+    opacity: 1;
+  }
+}
+
 /* Team page: lock background pattern so it never moves or zooms */
 .teampage-wrapper::before {
   position: fixed;
@@ -4690,6 +4926,7 @@ iframe {
   left: 50%;
   width: max(100%, 177.78vh);
   height: max(100%, 56.25vw);
+  max-width: none;
   min-width: 100%;
   min-height: 100%;
   transform: translate(-50%, -50%);

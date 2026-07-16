@@ -30,6 +30,7 @@ interface HeroSliderProps {
 
 const HeroSlider: React.FC<HeroSliderProps> = ({ onSelectProduct }) => {
   const heroFrameRef = useRef<HTMLDivElement>(null);
+  const [isMobile, setIsMobile] = React.useState(() => window.matchMedia('(max-width: 768px)').matches);
   const isInteracting = useRef(false);
   const interactTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const exactScrollTop = useRef(0);
@@ -39,6 +40,15 @@ const HeroSlider: React.FC<HeroSliderProps> = ({ onSelectProduct }) => {
   const lastX = useRef(0);
   const lastY = useRef(0);
   const dragDistance = useRef(0);
+
+  useEffect(() => {
+    const mobileQuery = window.matchMedia('(max-width: 768px)');
+    const syncViewport = () => setIsMobile(mobileQuery.matches);
+
+    syncViewport();
+    mobileQuery.addEventListener('change', syncViewport);
+    return () => mobileQuery.removeEventListener('change', syncViewport);
+  }, []);
 
   const handleInteractStart = () => {
     isInteracting.current = true;
@@ -132,6 +142,13 @@ const HeroSlider: React.FC<HeroSliderProps> = ({ onSelectProduct }) => {
       exactScrollTop.current = 0;
     }
 
+    // Mobile uses the page scroll instead of the desktop's nested vertical reel.
+    if (isMobile) {
+      return () => {
+        if (interactTimeout.current) clearTimeout(interactTimeout.current);
+      };
+    }
+
     const autoScroll = () => {
       if (heroFrameRef.current) {
         const listHeight = heroFrameRef.current.scrollHeight / 2;
@@ -182,7 +199,7 @@ const HeroSlider: React.FC<HeroSliderProps> = ({ onSelectProduct }) => {
       cancelAnimationFrame(animationFrameId);
       if (interactTimeout.current) clearTimeout(interactTimeout.current);
     };
-  }, []);
+  }, [isMobile]);
 
   return (
     <div className="hero-full-container">

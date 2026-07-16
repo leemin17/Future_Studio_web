@@ -9,6 +9,9 @@ const Preloader: React.FC<PreloaderProps> = ({ onComplete }) => {
     const [progress, setProgress] = useState(0);
 
     useEffect(() => {
+        const previousBodyOverflow = document.body.style.overflow;
+        let completionTimeout: number | undefined;
+        let hasCompleted = false;
         // Khóa cuộn trang khi đang loading
         document.body.style.overflow = 'hidden';
 
@@ -17,8 +20,10 @@ const Preloader: React.FC<PreloaderProps> = ({ onComplete }) => {
                 // Nhảy số ngẫu nhiên từ 1 đến 15 để tạo cảm giác load thật
                 const nextValue = prev + Math.floor(Math.random() * 15) + 1;
                 
-                if (nextValue >= 100) {
-                    setTimeout(() => {
+                if (nextValue >= 100 && !hasCompleted) {
+                    hasCompleted = true;
+                    window.clearInterval(interval);
+                    completionTimeout = window.setTimeout(() => {
                         onComplete(); // Báo cho component cha biết đã load xong
                         document.body.style.overflow = 'auto'; // Mở lại cuộn trang
                     }, 400); // Dừng lại 0.4s ở 100% cho người dùng kịp nhìn
@@ -31,7 +36,13 @@ const Preloader: React.FC<PreloaderProps> = ({ onComplete }) => {
         // Tốc độ nhảy số (càng nhỏ càng nhanh)
         const interval = setInterval(updateProgress, 80);
 
-        return () => clearInterval(interval);
+        return () => {
+            window.clearInterval(interval);
+            if (completionTimeout !== undefined) {
+                window.clearTimeout(completionTimeout);
+            }
+            document.body.style.overflow = previousBodyOverflow;
+        };
     }, [onComplete]);
 
     return (

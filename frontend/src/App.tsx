@@ -19,6 +19,18 @@ const App: React.FC = () => {
     setIsLoading(true); // Kích hoạt Preloader
   }, [location.pathname]); // Lắng nghe sự thay đổi URL
 
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+  }, [location.pathname]);
+
+  useEffect(() => {
+    if (isLoading) return;
+
+    document.body.style.overflow = '';
+    document.body.style.position = '';
+    document.body.style.height = '';
+  }, [isLoading, location.pathname]);
+
   const isAtDetailPage = location.pathname !== '/';
   const showFixedHeader = true;
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
