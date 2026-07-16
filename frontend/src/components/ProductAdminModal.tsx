@@ -124,6 +124,20 @@ const ProductAdminModal: React.FC<ProductAdminModalProps> = ({ open, product, on
     setAuthenticated(true);
   };
 
+  const handleLogout = async () => {
+    if (!supabase || submitting) return;
+    setSubmitting(true);
+    setErrorMessage('');
+    const { error } = await supabase.auth.signOut();
+    setSubmitting(false);
+    if (error) {
+      setErrorMessage(error.message);
+      return;
+    }
+    setAuthenticated(false);
+    setPassword('');
+  };
+
   const handleSave = async (event: React.FormEvent) => {
     event.preventDefault();
     setSubmitting(true);
@@ -197,7 +211,10 @@ const ProductAdminModal: React.FC<ProductAdminModalProps> = ({ open, product, on
     <div className="product-admin-backdrop" onClick={onClose}>
       <section className={`product-admin-modal ${authenticated ? 'product-admin-modal--workspace' : 'product-admin-modal--login'}`} onClick={(event) => event.stopPropagation()}>
         {authenticated ? (
-          <button className="product-admin-close-button" type="button" onClick={onClose} aria-label="Close editor">×</button>
+          <div className="product-admin-session-actions">
+            <button className="product-admin-logout-button" type="button" onClick={() => void handleLogout()} disabled={submitting}>Log out</button>
+            <button className="product-admin-close-button" type="button" onClick={onClose} aria-label="Close editor">×</button>
+          </div>
         ) : (
           <header className="product-admin-header">
             <div>

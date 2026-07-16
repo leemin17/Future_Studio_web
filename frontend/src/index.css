@@ -6498,6 +6498,44 @@ body .product-admin-backdrop .product-admin-close-button {
   cursor: pointer;
 }
 
+.product-admin-session-actions {
+  position: fixed;
+  top: 14px;
+  right: 14px;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+body .product-admin-backdrop .product-admin-session-actions .product-admin-close-button {
+  position: static !important;
+}
+
+.product-admin-logout-button {
+  min-height: 36px;
+  padding: 0 14px;
+  color: rgba(255, 255, 255, .82);
+  background: rgba(16, 18, 21, .9);
+  border: 1px solid rgba(255, 255, 255, .18);
+  border-radius: 18px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  backdrop-filter: blur(10px);
+  transition: color .2s ease, background-color .2s ease, border-color .2s ease;
+}
+
+.product-admin-logout-button:hover {
+  color: #fff;
+  background: #d92d45;
+  border-color: #d92d45;
+}
+
+.product-admin-logout-button:disabled { opacity: .5; cursor: wait; }
+
 @media (max-width: 1100px) and (min-width: 781px) {
   .product-admin-workspace-form { grid-template-columns: 250px minmax(0, 1fr); }
   .project-editor-shell { grid-template-columns: minmax(0, 1fr) 180px; }
