@@ -139,6 +139,7 @@ const ProjectBlockEditor: React.FC<ProjectBlockEditorProps> = ({ blocks, onChang
   const videoInput = useRef<HTMLInputElement>(null);
   const [videoOptionsOpen, setVideoOptionsOpen] = React.useState(false);
   const [videoLink, setVideoLink] = React.useState('');
+  const [manageBlocksOpen, setManageBlocksOpen] = React.useState(false);
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }));
   const [previewFileUrls, setPreviewFileUrls] = React.useState<Map<File, string>>(new Map());
 
@@ -216,6 +217,12 @@ const ProjectBlockEditor: React.FC<ProjectBlockEditorProps> = ({ blocks, onChang
         <div>
           {tools.map((tool) => <button key={tool.type} type="button" onClick={tool.action}>{tool.icon}<strong>{blockLabels[tool.type]}</strong></button>)}
         </div>
+        {blocks.length > 0 && (
+          <button className="project-editor-manage-toggle" type="button" onClick={() => setManageBlocksOpen((open) => !open)}>
+            <span>Manage {blocks.length} block(s)</span>
+            <strong>{manageBlocksOpen ? 'Close' : 'Open'}</strong>
+          </button>
+        )}
         {videoOptionsOpen && (
           <div className="project-editor-video-options">
             <strong>Add video or audio</strong>
@@ -236,7 +243,7 @@ const ProjectBlockEditor: React.FC<ProjectBlockEditorProps> = ({ blocks, onChang
             >Add link</button>
           </div>
         )}
-        {blocks.length > 0 && (
+        {blocks.length > 0 && manageBlocksOpen && (
           <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
             <SortableContext items={blocks.map((block) => block.id)} strategy={verticalListSortingStrategy}>
               <div className="project-editor-blocks project-editor-blocks--controls">

@@ -8,8 +8,8 @@ import { useInView } from 'react-intersection-observer';
 import { getAssetUrl, resolveMediaUrl } from '../utils/media';
 import { sortByDateDesc } from '../utils/date';
 import ProductAdminModal from '../components/ProductAdminModal';
-import { isSupabaseConfigured } from '../lib/supabase';
-import { fetchDatabaseProducts } from '../services/products';
+import { isSupabaseConfigured, supabase } from '../lib/supabase';
+import { deleteDatabaseProduct, fetchDatabaseProducts } from '../services/products';
 
 const getVimeoId = (url: string) => {
   const match = /vimeo.*\/(\d+)/i.exec(url);
@@ -19,9 +19,13 @@ const getVimeoId = (url: string) => {
 interface ProductCardProps {
   item: NewsItem;
   onClick: () => void;
+  canManage: boolean;
+  onEdit: () => void;
+  onDelete: () => void;
+  deleting: boolean;
 }
 
-const ProductCard: React.FC<ProductCardProps> = ({ item, onClick }) => {
+const ProductCard: React.FC<ProductCardProps> = ({ item, onClick, canManage, onEdit, onDelete, deleting }) => {
   const playerContainerRef = useRef<HTMLDivElement>(null);
   const playerRef = useRef<Player | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -101,6 +105,18 @@ const ProductCard: React.FC<ProductCardProps> = ({ item, onClick }) => {
       transition={{ type: 'spring', stiffness: 120, damping: 10 }}
     >
       <div className="news-image natural-size">
+        {canManage && (
+          <div className="product-card-admin-actions">
+            <button type="button" onClick={(event) => { event.stopPropagation(); onEdit(); }} aria-label={`Edit ${item.title}`}>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m4 16-.8 4.8L8 20l10.6-10.6-4-4L4 16Z"/><path d="m13.8 6.2 4 4"/></svg>
+              <span>Edit</span>
+            </button>
+            <button className="product-card-delete" type="button" disabled={deleting} onClick={(event) => { event.stopPropagation(); onDelete(); }} aria-label={`Delete ${item.title}`}>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3m-9 0 1 14h10l1-14M10 11v6m4-6v6"/></svg>
+              <span>{deleting ? 'Deleting' : 'Delete'}</span>
+            </button>
+          </div>
+        )}
         <div
           className="interaction-overlay"
           onClick={onClick}
@@ -157,7 +173,11 @@ interface AllProductsPageProps {
 const AllProductsPage: React.FC<AllProductsPageProps> = ({ products }) => {
   const [selectedProduct, setSelectedProduct] = useState<NewsItem | null>(null);
   const [databaseProducts, setDatabaseProducts] = useState<NewsItem[]>([]);
+  const [deletedProductIds, setDeletedProductIds] = useState<number[]>([]);
   const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
+  const [editingProduct, setEditingProduct] = useState<NewsItem | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [deletingId, setDeletingId] = useState<number | null>(null);
 
   const categoryFilter = products?.find((item) => item.category)?.category;
 
@@ -170,9 +190,9 @@ const AllProductsPage: React.FC<AllProductsPageProps> = ({ products }) => {
       const mergedProducts = new Map<number, NewsItem>();
       staticProducts.forEach((item) => mergedProducts.set(item.id, item));
       filteredDatabaseProducts.forEach((item) => mergedProducts.set(item.id, item));
-      return sortByDateDesc([...mergedProducts.values()]);
+      return sortByDateDesc([...mergedProducts.values()].filter((item) => !deletedProductIds.includes(item.id)));
     },
-    [products, databaseProducts, categoryFilter],
+    [products, databaseProducts, categoryFilter, deletedProductIds],
   );
 
   useEffect(() => {
@@ -180,13 +200,48 @@ const AllProductsPage: React.FC<AllProductsPageProps> = ({ products }) => {
     let active = true;
     void fetchDatabaseProducts()
       .then((items) => {
-        if (active) setDatabaseProducts(items);
+        if (active) {
+          setDatabaseProducts(items);
+        }
       })
       .catch((error) => console.warn('Unable to load database products:', error));
     return () => {
       active = false;
     };
   }, []);
+
+  useEffect(() => {
+    if (!supabase) return;
+    void supabase.auth.getSession().then(({ data }) => setIsAdmin(Boolean(data.session)));
+    const { data } = supabase.auth.onAuthStateChange((_event, session) => setIsAdmin(Boolean(session)));
+    return () => data.subscription.unsubscribe();
+  }, []);
+
+  const openCreate = () => {
+    setEditingProduct(null);
+    setIsAdminModalOpen(true);
+  };
+
+  const openEdit = (product: NewsItem) => {
+    setEditingProduct(product);
+    setSelectedProduct(null);
+    setIsAdminModalOpen(true);
+  };
+
+  const handleDelete = async (product: NewsItem) => {
+    if (!window.confirm(`Delete "${product.title}"? This action cannot be undone.`)) return;
+    setDeletingId(product.id);
+    try {
+      await deleteDatabaseProduct(product.id);
+      setDatabaseProducts((current) => current.filter((item) => item.id !== product.id));
+      setDeletedProductIds((current) => current.includes(product.id) ? current : [...current, product.id]);
+      if (selectedProduct?.id === product.id) setSelectedProduct(null);
+    } catch (error) {
+      window.alert(error instanceof Error ? error.message : 'Unable to delete this product.');
+    } finally {
+      setDeletingId(null);
+    }
+  };
 
   const handleProductClick = (item: NewsItem) => {
     setSelectedProduct(item);
@@ -223,8 +278,15 @@ const AllProductsPage: React.FC<AllProductsPageProps> = ({ products }) => {
       <QuickViewModal product={selectedProduct} onClose={handleCloseQuickView} />
       <ProductAdminModal
         open={isAdminModalOpen}
-        onClose={() => setIsAdminModalOpen(false)}
-        onCreated={(product) => setDatabaseProducts((current) => [product, ...current])}
+        product={editingProduct}
+        onClose={() => { setIsAdminModalOpen(false); setEditingProduct(null); }}
+        onSaved={(savedProduct) => {
+          setDeletedProductIds((current) => current.filter((id) => id !== savedProduct.id));
+          setDatabaseProducts((current) => {
+            const exists = current.some((item) => item.id === savedProduct.id);
+            return exists ? current.map((item) => item.id === savedProduct.id ? savedProduct : item) : [savedProduct, ...current];
+          });
+        }}
       />
 
       <section className="all-products-section">
@@ -234,11 +296,15 @@ const AllProductsPage: React.FC<AllProductsPageProps> = ({ products }) => {
               key={item.id}
               item={item}
               onClick={() => handleProductClick(item)}
+              canManage={isAdmin}
+              onEdit={() => openEdit(item)}
+              onDelete={() => void handleDelete(item)}
+              deleting={deletingId === item.id}
             />
           ))}
           <motion.button
             type="button"
-            onClick={() => setIsAdminModalOpen(true)}
+            onClick={openCreate}
             className="product-end-cta"
             layout
             aria-label="Create a product"

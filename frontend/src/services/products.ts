@@ -19,6 +19,22 @@ interface ProductRow {
 
 export type NewProductInput = Omit<NewsItem, 'id'>;
 
+const productToRow = (product: NewProductInput) => ({
+  date: product.date,
+  title: product.title,
+  client_information: product.clientInformation,
+  describe: product.describe,
+  image_url: product.imageUrl,
+  partner_logo_url: product.partnerLogoUrl ?? null,
+  category: product.category ?? null,
+  video_url: product.videoUrl ?? null,
+  model_url: product.modelUrl ?? null,
+  image_gallery: product.imageGallery ?? [],
+  video_gallery: product.videoGallery ?? [],
+  quick_view_layout: product.quickViewLayout ?? [],
+  updated_at: new Date().toISOString(),
+});
+
 const requireSupabase = () => {
   if (!supabase) {
     throw new Error('Supabase is not configured. Add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.');
@@ -64,23 +80,26 @@ export const createDatabaseProduct = async (product: NewProductInput): Promise<N
   const client = requireSupabase();
   const { data, error } = await client
     .from('products')
-    .insert({
-      date: product.date,
-      title: product.title,
-      client_information: product.clientInformation,
-      describe: product.describe,
-      image_url: product.imageUrl,
-      partner_logo_url: product.partnerLogoUrl ?? null,
-      category: product.category ?? null,
-      video_url: product.videoUrl ?? null,
-      model_url: product.modelUrl ?? null,
-      image_gallery: product.imageGallery ?? [],
-      video_gallery: product.videoGallery ?? [],
-      quick_view_layout: product.quickViewLayout ?? [],
-    })
+    .insert(productToRow(product))
     .select('*')
     .single();
 
   if (error) throw productError(error.message);
   return rowToProduct(data as ProductRow);
+};
+
+export const updateDatabaseProduct = async (id: number, product: NewProductInput): Promise<NewsItem> => {
+  const { data, error } = await requireSupabase()
+    .from('products')
+    .update(productToRow(product))
+    .eq('id', id)
+    .select('*')
+    .single();
+  if (error) throw productError(error.message);
+  return rowToProduct(data as ProductRow);
+};
+
+export const deleteDatabaseProduct = async (id: number): Promise<void> => {
+  const { error } = await requireSupabase().from('products').delete().eq('id', id);
+  if (error) throw productError(error.message);
 };

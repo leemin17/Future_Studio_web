@@ -1,14 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import type { NewsItem, ProductCategory } from '@shared/types';
 import { isSupabaseConfigured, supabase } from '../lib/supabase';
-import { createDatabaseProduct } from '../services/products';
+import { createDatabaseProduct, updateDatabaseProduct } from '../services/products';
 import { uploadProductFiles } from '../services/storage';
 import ProjectBlockEditor, { type ProjectEditorBlock } from './ProjectBlockEditor';
 
 interface ProductAdminModalProps {
   open: boolean;
+  product?: NewsItem | null;
   onClose: () => void;
-  onCreated: (product: NewsItem) => void;
+  onSaved: (product: NewsItem) => void;
 }
 
 const splitUrls = (value: string) =>
@@ -17,7 +18,43 @@ const splitUrls = (value: string) =>
     .map((url) => url.trim())
     .filter(Boolean);
 
-const ProductAdminModal: React.FC<ProductAdminModalProps> = ({ open, onClose, onCreated }) => {
+const emptyBlock = (type: ProjectEditorBlock['type'], index: number): ProjectEditorBlock => ({
+  id: `existing-${type}-${index}-${Date.now()}`,
+  type,
+  files: [],
+  url: '',
+  content: '',
+  caption: '',
+  columns: 1,
+});
+
+const blocksFromProduct = (product: NewsItem): ProjectEditorBlock[] =>
+  (product.quickViewLayout ?? []).flatMap((layout, layoutIndex) => {
+    if (layout.type === 'text') {
+      const block = emptyBlock('text', layoutIndex);
+      block.content = layout.items.map((item) => item.content ?? '').filter(Boolean).join('\n');
+      return block.content ? [block] : [];
+    }
+    if (layout.type === 'grid') {
+      const block = emptyBlock('grid', layoutIndex);
+      block.url = layout.items.map((item) => item.url ?? '').filter(Boolean).join('\n');
+      block.caption = layout.items.find((item) => item.caption)?.caption ?? '';
+      block.columns = layout.columns ?? 2;
+      return block.url ? [block] : [];
+    }
+    return layout.items.flatMap((item, itemIndex) => {
+      if (!item.url) return [];
+      const type = item.kind === 'image' || item.kind === 'video' || item.kind === 'embed' || item.kind === 'model'
+        ? item.kind
+        : layout.type === 'embed' || layout.type === 'model' ? layout.type : 'image';
+      const block = emptyBlock(type, layoutIndex * 100 + itemIndex);
+      block.url = item.url;
+      block.caption = item.caption ?? '';
+      return [block];
+    });
+  });
+
+const ProductAdminModal: React.FC<ProductAdminModalProps> = ({ open, product, onClose, onSaved }) => {
   const [authenticated, setAuthenticated] = useState(false);
   const [checkingSession, setCheckingSession] = useState(true);
   const [email, setEmail] = useState('');
@@ -34,6 +71,20 @@ const ProductAdminModal: React.FC<ProductAdminModalProps> = ({ open, onClose, on
   const [projectBlocks, setProjectBlocks] = useState<ProjectEditorBlock[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+
+  useEffect(() => {
+    if (!open) return;
+    setTitle(product?.title ?? '');
+    setClientInformation(product?.clientInformation ?? '');
+    setCategory(product?.category ?? 'tvc');
+    setDate(product?.date.replaceAll('.', '-') ?? '');
+    setDescribe(product?.describe ?? '');
+    setImageUrl(product?.imageUrl ?? '');
+    setThumbnailFile(null);
+    setPartnerLogoUrl(product?.partnerLogoUrl ?? '');
+    setPartnerLogoFile(null);
+    setProjectBlocks(product ? blocksFromProduct(product) : []);
+  }, [open, product]);
 
   useEffect(() => {
     if (!open) return;
@@ -73,7 +124,7 @@ const ProductAdminModal: React.FC<ProductAdminModalProps> = ({ open, onClose, on
     setAuthenticated(true);
   };
 
-  const handleCreate = async (event: React.FormEvent) => {
+  const handleSave = async (event: React.FormEvent) => {
     event.preventDefault();
     setSubmitting(true);
     setErrorMessage('');
@@ -107,7 +158,7 @@ const ProductAdminModal: React.FC<ProductAdminModalProps> = ({ open, onClose, on
       const images = quickViewLayout.flatMap((block) => block.items.filter((item) => item.kind === 'image').map((item) => item.url).filter((url): url is string => Boolean(url)));
       const videos = quickViewLayout.flatMap((block) => block.items.filter((item) => item.kind === 'video').map((item) => item.url).filter((url): url is string => Boolean(url)));
 
-      const product = await createDatabaseProduct({
+      const productInput = {
         date: date.replaceAll('-', '.'),
         title: title.trim(),
         clientInformation: clientInformation.trim(),
@@ -120,8 +171,11 @@ const ProductAdminModal: React.FC<ProductAdminModalProps> = ({ open, onClose, on
         imageGallery: images,
         videoGallery: videos,
         quickViewLayout,
-      });
-      onCreated(product);
+      };
+      const savedProduct = product
+        ? await updateDatabaseProduct(product.id, productInput)
+        : await createDatabaseProduct(productInput);
+      onSaved(savedProduct);
       onClose();
       setTitle('');
       setClientInformation('');
@@ -169,14 +223,14 @@ const ProductAdminModal: React.FC<ProductAdminModalProps> = ({ open, onClose, on
             <button className="product-admin-submit" type="submit" disabled={submitting}>Sign in</button>
           </form>
         ) : (
-          <form className="product-admin-form product-admin-workspace-form" onSubmit={handleCreate}>
+          <form className="product-admin-form product-admin-workspace-form" onSubmit={handleSave}>
             <main className="product-admin-workspace-canvas">
               <ProjectBlockEditor blocks={projectBlocks} onChange={setProjectBlocks} title={title} clientInformation={clientInformation} partnerLogoFile={partnerLogoFile} partnerLogoUrl={partnerLogoUrl} />
             </main>
 
             <aside className="product-admin-workspace-sidebar">
               <section>
-                <div className="product-admin-sidebar-title"><span>Project details</span><small>Required information</small></div>
+                <div className="product-admin-sidebar-title"><span>{product ? 'Edit project' : 'Project details'}</span><small>{product ? `ID ${product.id}` : 'Required information'}</small></div>
                 <label>Project title<input value={title} onChange={(event) => setTitle(event.target.value)} required /></label>
                 <label>Client<input value={clientInformation} onChange={(event) => setClientInformation(event.target.value)} required /></label>
                 <label>Category<select id="product-category" value={category} onChange={(event) => setCategory(event.target.value as ProductCategory)}><option value="tvc">TVC</option><option value="cartoon-3d">Cartoon 3D</option><option value="art">Art</option></select></label>
@@ -198,7 +252,7 @@ const ProductAdminModal: React.FC<ProductAdminModalProps> = ({ open, onClose, on
 
               <div className="product-admin-sidebar-actions">
                 {errorMessage && <p className="product-admin-error">{errorMessage}</p>}
-                <button className="product-admin-submit" type="submit" disabled={submitting}>{submitting ? 'Uploading and saving...' : 'Complete project'}</button>
+                <button className="product-admin-submit" type="submit" disabled={submitting}>{submitting ? 'Uploading and saving...' : product ? 'Save changes' : 'Complete project'}</button>
               </div>
             </aside>
           </form>
