@@ -141,7 +141,7 @@ const ProductAdminModal: React.FC<ProductAdminModalProps> = ({ open, onClose, on
 
   return (
     <div className="product-admin-backdrop" onClick={onClose}>
-      <section className="product-admin-modal" onClick={(event) => event.stopPropagation()}>
+      <section className={`product-admin-modal ${authenticated ? 'product-admin-modal--workspace' : 'product-admin-modal--login'}`} onClick={(event) => event.stopPropagation()}>
         {authenticated ? (
           <button className="product-admin-close-button" type="button" onClick={onClose} aria-label="Close editor">×</button>
         ) : (
