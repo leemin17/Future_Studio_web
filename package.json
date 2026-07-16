@@ -1,14 +1,22 @@
 {
   "name": "future-studio",
   "private": true,
-  "workspaces": ["frontend", "backend"],
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
   "scripts": {
     "dev": "concurrently -n frontend,backend -c cyan,yellow \"npm run dev -w frontend\" \"npm run dev -w backend\"",
     "dev:frontend": "npm run dev -w frontend",
     "dev:backend": "npm run dev -w backend",
-    "build": "npm run build -w frontend"
+    "build": "npm run build -w frontend",
+    "migrate:supabase": "tsx scripts/migrate-data-to-supabase.ts"
   },
   "devDependencies": {
     "concurrently": "^9.2.1"
+  },
+  "dependencies": {
+    "@supabase/ssr": "^0.12.3",
+    "@supabase/supabase-js": "^2.110.6"
   }
 }

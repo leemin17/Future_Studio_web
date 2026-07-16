@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import HeroSlider from '../components/HeroSlider';
 import QuickViewModal from '../components/QuickViewModal';
-import type { NewsItem } from '@data/database';
+import type { NewsItem } from '@shared/types';
 
 const HomePage: React.FC = () => {
   const [selectedProduct, setSelectedProduct] = useState<NewsItem | null>(null);

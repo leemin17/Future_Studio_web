@@ -1,13 +1,14 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { motion, AnimatePresence, type Variants } from 'framer-motion';
-import { type NewsItem } from '@data/database';
+import type { NewsItem } from '@shared/types';
 import { IoRefresh } from 'react-icons/io5';
 import Player from '@vimeo/player';
-import { getAssetUrl } from '../utils/media';
+import { getAssetUrl, resolveMediaUrl } from '../utils/media';
 
 interface QuickViewModalProps {
   product: NewsItem | null;
   onClose: () => void;
+  embedded?: boolean;
 }
 
 const backdropVariants: Variants = {
@@ -44,16 +45,18 @@ const getYouTubeId = (url: string): string => {
 
 const isYouTubeUrl = (url: string): boolean => /(?:youtube\.com|youtu\.be)/i.test(url);
 
-type MediaType = 'image' | 'video';
+type MediaType = 'image' | 'video' | 'text' | 'embed' | 'model';
 type MediaItem = {
   kind: MediaType;
   url: string;
+  content?: string;
+  caption?: string;
   isVimeo?: boolean;
   isYouTube?: boolean;
 };
 
 type QuickLayoutBlock = {
-  type: 'grid' | 'full';
+  type: 'grid' | 'full' | 'text' | 'embed' | 'model';
   columns?: 1 | 2 | 3 | 4;
   items: MediaItem[];
 };
@@ -63,11 +66,13 @@ const inferMediaKind = (url: string, kind?: MediaType): MediaType => {
   return /\.(mp4|webm|mov|m4v)$/i.test(url) || url.includes('vimeo') || isYouTubeUrl(url) ? 'video' : 'image';
 };
 
-const toMediaItem = (url: string, kind?: MediaType): MediaItem => {
+const toMediaItem = (url: string, kind?: MediaType, content?: string, caption?: string): MediaItem => {
   const normalizedKind = inferMediaKind(url, kind);
   return {
     kind: normalizedKind,
     url,
+    content,
+    caption,
     isVimeo: normalizedKind === 'video' && url.includes('vimeo'),
     isYouTube: normalizedKind === 'video' && isYouTubeUrl(url),
   };
@@ -120,7 +125,8 @@ const buildQuickLayout = (product: NewsItem | null, mediaItems: MediaItem[]): Qu
         items: block.items
           .map((item) => {
             const normalized = String(item.url ?? '').trim();
-            return normalized ? toMediaItem(normalized, item.kind) : null;
+            const content = String(item.content ?? '').trim();
+            return normalized || content ? toMediaItem(normalized, item.kind, content, item.caption) : null;
           })
           .filter((item): item is MediaItem => Boolean(item)),
       }))
@@ -226,7 +232,7 @@ const QuickViewVideo: React.FC<QuickViewVideoProps> = ({ item, product }) => {
   );
 };
 
-const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, onClose }) => {
+const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, onClose, embedded = false }) => {
   const mediaItems = useMemo(() => buildQuickMedia(product), [product]);
   const mediaLayout = useMemo(() => buildQuickLayout(product, mediaItems), [product, mediaItems]);
   const hasCustomLayout = Boolean(product?.quickViewLayout?.length);
@@ -237,36 +243,38 @@ const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, onClose }) => 
 
     if (item.kind === 'image') {
       return (
-        <img
-          src={getAssetUrl(item.url)}
-          alt={`${product?.title} - ${product?.clientInformation}`}
-          className="quick-view-image"
-        />
+        <figure className="quick-view-content-figure">
+          <img src={resolveMediaUrl(item.url)} alt={`${product?.title} - ${product?.clientInformation}`} className="quick-view-image" />
+          {item.caption && <figcaption>{item.caption}</figcaption>}
+        </figure>
       );
     }
-
-    return <QuickViewVideo item={item} product={product} />;
+    if (item.kind === 'video') {
+      return <figure className="quick-view-content-figure"><QuickViewVideo item={item} product={product} />{item.caption && <figcaption>{item.caption}</figcaption>}</figure>;
+    }
+    if (item.kind === 'text') return <div className="quick-view-text-block">{item.content}</div>;
+    return <iframe className="quick-view-embed-block" src={item.url} title={`${item.kind} - ${product?.title}`} loading="lazy" allow="autoplay; fullscreen; picture-in-picture; xr-spatial-tracking" allowFullScreen />;
   };
 
   return (
     <AnimatePresence>
       {product && (
         <motion.div
-          className="quick-view-backdrop"
+          className={`quick-view-backdrop ${embedded ? 'quick-view-backdrop--embedded' : ''}`}
           variants={backdropVariants}
           initial="hidden"
           animate="visible"
           exit="exit"
-          onClick={onClose}
+          onClick={embedded ? undefined : onClose}
         >
-          <motion.div className="quick-view-modal" variants={modalVariants} onClick={(e) => e.stopPropagation()}>
+          <motion.div className={`quick-view-modal ${embedded ? 'quick-view-modal--embedded' : ''}`} variants={modalVariants} onClick={(e) => e.stopPropagation()}>
             <div className="quick-view-main">
               <div className="quick-view-header">
                 <div className="quick-view-header-brand">
                   <img
                     className="quick-view-header-logo"
-                    src={getAssetUrl('images/LOGObitis.png')}
-                    alt="Biti's logo"
+                    src={product.partnerLogoUrl ? resolveMediaUrl(product.partnerLogoUrl) : getAssetUrl('images/LOGObitis.png')}
+                    alt={`${product.clientInformation} logo`}
                   />
                 <div className="quick-view-header-copy">
                   <h3 className="quick-view-header-title">{product.title}</h3>
@@ -286,7 +294,7 @@ const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, onClose }) => 
 
                       return (
                         <div
-                          key={`${item.kind}-${item.url}-${index}`}
+                          key={`${item.kind}-${item.url || item.content}-${index}`}
                           className={`quick-view-media-card quick-view-media-card--${item.kind} ${isFeatured ? 'quick-view-media-card--featured' : ''}`}
                         >
                           {renderMedia(item)}

@@ -1,13 +1,15 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { motion, useScroll, useTransform, useMotionValueEvent, AnimatePresence, LayoutGroup } from 'framer-motion';
-import { teamMembers } from '@data/database';
+import { teamMembers as fallbackTeamMembers } from '@shared/fallbackData';
+import type { TeamMember } from '@shared/types';
 import ScrollReveal from '../components/ScrollReveal';
-
-const memberIndicesById = teamMembers
-    .map((_, index) => index)
-    .sort((firstIndex, secondIndex) => teamMembers[firstIndex].id - teamMembers[secondIndex].id);
+import { useSiteContent } from '../hooks/useSiteContent';
 
 const TeamPage = () => {
+    const teamMembers = useSiteContent<TeamMember[]>('team_members', fallbackTeamMembers);
+    const memberIndicesById = useMemo(() => teamMembers
+        .map((_, index) => index)
+        .sort((firstIndex, secondIndex) => teamMembers[firstIndex].id - teamMembers[secondIndex].id), [teamMembers]);
     // --- LOGIC HIỆU ỨNG MOTTO (NATURAL SCROLL) ---
     const mottoRef = useRef<HTMLDivElement>(null);
     const { scrollYProgress: mottoScrollProgress } = useScroll({

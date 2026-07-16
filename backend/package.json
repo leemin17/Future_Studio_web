@@ -9,6 +9,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.110.6",
     "cors": "^2.8.5",
     "express": "^5.1.0"
   },

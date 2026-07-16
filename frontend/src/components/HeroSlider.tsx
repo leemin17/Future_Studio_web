@@ -1,7 +1,10 @@
 ﻿import React, { useRef, useEffect } from 'react';
-import { heroImages, newsData, type NewsItem } from '@data/database';
+import { heroImages as fallbackHeroImages, newsData as fallbackNewsData } from '@shared/fallbackData';
+import type { HeroMedia, NewsItem } from '@shared/types';
+import { useSiteContent } from '../hooks/useSiteContent';
+import { useSupabaseProducts } from '../hooks/useSupabaseProducts';
 
-type HeroMediaItem = (typeof heroImages)[number] | string;
+type HeroMediaItem = HeroMedia | string;
 
 const getVimeoEmbedUrl = (src: string) => {
   const idMatch = src.match(/vimeo\.com\/(?:video\/)?(\d+)/);
@@ -29,6 +32,8 @@ interface HeroSliderProps {
 }
 
 const HeroSlider: React.FC<HeroSliderProps> = ({ onSelectProduct }) => {
+  const heroImages = useSiteContent<HeroMedia[]>('hero_media', fallbackHeroImages);
+  const newsData = useSupabaseProducts(fallbackNewsData);
   const heroFrameRef = useRef<HTMLDivElement>(null);
   const [isMobile, setIsMobile] = React.useState(() => window.matchMedia('(max-width: 768px)').matches);
   const isInteracting = useRef(false);

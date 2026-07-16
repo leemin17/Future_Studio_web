@@ -1,5 +1,5 @@
 import React from 'react';
-import { type NewsItem } from '@data/database';
+import type { NewsItem } from '@shared/types';
 import { getAssetUrl } from '../utils/media';
 
 interface RelatedPostsSidebarProps {

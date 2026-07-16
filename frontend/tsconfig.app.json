@@ -15,7 +15,7 @@
     "noEmit": true,
     "jsx": "react-jsx",
     "paths": {
-      "@data/*": ["../data/*"]
+      "@shared/*": ["../shared/*"]
     },
 
     /* Linting */
@@ -23,5 +23,5 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src", "../data"]
+  "include": ["src", "../shared"]
 }

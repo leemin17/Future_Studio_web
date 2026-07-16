@@ -1,6 +1,8 @@
 import { motion } from 'framer-motion';
-import { contactLinks, type ContactLink } from '@data/database';
+import { contactLinks as fallbackContactLinks } from '@shared/fallbackData';
+import type { ContactLink } from '@shared/types';
 import type { JSX } from 'react';
+import { useSiteContent } from '../hooks/useSiteContent';
 
 const contactIcons: Record<ContactLink['icon'], JSX.Element> = {
   instagram: (
@@ -35,6 +37,7 @@ const contactIcons: Record<ContactLink['icon'], JSX.Element> = {
 };
 
 const ContactPage: React.FC = () => {
+  const contactLinks = useSiteContent<ContactLink[]>('contact_links', fallbackContactLinks);
   return (
     <div className="contact-page">
       <section className="contact-hero">

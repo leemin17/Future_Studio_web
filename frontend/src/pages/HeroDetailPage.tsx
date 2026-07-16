@@ -1,6 +1,7 @@
 import React from 'react';
 import { useParams } from 'react-router-dom';
-import { heroImages, newsData, heroDetails, type NewsItem } from '@data/database';
+import { heroImages, newsData, heroDetails } from '@shared/fallbackData';
+import type { NewsItem } from '@shared/types';
 import RelatedPostsSidebar from '../components/RelatedPostsSidebar';
 import { getAssetUrl } from '../utils/media';
 import { sortByDateDesc } from '../utils/date';

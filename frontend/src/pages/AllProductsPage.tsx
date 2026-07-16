@@ -1,11 +1,15 @@
 import React, { useMemo, useRef, useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { newsData, type NewsItem } from '@data/database';
+import { newsData } from '@shared/fallbackData';
+import type { NewsItem } from '@shared/types';
 import QuickViewModal from '../components/QuickViewModal';
 import Player from '@vimeo/player';
 import { useInView } from 'react-intersection-observer';
 import { getAssetUrl, resolveMediaUrl } from '../utils/media';
 import { sortByDateDesc } from '../utils/date';
+import ProductAdminModal from '../components/ProductAdminModal';
+import { isSupabaseConfigured } from '../lib/supabase';
+import { fetchDatabaseProducts } from '../services/products';
 
 const getVimeoId = (url: string) => {
   const match = /vimeo.*\/(\d+)/i.exec(url);
@@ -152,11 +156,37 @@ interface AllProductsPageProps {
 
 const AllProductsPage: React.FC<AllProductsPageProps> = ({ products }) => {
   const [selectedProduct, setSelectedProduct] = useState<NewsItem | null>(null);
+  const [databaseProducts, setDatabaseProducts] = useState<NewsItem[]>([]);
+  const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
+
+  const categoryFilter = products?.find((item) => item.category)?.category;
 
   const allProducts = useMemo(
-    () => sortByDateDesc(products ? [...products] : [...newsData]),
-    [products],
+    () => {
+      const staticProducts = products ? [...products] : [...newsData];
+      const filteredDatabaseProducts = categoryFilter
+        ? databaseProducts.filter((item) => item.category === categoryFilter)
+        : databaseProducts;
+      const mergedProducts = new Map<number, NewsItem>();
+      staticProducts.forEach((item) => mergedProducts.set(item.id, item));
+      filteredDatabaseProducts.forEach((item) => mergedProducts.set(item.id, item));
+      return sortByDateDesc([...mergedProducts.values()]);
+    },
+    [products, databaseProducts, categoryFilter],
   );
+
+  useEffect(() => {
+    if (!isSupabaseConfigured) return;
+    let active = true;
+    void fetchDatabaseProducts()
+      .then((items) => {
+        if (active) setDatabaseProducts(items);
+      })
+      .catch((error) => console.warn('Unable to load database products:', error));
+    return () => {
+      active = false;
+    };
+  }, []);
 
   const handleProductClick = (item: NewsItem) => {
     setSelectedProduct(item);
@@ -191,6 +221,11 @@ const AllProductsPage: React.FC<AllProductsPageProps> = ({ products }) => {
   return (
     <div className={`all-products-page ${isQuickViewOpen ? 'all-products-page--modal-open' : ''}`}>
       <QuickViewModal product={selectedProduct} onClose={handleCloseQuickView} />
+      <ProductAdminModal
+        open={isAdminModalOpen}
+        onClose={() => setIsAdminModalOpen(false)}
+        onCreated={(product) => setDatabaseProducts((current) => [product, ...current])}
+      />
 
       <section className="all-products-section">
         <motion.div className="all-products-grid" layout>
@@ -201,6 +236,23 @@ const AllProductsPage: React.FC<AllProductsPageProps> = ({ products }) => {
               onClick={() => handleProductClick(item)}
             />
           ))}
+          <motion.button
+            type="button"
+            onClick={() => setIsAdminModalOpen(true)}
+            className="product-end-cta"
+            layout
+            aria-label="Create a product"
+            whileTap={{ scale: 0.985 }}
+          >
+            <span className="product-end-cta-plus" aria-hidden="true">
+              <span />
+              <span />
+            </span>
+            <span className="product-end-cta-label">Create a project</span>
+            <span className="product-end-cta-description">
+              Bring your next idea to life with Future Studio.
+            </span>
+          </motion.button>
         </motion.div>
       </section>
     </div>

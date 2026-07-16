@@ -3,7 +3,7 @@ import { Routes, Route, useLocation } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
 
 import PageTransition from '../components/PageTransition';
-import { artData, cartoon3DData, tvcData} from '@data/database';
+import { artData, cartoon3DData, tvcData } from '@shared/fallbackData';
 
 // --- LAZY LOADING COMPONENTS ---
 const HomePage = React.lazy(() => import('./HomePage'));

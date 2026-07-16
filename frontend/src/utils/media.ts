@@ -7,7 +7,12 @@ export const getAssetUrl = (path: string): string =>
 // Trả về URL tuyệt đối nguyên vẹn (vd: thumbnail từ Vimeo), còn URL tương đối
 // thì nối thêm BASE_URL.
 export const resolveMediaUrl = (url: string): string => {
-  if (url.startsWith('http://') || url.startsWith('https://')) {
+  if (
+    url.startsWith('http://') ||
+    url.startsWith('https://') ||
+    url.startsWith('blob:') ||
+    url.startsWith('data:')
+  ) {
     return url;
   }
   return getAssetUrl(url);

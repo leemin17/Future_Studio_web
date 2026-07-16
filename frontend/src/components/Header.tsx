@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { useLenis } from 'lenis/react';
 import { useNavigate } from 'react-router-dom';
 
-import { navItems } from '@data/database';
+import { navItems as fallbackNavItems } from '@shared/fallbackData';
+import type { NavItem } from '@shared/types';
 import { scrollToTop } from '../utils/scroll';
+import { useSiteContent } from '../hooks/useSiteContent';
 interface HeaderProps {
   onLogoClick: () => void;
   showFixedHeader: boolean;
@@ -43,9 +45,9 @@ const useScrollSpy = (sectionIds: string[]) => {
   return activeSection;
 };
 
-const sectionIds = navItems.map((item) => item.id);
-
 const Header: React.FC<HeaderProps> = ({ onLogoClick, showFixedHeader, isAtDetailPage, isMobileMenuOpen, setIsMobileMenuOpen }) => {
+  const navItems = useSiteContent<NavItem[]>('navigation', fallbackNavItems);
+  const sectionIds = React.useMemo(() => navItems.map((item) => item.id), [navItems]);
   const activeSection = useScrollSpy(sectionIds);
   const lenis = useLenis(); // Khởi tạo Lenis để dùng cho việc cuộn
   const navigate = useNavigate();
