@@ -415,7 +415,7 @@ button:not(.header-nav-link):hover,
 
 .main-header:has(.header-center-menu) {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(5, 1fr);
 }
 
 /* Header sẽ luôn ở trạng thái fixed, nên position: absolute không cần thiết nữa */
@@ -6233,6 +6233,29 @@ iframe {
 }
 
 /* Product administration controls */
+.admin-route-page {
+  min-height: 100svh;
+  background: #090a0b;
+}
+
+.main-header.admin-mode .nav-item-wrapper.login .header-nav-link {
+  color: #07150f;
+  background: #79e7ae;
+  border-color: #79e7ae;
+}
+
+.main-header.admin-mode .nav-item-wrapper.login .header-nav-link::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  display: inline-block;
+  margin-right: 7px;
+  border-radius: 50%;
+  background: #087443;
+  box-shadow: 0 0 0 3px rgba(8, 116, 67, .12);
+  vertical-align: middle;
+}
+
 .all-products-grid .news-image.natural-size {
   aspect-ratio: 16 / 9;
   overflow: hidden;

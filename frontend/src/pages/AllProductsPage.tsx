@@ -338,23 +338,25 @@ const AllProductsPage: React.FC<AllProductsPageProps> = ({ products, category })
               deleting={deletingId === item.id}
             />
           ))}
-          <motion.button
-            type="button"
-            onClick={openCreate}
-            className="product-end-cta"
-            layout
-            aria-label="Create a product"
-            whileTap={{ scale: 0.985 }}
-          >
-            <span className="product-end-cta-plus" aria-hidden="true">
-              <span />
-              <span />
-            </span>
-            <span className="product-end-cta-label">Create a project</span>
-            <span className="product-end-cta-description">
-              Bring your next idea to life with Future Studio.
-            </span>
-          </motion.button>
+          {isAdmin && (
+            <motion.button
+              type="button"
+              onClick={openCreate}
+              className="product-end-cta"
+              layout
+              aria-label="Create a product"
+              whileTap={{ scale: 0.985 }}
+            >
+              <span className="product-end-cta-plus" aria-hidden="true">
+                <span />
+                <span />
+              </span>
+              <span className="product-end-cta-label">Create a project</span>
+              <span className="product-end-cta-description">
+                Bring your next idea to life with Future Studio.
+              </span>
+            </motion.button>
+          )}
         </motion.div>
       </section>
     </div>

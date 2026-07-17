@@ -223,6 +223,7 @@ export const navItems: NavItem[] = [
     ]
   },
   { label: 'Contact', id: 'contact', path: '/contact' },
+  { label: 'Login', id: 'login', path: '/admin' },
 ];
 
 export const contactLinks: ContactLink[] = [

@@ -10,6 +10,7 @@ const HomePage = React.lazy(() => import('./HomePage'));
 const AllProductsPage = React.lazy(() => import('./AllProductsPage'));
 const TeamPage = React.lazy(() => import('./TeamPage'));
 const ContactPage = React.lazy(() => import('./ContactPage'));
+const AdminPage = React.lazy(() => import('./AdminPage'));
 
 // Component hiển thị trong lúc chờ tải trang
 const LoadingFallback = () => (
@@ -32,6 +33,7 @@ const AppRoutes: React.FC = () => {
                     <Route path="/showreel" element={<PageTransition><AllProductsPage category="showreel" /></PageTransition>} />
                     <Route path="/team" element={<PageTransition><TeamPage /></PageTransition>} />
                     <Route path="/contact" element={<PageTransition><ContactPage /></PageTransition>} />
+                    <Route path="/admin" element={<AdminPage />} />
                 </Routes>
             </AnimatePresence>
         </Suspense>

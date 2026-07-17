@@ -6,6 +6,7 @@ import { navItems as fallbackNavItems } from '@shared/fallbackData';
 import type { NavItem } from '@shared/types';
 import { scrollToTop } from '../utils/scroll';
 import { useSiteContent } from '../hooks/useSiteContent';
+import { supabase } from '../lib/supabase';
 interface HeaderProps {
   onLogoClick: () => void;
   showFixedHeader: boolean;
@@ -46,11 +47,28 @@ const useScrollSpy = (sectionIds: string[]) => {
 };
 
 const Header: React.FC<HeaderProps> = ({ onLogoClick, showFixedHeader, isAtDetailPage, isMobileMenuOpen, setIsMobileMenuOpen }) => {
-  const navItems = useSiteContent<NavItem[]>('navigation', fallbackNavItems);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const storedNavItems = useSiteContent<NavItem[]>('navigation', fallbackNavItems);
+  const navItems = React.useMemo(
+    () => {
+      const items = storedNavItems.some((item) => item.id === 'login')
+        ? storedNavItems
+        : [...storedNavItems, { label: 'Login', id: 'login', path: '/admin' }];
+      return items.map((item) => item.id === 'login' ? { ...item, label: isAdmin ? 'Admin' : 'Login' } : item);
+    },
+    [isAdmin, storedNavItems],
+  );
   const sectionIds = React.useMemo(() => navItems.map((item) => item.id), [navItems]);
   const activeSection = useScrollSpy(sectionIds);
   const lenis = useLenis(); // Khởi tạo Lenis để dùng cho việc cuộn
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!supabase) return;
+    void supabase.auth.getSession().then(({ data }) => setIsAdmin(Boolean(data.session)));
+    const { data } = supabase.auth.onAuthStateChange((_event, session) => setIsAdmin(Boolean(session)));
+    return () => data.subscription.unsubscribe();
+  }, []);
 
   const handleScrollTo = (id: string) => {
     setIsMobileMenuOpen(false); // Đóng menu mobile khi người dùng đã chọn mục
@@ -79,7 +97,7 @@ const Header: React.FC<HeaderProps> = ({ onLogoClick, showFixedHeader, isAtDetai
       : 'home-page-header';
 
   return (
-    <div className={`main-header ${headerClass}`}>
+    <div className={`main-header ${headerClass} ${isAdmin ? 'admin-mode' : ''}`}>
 
       <div className="header-logo" onClick={onLogoClick} style={{ cursor: 'pointer' }}>
         Future Studio
