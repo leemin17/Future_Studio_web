@@ -169,9 +169,9 @@ export const teamMembers: TeamMember[] = [
   },
   {
     id: 3,
-    name: "Trà My",
+    name: "Hoàng Thị Trà My",
     role: "Lighting Artist",
-    image: "images/anhdat.jpg",
+    image: "images/anhTraMy.jpg",
     color: "rgba(255, 255, 255, 0.15)",
     bio: "Nơi ánh sáng làm chủ khung hình và bóng tối kể những câu chuyện bí ẩn.",
     socials: { behance: "#", dribbble: "#" }
@@ -180,20 +180,20 @@ export const teamMembers: TeamMember[] = [
     id: 4,
     name: "Thiều Sinh Tuấn",
     role: "2D Artist",
-    image: "images/anhcuong.jpg",
+    image: "images/anhSinhTuan.jpg",
     color: "rgba(255, 255, 255, 0.15)",
-    bio: "Kiến tạo những thế giới mới trên mặt phẳng 2D.",
+    bio: "Mỗi nét vẽ là một nhịp đập của tâm hồn, nơi màu sắc và hình khối hòa quyện để tạo nên những tác phẩm sống động.",
     socials: { behance: "#", dribbble: "#" }
   },
   {
     id: 5,
     name: "Nguyễn Hà Vi",
     role: "2D Artist",
-    image: "images/anhcuong.jpg",
+    image: "images/rem.jpg",
     color: "rgba(255, 255, 255, 0.15)",
     bio: "Sáng tạo không giới hạn. Vẽ nên mọi ý tưởng.",
     socials: { behance: "#", dribbble: "#" }
-  },
+  }
 ];
 
 /* =====================================================================
