@@ -140,6 +140,12 @@ const ProductAdminModal: React.FC<ProductAdminModalProps> = ({ open, product, on
 
   const handleSave = async (event: React.FormEvent) => {
     event.preventDefault();
+    const confirmed = window.confirm(
+      product
+        ? `Save all changes to "${title.trim() || product.title}"? The current product data will be replaced.`
+        : `Create "${title.trim() || 'this project'}" and publish it to the product pages?`,
+    );
+    if (!confirmed) return;
     setSubmitting(true);
     setErrorMessage('');
     try {
@@ -250,7 +256,7 @@ const ProductAdminModal: React.FC<ProductAdminModalProps> = ({ open, product, on
                 <div className="product-admin-sidebar-title"><span>{product ? 'Edit project' : 'Project details'}</span><small>{product ? `ID ${product.id}` : 'Required information'}</small></div>
                 <label>Project title<input value={title} onChange={(event) => setTitle(event.target.value)} required /></label>
                 <label>Client<input value={clientInformation} onChange={(event) => setClientInformation(event.target.value)} required /></label>
-                <label>Category<select id="product-category" value={category} onChange={(event) => setCategory(event.target.value as ProductCategory)}><option value="tvc">TVC</option><option value="cartoon-3d">Cartoon 3D</option><option value="art">Art</option></select></label>
+                <label>Category<select id="product-category" value={category} onChange={(event) => setCategory(event.target.value as ProductCategory)}><option value="tvc">TVC</option><option value="cartoon-3d">Cartoon 3D</option><option value="art">Art</option><option value="showreel">Showreel</option></select></label>
                 <label>Project date<input type="date" value={date} onChange={(event) => setDate(event.target.value)} required /></label>
                 <label>Description<textarea id="product-description" rows={4} value={describe} onChange={(event) => setDescribe(event.target.value)} required /></label>
               </section>
@@ -269,6 +275,10 @@ const ProductAdminModal: React.FC<ProductAdminModalProps> = ({ open, product, on
 
               <div className="product-admin-sidebar-actions">
                 {errorMessage && <p className="product-admin-error">{errorMessage}</p>}
+                <p className="product-admin-confirm-note">
+                  <strong>Final confirmation</strong>
+                  <span>{product ? 'Saving will replace the current product information and Quick View layout.' : 'Completing will publish this project to the selected product category.'}</span>
+                </p>
                 <button className="product-admin-submit" type="submit" disabled={submitting}>{submitting ? 'Uploading and saving...' : product ? 'Save changes' : 'Complete project'}</button>
               </div>
             </aside>

@@ -18,7 +18,7 @@ export interface ContactLink {
   icon: 'instagram' | 'gmail' | 'facebook' | 'phone' | 'location';
 }
 
-export type ProductCategory = 'cartoon-3d' | 'tvc' | 'art';
+export type ProductCategory = 'cartoon-3d' | 'tvc' | 'art' | 'showreel';
 
 export interface QuickViewItem {
   kind?: 'image' | 'video' | 'text' | 'embed' | 'model';

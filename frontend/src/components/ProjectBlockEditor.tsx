@@ -48,6 +48,14 @@ const blockLabels: Record<ProjectBlockType, string> = {
   model: '3D',
 };
 
+const normalizeMediaLink = (value: string) => {
+  const trimmed = value.trim();
+  const iframeSource = trimmed.match(/<iframe[^>]+src=["']([^"']+)["']/i)?.[1];
+  const link = iframeSource ?? trimmed;
+  if (!link || /^(https?:|blob:|data:)/i.test(link)) return link;
+  return `https://${link.replace(/^\/+/, '')}`;
+};
+
 const makeBlock = (type: ProjectBlockType, files: File[] = []): ProjectEditorBlock => {
   const automaticColumns = Math.min(Math.max(files.length, 1), 4) as 1 | 2 | 3 | 4;
   return {
@@ -228,14 +236,14 @@ const ProjectBlockEditor: React.FC<ProjectBlockEditorProps> = ({ blocks, onChang
             <strong>Add video or audio</strong>
             <button type="button" onClick={() => videoInput.current?.click()}><Video size={16} />Upload from computer</button>
             <span>or paste a link</span>
-            <input type="url" value={videoLink} onChange={(event) => setVideoLink(event.target.value)} placeholder="YouTube, Vimeo or direct URL" />
+            <textarea rows={3} value={videoLink} onChange={(event) => setVideoLink(event.target.value)} placeholder="Paste any video/audio link or iframe embed code" />
             <button
               type="button"
               className="project-editor-add-link"
               disabled={!videoLink.trim()}
               onClick={() => {
                 const block = makeBlock('video');
-                block.url = videoLink.trim();
+                block.url = normalizeMediaLink(videoLink);
                 onChange([...blocks, block]);
                 setVideoLink('');
                 setVideoOptionsOpen(false);

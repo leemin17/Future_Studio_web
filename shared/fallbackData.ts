@@ -112,7 +112,8 @@ export const newsData: NewsItem[] = [
 export const productCategoryIds: Record<ProductCategory, number[]> = {
   'cartoon-3d': [ 8, 9, 10, 11, 12, 15],
   tvc: [1, 2, 3, 4, 6, 7, 13, 14, 16, 17, 18],
-  art: [19]
+  art: [19],
+  showreel: []
 };
 
 const productsByCategory = (category: ProductCategory): NewsItem[] =>
@@ -123,6 +124,7 @@ const productsByCategory = (category: ProductCategory): NewsItem[] =>
 export const cartoon3DData = productsByCategory('cartoon-3d');
 export const tvcData = productsByCategory('tvc');
 export const artData = productsByCategory('art');
+export const showreelData = productsByCategory('showreel');
 
 // Data cho Khách hàng (Our Customers!)
 export const heroDetails = [
@@ -209,6 +211,7 @@ export const navItems: NavItem[] = [
       { label: 'Cartoon 3D', id: 'showcase-cartoon-3d', path: '/cartoon-3d' },
       { label: 'TVC', id: 'showcase-tvc', path: '/tvc' },
       { label: 'Art', id: 'showcase-art', path: '/art' },
+      { label: 'Showreel', id: 'showcase-showreel', path: '/showreel' },
     ]
   },
   {

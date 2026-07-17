@@ -6183,6 +6183,7 @@ iframe {
 .project-editor-video-options > span { color: #8a919c; font-size: 10px; text-align: center; text-transform: uppercase; letter-spacing: .08em; }
 .project-editor-video-options > button { min-height: 38px; display: flex; align-items: center; justify-content: center; gap: 7px; color: #242830; background: #fff; border: 1px solid #dfe2e7; cursor: pointer; }
 .project-editor-video-options > input { width: 100%; box-sizing: border-box; padding: 9px; color: #242830; background: #fff; border: 1px solid #dfe2e7; font-size: 11px; }
+.project-editor-video-options > textarea { width: 100%; box-sizing: border-box; padding: 9px; resize: vertical; color: #242830; background: #fff; border: 1px solid #dfe2e7; font: 500 11px/1.45 sans-serif; }
 .project-editor-video-options > .project-editor-add-link { color: #fff; background: #111; border-color: #111; font-weight: 800; }
 .project-editor-video-options > .project-editor-add-link:disabled { opacity: .4; cursor: not-allowed; }
 .project-editor-toolbar .project-editor-block { padding: 0 8px 8px; box-shadow: none; }
@@ -6205,6 +6206,8 @@ iframe {
 .quick-view-content-figure figcaption { padding: 12px 18px 20px; color: rgba(255,255,255,.68); background: #080808; font-size: 13px; text-align: center; }
 .quick-view-text-block { width: min(920px, 100%); margin: 0 auto; padding: clamp(42px, 8vw, 110px) clamp(22px, 7vw, 92px); box-sizing: border-box; color: #f5f5f5; font-size: clamp(24px, 4vw, 52px); font-weight: 650; line-height: 1.18; white-space: pre-wrap; }
 .quick-view-embed-block { display: block; width: min(1180px, 100%); min-height: min(72vh, 760px); margin: 0 auto; border: 0; background: #111; }
+.quick-view-audio-wrap { min-height: 150px; display: grid; place-items: center; padding: 24px; background: linear-gradient(135deg, #111419, #08090b); box-sizing: border-box; }
+.quick-view-audio { width: min(720px, 100%); }
 
 @media (max-width: 780px) {
   .product-admin-backdrop { overflow-y: auto; }
@@ -6369,6 +6372,28 @@ iframe {
 .product-admin-sidebar-actions {
   padding: 10px;
 }
+
+.product-admin-confirm-note {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding: 10px 11px;
+  color: #765b12;
+  background: #fff8df;
+  border: 1px solid #ecd789;
+  border-radius: 6px;
+  font-size: 10px;
+  line-height: 1.45;
+}
+
+.product-admin-confirm-note strong {
+  color: #5e4607;
+  font-size: 9px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.product-admin-confirm-note span { color: #765b12; }
 
 .product-admin-sidebar-actions .product-admin-submit {
   min-height: 44px;
@@ -6619,9 +6644,9 @@ body .product-admin-backdrop .product-admin-session-actions .product-admin-close
 }
 
 .quick-view-header-logo {
-  width: 38px;
-  height: 38px;
-  flex: 0 0 38px;
+  width: 46px;
+  height: 46px;
+  flex: 0 0 46px;
   padding: 6px;
   border: 0;
   border-radius: 50%;

@@ -1,7 +1,7 @@
 import React, { useMemo, useRef, useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { newsData } from '@shared/fallbackData';
-import type { NewsItem } from '@shared/types';
+import type { NewsItem, ProductCategory } from '@shared/types';
 import QuickViewModal from '../components/QuickViewModal';
 import Player from '@vimeo/player';
 import { useInView } from 'react-intersection-observer';
@@ -168,9 +168,10 @@ const ProductCard: React.FC<ProductCardProps> = ({ item, onClick, canManage, onE
 
 interface AllProductsPageProps {
   products?: NewsItem[];
+  category?: ProductCategory;
 }
 
-const AllProductsPage: React.FC<AllProductsPageProps> = ({ products }) => {
+const AllProductsPage: React.FC<AllProductsPageProps> = ({ products, category }) => {
   const [selectedProduct, setSelectedProduct] = useState<NewsItem | null>(null);
   const [databaseProducts, setDatabaseProducts] = useState<NewsItem[]>([]);
   const [deletedProductIds, setDeletedProductIds] = useState<number[]>([]);
@@ -179,11 +180,15 @@ const AllProductsPage: React.FC<AllProductsPageProps> = ({ products }) => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [deletingId, setDeletingId] = useState<number | null>(null);
 
-  const categoryFilter = products?.find((item) => item.category)?.category;
+  const categoryFilter = category ?? products?.find((item) => item.category)?.category;
 
   const allProducts = useMemo(
     () => {
-      const staticProducts = products ? [...products] : [...newsData];
+      const staticProducts = products
+        ? [...products]
+        : categoryFilter
+          ? newsData.filter((item) => item.category === categoryFilter)
+          : [...newsData];
       const filteredDatabaseProducts = categoryFilter
         ? databaseProducts.filter((item) => item.category === categoryFilter)
         : databaseProducts;
@@ -229,7 +234,7 @@ const AllProductsPage: React.FC<AllProductsPageProps> = ({ products }) => {
   };
 
   const handleDelete = async (product: NewsItem) => {
-    if (!window.confirm(`Delete "${product.title}"? This action cannot be undone.`)) return;
+    if (!window.confirm(`Permanently delete "${product.title}"? This action cannot be undone and the product will disappear from all categories.`)) return;
     setDeletingId(product.id);
     try {
       await deleteDatabaseProduct(product.id);

@@ -29,6 +29,7 @@ const AppRoutes: React.FC = () => {
                     <Route path="/cartoon-3d" element={<PageTransition><AllProductsPage products={cartoon3DData} /></PageTransition>} />
                     <Route path="/tvc" element={<PageTransition><AllProductsPage products={tvcData} /></PageTransition>} />
                     <Route path="/art" element={<PageTransition><AllProductsPage products={artData} /></PageTransition>} />
+                    <Route path="/showreel" element={<PageTransition><AllProductsPage category="showreel" /></PageTransition>} />
                     <Route path="/team" element={<PageTransition><TeamPage /></PageTransition>} />
                     <Route path="/contact" element={<PageTransition><ContactPage /></PageTransition>} />
                 </Routes>

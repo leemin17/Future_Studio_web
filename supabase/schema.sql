@@ -6,7 +6,7 @@ create table if not exists public.products (
   describe text not null,
   image_url text not null,
   partner_logo_url text,
-  category text check (category in ('cartoon-3d', 'tvc', 'art')),
+  category text check (category in ('cartoon-3d', 'tvc', 'art', 'showreel')),
   video_url text,
   model_url text,
   image_gallery jsonb not null default '[]'::jsonb,
@@ -18,6 +18,13 @@ create table if not exists public.products (
 
 alter table public.products
 add column if not exists partner_logo_url text;
+
+alter table public.products
+drop constraint if exists products_category_check;
+
+alter table public.products
+add constraint products_category_check
+check (category in ('cartoon-3d', 'tvc', 'art', 'showreel'));
 
 alter table public.products enable row level security;
 

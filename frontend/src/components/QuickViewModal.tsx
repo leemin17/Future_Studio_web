@@ -44,6 +44,14 @@ const getYouTubeId = (url: string): string => {
 };
 
 const isYouTubeUrl = (url: string): boolean => /(?:youtube\.com|youtu\.be)/i.test(url);
+const isAudioUrl = (url: string): boolean => /\.(mp3|wav|ogg|m4a|aac|flac)(?:[?#].*)?$/i.test(url);
+const isDirectVideoUrl = (url: string): boolean => /\.(mp4|webm|mov|m4v|ogv)(?:[?#].*)?$/i.test(url) || /^(blob:|data:video)/i.test(url);
+const getGenericEmbedUrl = (url: string): string => {
+  if (/drive\.google\.com/i.test(url)) {
+    return url.replace(/\/view(?:\?.*)?$/i, '/preview').replace(/\/edit(?:\?.*)?$/i, '/preview');
+  }
+  return url;
+};
 
 type MediaType = 'image' | 'video' | 'text' | 'embed' | 'model';
 type MediaItem = {
@@ -206,18 +214,33 @@ const QuickViewVideo: React.FC<QuickViewVideoProps> = ({ item, product }) => {
             title={product?.title}
           ></iframe>
         </div>
-      ) : (
+      ) : isAudioUrl(item.url) ? (
+        <div className="quick-view-audio-wrap">
+          <audio className="quick-view-audio" src={resolveMediaUrl(item.url)} controls onEnded={() => setHasEnded(true)} onPlay={() => setHasEnded(false)} />
+        </div>
+      ) : isDirectVideoUrl(item.url) || !/^https?:\/\//i.test(item.url) ? (
         <video
           ref={videoRef}
           className="quick-view-video"
-          src={getAssetUrl(item.url)}
-          poster={product ? getAssetUrl(product.imageUrl) : ''}
+          src={resolveMediaUrl(item.url)}
+          poster={product?.imageUrl ? resolveMediaUrl(product.imageUrl) : ''}
           controls
           muted
           playsInline
           onEnded={() => setHasEnded(true)}
           onPlay={() => setHasEnded(false)}
         />
+      ) : (
+        <div className="quick-view-vimeo-wrap">
+          <iframe
+            className="quick-view-vimeo-embed"
+            src={getGenericEmbedUrl(item.url)}
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
+            allowFullScreen
+            loading="lazy"
+            title={product?.title}
+          />
+        </div>
       )}
 
       {hasEnded && (
@@ -273,7 +296,7 @@ const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, onClose, embed
                 <div className="quick-view-header-brand">
                   <img
                     className="quick-view-header-logo"
-                    src={product.partnerLogoUrl ? resolveMediaUrl(product.partnerLogoUrl) : getAssetUrl('images/LOGObitis.png')}
+                    src={product.partnerLogoUrl ? resolveMediaUrl(product.partnerLogoUrl) : getAssetUrl('images/logo.jpg')}
                     alt={`${product.clientInformation} logo`}
                   />
                 <div className="quick-view-header-copy">
