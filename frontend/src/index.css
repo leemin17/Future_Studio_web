@@ -6233,6 +6233,22 @@ iframe {
 }
 
 /* Product administration controls */
+.all-products-grid .news-image.natural-size {
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: #090a0b;
+}
+
+.all-products-grid .news-image.natural-size > img,
+.all-products-grid .news-image.natural-size > video,
+.all-products-grid .news-image.natural-size .media-preview-layer,
+.all-products-grid .news-image.natural-size .vimeo-player-container,
+.all-products-grid .news-image.natural-size iframe {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
 .product-card-admin-actions {
   position: absolute;
   top: 12px;

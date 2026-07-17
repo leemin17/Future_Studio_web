@@ -18,7 +18,8 @@ const getVimeoId = (url: string) => {
 
 const getYouTubeThumbnail = (url: string) => {
   const id = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([A-Za-z0-9_-]{6,})/i)?.[1];
-  return id ? `https://img.youtube.com/vi/${id}/hqdefault.jpg` : url;
+  const thumbnailId = url.match(/img\.youtube\.com\/vi\/([A-Za-z0-9_-]{6,})\//i)?.[1];
+  return id || thumbnailId ? `https://img.youtube.com/vi/${id ?? thumbnailId}/maxresdefault.jpg` : url;
 };
 
 interface ProductCardProps {
@@ -146,6 +147,12 @@ const ProductCard: React.FC<ProductCardProps> = ({ item, onClick, canManage, onE
           src={resolveMediaUrl(thumbnailUrl)}
           alt={`${item.title} - ${item.clientInformation}`}
           loading="lazy"
+          onError={() => {
+            const id = thumbnailUrl.match(/img\.youtube\.com\/vi\/([A-Za-z0-9_-]{6,})\//i)?.[1];
+            if (id && thumbnailUrl.includes('maxresdefault')) {
+              setThumbnailUrl(`https://img.youtube.com/vi/${id}/hqdefault.jpg`);
+            }
+          }}
         />
 
         {item.videoUrl && (

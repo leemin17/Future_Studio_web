@@ -23,7 +23,7 @@ const getYouTubeId = (url: string) =>
 
 const getYouTubeThumbnail = (url: string) => {
   const videoId = getYouTubeId(url);
-  return videoId ? `https://img.youtube.com/vi/${videoId}/hqdefault.jpg` : '';
+  return videoId ? `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg` : '';
 };
 
 const emptyBlock = (type: ProjectEditorBlock['type'], index: number): ProjectEditorBlock => ({
@@ -171,7 +171,7 @@ const ProductAdminModal: React.FC<ProductAdminModalProps> = ({ open, product, on
       ]);
       const rawThumbnailUrl = imageUrl.trim();
       const thumbnailYouTubeUrl = getYouTubeThumbnail(rawThumbnailUrl);
-      const thumbnailUrl = uploadedThumbnail[0] ?? thumbnailYouTubeUrl || rawThumbnailUrl;
+      const thumbnailUrl = uploadedThumbnail[0] ?? (thumbnailYouTubeUrl || rawThumbnailUrl);
       const finalPartnerLogoUrl = uploadedPartnerLogo[0] ?? partnerLogoUrl.trim();
       const quickViewLayout: NonNullable<NewsItem['quickViewLayout']> = resolvedBlocks.flatMap((block): NonNullable<NewsItem['quickViewLayout']> => {
         if (block.type === 'text') {
