@@ -22,7 +22,6 @@ const supabase = createClient(url, serviceRoleKey, {
 const contentRows = [
   { key: 'hero_media', value: heroImages },
   { key: 'hero_details', value: heroDetails },
-  { key: 'team_members', value: teamMembers },
   { key: 'navigation', value: navItems },
   { key: 'contact_links', value: contactLinks },
   { key: 'popular_searches', value: popularSearches },
@@ -34,7 +33,22 @@ const migrate = async () => {
     .upsert(contentRows, { onConflict: 'key' });
   if (contentError) throw contentError;
 
-  console.log(`Migrated ${contentRows.length} site-content groups.`);
+  const { error: membersError } = await supabase
+    .from('members')
+    .upsert(teamMembers.map((member) => ({
+      id: member.id,
+      name: member.name,
+      role: member.role,
+      image: member.image,
+      color: member.color,
+      bio: member.bio,
+      socials: member.socials ?? {},
+      skills: member.skills ?? [],
+      updated_at: new Date().toISOString(),
+    })), { onConflict: 'id' });
+  if (membersError) throw membersError;
+
+  console.log(`Migrated ${contentRows.length} site-content groups and ${teamMembers.length} members.`);
 };
 
 await migrate();

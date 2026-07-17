@@ -46,3 +46,19 @@ export const uploadProductFiles = async (files: File[], projectTitle: string): P
     return client.storage.from(PRODUCT_MEDIA_BUCKET).getPublicUrl(path).data.publicUrl;
   }));
 };
+
+export const uploadTeamMemberImage = async (file: File, memberName: string): Promise<string> => {
+  const client = requireSupabase();
+  const folder = safeFolderName(memberName || 'team-member');
+  const path = `team-members/${folder}/${Date.now()}-${crypto.randomUUID()}-${safeFileName(file.name)}`;
+  const { error } = await client.storage
+    .from(PRODUCT_MEDIA_BUCKET)
+    .upload(path, file, {
+      cacheControl: '3600',
+      contentType: file.type || undefined,
+      upsert: false,
+    });
+
+  if (error) throw new Error(error.message || `Unable to upload ${file.name}.`);
+  return client.storage.from(PRODUCT_MEDIA_BUCKET).getPublicUrl(path).data.publicUrl;
+};

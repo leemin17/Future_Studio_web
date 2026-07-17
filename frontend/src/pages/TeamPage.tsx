@@ -3,10 +3,14 @@ import { motion, useScroll, useTransform, useMotionValueEvent, AnimatePresence, 
 import { teamMembers as fallbackTeamMembers } from '@shared/fallbackData';
 import type { TeamMember } from '@shared/types';
 import ScrollReveal from '../components/ScrollReveal';
-import { useSiteContent } from '../hooks/useSiteContent';
+import TeamMemberAdminModal from '../components/TeamMemberAdminModal';
+import { supabase } from '../lib/supabase';
+import { fetchTeamMembers } from '../services/teamMembers';
 
 const TeamPage = () => {
-    const teamMembers = useSiteContent<TeamMember[]>('team_members', fallbackTeamMembers);
+    const [teamMembers, setTeamMembers] = useState<TeamMember[]>(fallbackTeamMembers);
+    const [isAdmin, setIsAdmin] = useState(false);
+    const [isAddMemberOpen, setIsAddMemberOpen] = useState(false);
     const memberIndicesById = useMemo(() => teamMembers
         .map((_, index) => index)
         .sort((firstIndex, secondIndex) => teamMembers[firstIndex].id - teamMembers[secondIndex].id), [teamMembers]);
@@ -50,6 +54,29 @@ const TeamPage = () => {
         window.addEventListener('resize', handleResize);
         return () => window.removeEventListener('resize', handleResize);
     }, []);
+
+    useEffect(() => {
+        if (!supabase) return;
+        let active = true;
+        void fetchTeamMembers()
+            .then((members) => {
+                if (active && members.length) setTeamMembers(members);
+            })
+            .catch((error) => console.warn('Unable to load team members:', error));
+        return () => { active = false; };
+    }, []);
+
+    useEffect(() => {
+        if (!supabase) return;
+        void supabase.auth.getSession().then(({ data }) => setIsAdmin(Boolean(data.session)));
+        const { data } = supabase.auth.onAuthStateChange((_event, session) => setIsAdmin(Boolean(session)));
+        return () => data.subscription.unsubscribe();
+    }, []);
+
+    useEffect(() => {
+        setMemberOrder([...memberIndicesById]);
+        lastScrollMemberIndex.current = 0;
+    }, [memberIndicesById]);
 
     const currentIndex = memberOrder[0] ?? 0;
     const memberQueue = memberOrder.slice(1);
@@ -110,6 +137,11 @@ const TeamPage = () => {
 
     return (
         <div className="teampage-wrapper" style={{ position: 'relative' }}>
+            <TeamMemberAdminModal
+                open={isAddMemberOpen}
+                onClose={() => setIsAddMemberOpen(false)}
+                onSaved={(member) => setTeamMembers((current) => [...current, member].sort((a, b) => a.id - b.id))}
+            />
             <motion.div className="page-scroll-progress-bar" style={{ scaleX: scrollYProgress }} />
 
             <div className={`team-stacking-container ${isMobile ? 'team-stacking-container--mobile' : ''}`}>
@@ -164,6 +196,11 @@ const TeamPage = () => {
                             <LayoutGroup id="team-showcase-gallery">
                                 <div className="team-showcase">
                                     <div className="team-showcase-label">Team</div>
+                                    {isAdmin && (
+                                        <button type="button" className="team-member-add-button" onClick={() => setIsAddMemberOpen(true)}>
+                                            <span aria-hidden="true">+</span> Thêm thành viên
+                                        </button>
+                                    )}
 
                                     <button
                                         type="button"
