@@ -1,15 +1,17 @@
 import React from 'react';
 import { useParams } from 'react-router-dom';
-import { heroImages, newsData, heroDetails } from '@shared/fallbackData';
+import { heroImages, heroDetails } from '@shared/fallbackData';
 import type { NewsItem } from '@shared/types';
 import RelatedPostsSidebar from '../components/RelatedPostsSidebar';
 import { getAssetUrl } from '../utils/media';
 import { sortByDateDesc } from '../utils/date';
 import { useAppNavigation } from '../hooks/useAppNavigation';
+import { useSupabaseProducts } from '../hooks/useSupabaseProducts';
 
 const HeroDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const { goToProduct } = useAppNavigation();
+  const products = useSupabaseProducts();
   const selectedHeroIndex = parseInt(id || '0', 10);
 
   const handleProductClick = (item: NewsItem) => {
@@ -24,7 +26,7 @@ const HeroDetailPage: React.FC = () => {
   const detailContent = heroDetails[selectedHeroIndex] || heroDetails[0];
 
   // Sắp xếp bài viết bên cột phải theo ngày mới nhất
-  const sortedNewsData = sortByDateDesc(newsData);
+  const sortedNewsData = sortByDateDesc(products);
 
   return (
     <section className="container" style={{ paddingTop: '60px', paddingBottom: '100px' }}>

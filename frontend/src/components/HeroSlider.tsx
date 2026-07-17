@@ -1,5 +1,5 @@
 ﻿import React, { useRef, useEffect } from 'react';
-import { heroImages as fallbackHeroImages, newsData as fallbackNewsData } from '@shared/fallbackData';
+import { heroImages as fallbackHeroImages } from '@shared/fallbackData';
 import type { HeroMedia, NewsItem } from '@shared/types';
 import { useSiteContent } from '../hooks/useSiteContent';
 import { useSupabaseProducts } from '../hooks/useSupabaseProducts';
@@ -33,7 +33,7 @@ interface HeroSliderProps {
 
 const HeroSlider: React.FC<HeroSliderProps> = ({ onSelectProduct }) => {
   const heroImages = useSiteContent<HeroMedia[]>('hero_media', fallbackHeroImages);
-  const newsData = useSupabaseProducts(fallbackNewsData);
+  const newsData = useSupabaseProducts();
   const heroFrameRef = useRef<HTMLDivElement>(null);
   const [isMobile, setIsMobile] = React.useState(() => window.matchMedia('(max-width: 768px)').matches);
   const isInteracting = useRef(false);

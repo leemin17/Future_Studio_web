@@ -94,8 +94,7 @@ export const createDatabaseProduct = async (product: NewProductInput): Promise<N
 export const updateDatabaseProduct = async (id: number, product: NewProductInput): Promise<NewsItem> => {
   const { data, error } = await requireSupabase()
     .from('products')
-    .update(productToRow(product))
-    .eq('id', id)
+    .upsert({ id, ...productToRow(product) }, { onConflict: 'id' })
     .select('*')
     .single();
   if (error) throw productError(error.message);

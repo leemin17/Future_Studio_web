@@ -1,6 +1,5 @@
 import React, { useMemo, useRef, useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { newsData } from '@shared/fallbackData';
 import type { NewsItem, ProductCategory } from '@shared/types';
 import QuickViewModal from '../components/QuickViewModal';
 import Player from '@vimeo/player';
@@ -9,7 +8,10 @@ import { resolveMediaUrl } from '../utils/media';
 import { sortByDateDesc } from '../utils/date';
 import ProductAdminModal from '../components/ProductAdminModal';
 import { isSupabaseConfigured, supabase } from '../lib/supabase';
-import { deleteDatabaseProduct, fetchDatabaseProducts } from '../services/products';
+import {
+  deleteDatabaseProduct,
+  fetchDatabaseProducts,
+} from '../services/products';
 
 const getVimeoId = (url: string) => {
   const match = /vimeo.*\/(\d+)/i.exec(url);
@@ -198,37 +200,26 @@ const ProductCard: React.FC<ProductCardProps> = ({ item, onClick, canManage, onE
 };
 
 interface AllProductsPageProps {
-  products?: NewsItem[];
   category?: ProductCategory;
 }
 
-const AllProductsPage: React.FC<AllProductsPageProps> = ({ products, category }) => {
+const AllProductsPage: React.FC<AllProductsPageProps> = ({ category }) => {
   const [selectedProduct, setSelectedProduct] = useState<NewsItem | null>(null);
   const [databaseProducts, setDatabaseProducts] = useState<NewsItem[]>([]);
-  const [deletedProductIds, setDeletedProductIds] = useState<number[]>([]);
   const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<NewsItem | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [deletingId, setDeletingId] = useState<number | null>(null);
-
-  const categoryFilter = category ?? products?.find((item) => item.category)?.category;
+  const categoryFilter = category;
 
   const allProducts = useMemo(
     () => {
-      const staticProducts = products
-        ? [...products]
-        : categoryFilter
-          ? newsData.filter((item) => item.category === categoryFilter)
-          : [...newsData];
       const filteredDatabaseProducts = categoryFilter
         ? databaseProducts.filter((item) => item.category === categoryFilter)
         : databaseProducts;
-      const mergedProducts = new Map<number, NewsItem>();
-      staticProducts.forEach((item) => mergedProducts.set(item.id, item));
-      filteredDatabaseProducts.forEach((item) => mergedProducts.set(item.id, item));
-      return sortByDateDesc([...mergedProducts.values()].filter((item) => !deletedProductIds.includes(item.id)));
+      return sortByDateDesc(filteredDatabaseProducts);
     },
-    [products, databaseProducts, categoryFilter, deletedProductIds],
+    [databaseProducts, categoryFilter],
   );
 
   useEffect(() => {
@@ -248,8 +239,11 @@ const AllProductsPage: React.FC<AllProductsPageProps> = ({ products, category })
 
   useEffect(() => {
     if (!supabase) return;
+
     void supabase.auth.getSession().then(({ data }) => setIsAdmin(Boolean(data.session)));
-    const { data } = supabase.auth.onAuthStateChange((_event, session) => setIsAdmin(Boolean(session)));
+    const { data } = supabase.auth.onAuthStateChange((_event, session) => {
+      setIsAdmin(Boolean(session));
+    });
     return () => data.subscription.unsubscribe();
   }, []);
 
@@ -270,7 +264,6 @@ const AllProductsPage: React.FC<AllProductsPageProps> = ({ products, category })
     try {
       await deleteDatabaseProduct(product.id);
       setDatabaseProducts((current) => current.filter((item) => item.id !== product.id));
-      setDeletedProductIds((current) => current.includes(product.id) ? current : [...current, product.id]);
       if (selectedProduct?.id === product.id) setSelectedProduct(null);
     } catch (error) {
       window.alert(error instanceof Error ? error.message : 'Unable to delete this product.');
@@ -317,7 +310,6 @@ const AllProductsPage: React.FC<AllProductsPageProps> = ({ products, category })
         product={editingProduct}
         onClose={() => { setIsAdminModalOpen(false); setEditingProduct(null); }}
         onSaved={(savedProduct) => {
-          setDeletedProductIds((current) => current.filter((id) => id !== savedProduct.id));
           setDatabaseProducts((current) => {
             const exists = current.some((item) => item.id === savedProduct.id);
             return exists ? current.map((item) => item.id === savedProduct.id ? savedProduct : item) : [savedProduct, ...current];
