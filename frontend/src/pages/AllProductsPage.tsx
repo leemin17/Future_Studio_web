@@ -5,7 +5,7 @@ import type { NewsItem, ProductCategory } from '@shared/types';
 import QuickViewModal from '../components/QuickViewModal';
 import Player from '@vimeo/player';
 import { useInView } from 'react-intersection-observer';
-import { getAssetUrl, resolveMediaUrl } from '../utils/media';
+import { resolveMediaUrl } from '../utils/media';
 import { sortByDateDesc } from '../utils/date';
 import ProductAdminModal from '../components/ProductAdminModal';
 import { isSupabaseConfigured, supabase } from '../lib/supabase';
@@ -15,6 +15,9 @@ const getVimeoId = (url: string) => {
   const match = /vimeo.*\/(\d+)/i.exec(url);
   return match ? match[1] : null;
 };
+
+const getYouTubeId = (url: string) =>
+  url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([A-Za-z0-9_-]{6,})/i)?.[1] ?? null;
 
 const getYouTubeThumbnail = (url: string) => {
   const id = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([A-Za-z0-9_-]{6,})/i)?.[1];
@@ -48,6 +51,8 @@ const ProductCard: React.FC<ProductCardProps> = ({ item, onClick, canManage, onE
   });
 
   const isVimeo = useMemo(() => item.videoUrl?.includes('vimeo'), [item.videoUrl]);
+  const youtubeId = useMemo(() => item.videoUrl ? getYouTubeId(item.videoUrl) : null, [item.videoUrl]);
+  const isYouTube = Boolean(youtubeId);
 
   useEffect(() => {
     if (inView && isVimeo && item.videoUrl) {
@@ -88,7 +93,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ item, onClick, canManage, onE
     setIsHovering(true);
     if (isVimeo && playerRef.current) {
       playerRef.current.play().catch(() => undefined);
-    } else if (!isVimeo && videoRef.current) {
+    } else if (!isVimeo && !isYouTube && videoRef.current) {
       videoRef.current.play().catch(() => undefined);
     }
   };
@@ -98,7 +103,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ item, onClick, canManage, onE
     if (isVimeo && playerRef.current) {
       playerRef.current.pause();
       playerRef.current.setCurrentTime(0);
-    } else if (!isVimeo && videoRef.current) {
+    } else if (!isVimeo && !isYouTube && videoRef.current) {
       videoRef.current.pause();
       videoRef.current.currentTime = 0;
     }
@@ -164,10 +169,20 @@ const ProductCard: React.FC<ProductCardProps> = ({ item, onClick, canManage, onE
           >
             {isVimeo ? (
               <div ref={playerContainerRef} className="vimeo-player-container" />
+            ) : isYouTube && youtubeId ? (
+              isHovering ? (
+                <iframe
+                  className="youtube-hover-player"
+                  src={`https://www.youtube.com/embed/${youtubeId}?autoplay=1&mute=1&loop=1&playlist=${youtubeId}&controls=0&rel=0&modestbranding=1&playsinline=1`}
+                  title={`${item.title} preview`}
+                  allow="autoplay; encrypted-media; picture-in-picture"
+                  tabIndex={-1}
+                />
+              ) : null
             ) : (
               <video
                 ref={videoRef}
-                src={getAssetUrl(item.videoUrl)}
+                src={resolveMediaUrl(item.videoUrl)}
                 muted
                 loop
                 playsInline

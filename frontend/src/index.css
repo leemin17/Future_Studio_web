@@ -6249,6 +6249,13 @@ iframe {
   object-fit: cover;
 }
 
+.youtube-hover-player {
+  display: block;
+  border: 0;
+  pointer-events: none;
+  transform: scale(1.01);
+}
+
 .product-card-admin-actions {
   position: absolute;
   top: 12px;
