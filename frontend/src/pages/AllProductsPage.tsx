@@ -3,7 +3,6 @@ import { motion } from 'framer-motion';
 import type { NewsItem, ProductCategory } from '@shared/types';
 import QuickViewModal from '../components/QuickViewModal';
 import Player from '@vimeo/player';
-import { useInView } from 'react-intersection-observer';
 import { resolveMediaUrl } from '../utils/media';
 import { sortByDateDesc } from '../utils/date';
 import ProductAdminModal from '../components/ProductAdminModal';
@@ -47,17 +46,12 @@ const ProductCard: React.FC<ProductCardProps> = ({ item, onClick, canManage, onE
     setThumbnailUrl(getYouTubeThumbnail(item.imageUrl));
   }, [item.imageUrl]);
 
-  const { ref, inView } = useInView({
-    triggerOnce: true,
-    threshold: 0.1,
-  });
-
   const isVimeo = useMemo(() => item.videoUrl?.includes('vimeo'), [item.videoUrl]);
   const youtubeId = useMemo(() => item.videoUrl ? getYouTubeId(item.videoUrl) : null, [item.videoUrl]);
   const isYouTube = Boolean(youtubeId);
 
   useEffect(() => {
-    if (inView && isVimeo && item.videoUrl) {
+    if (isVimeo && item.videoUrl) {
       fetch(`https://vimeo.com/api/oembed.json?url=${encodeURIComponent(item.videoUrl)}&width=1920`)
         .then((response) => response.json())
         .then((data) => {
@@ -69,10 +63,10 @@ const ProductCard: React.FC<ProductCardProps> = ({ item, onClick, canManage, onE
           // fallback to local placeholder
         });
     }
-  }, [inView, isVimeo, item.videoUrl]);
+  }, [isVimeo, item.videoUrl]);
 
   useEffect(() => {
-    if (inView && isVimeo && item.videoUrl && playerContainerRef.current) {
+    if (isVimeo && item.videoUrl && playerContainerRef.current) {
       const videoId = getVimeoId(item.videoUrl);
       if (videoId) {
         const player = new Player(playerContainerRef.current, {
@@ -89,7 +83,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ item, onClick, canManage, onE
         };
       }
     }
-  }, [inView, item.videoUrl, isVimeo]);
+  }, [item.videoUrl, isVimeo]);
 
   const handleMouseEnter = () => {
     setIsHovering(true);
@@ -112,15 +106,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ item, onClick, canManage, onE
   };
 
   return (
-    <motion.div
-      ref={ref}
-      className="news-card"
-      layout
-      initial={{ opacity: 0, y: 40, scale: 0.98 }}
-      whileInView={{ opacity: 1, y: 0, scale: 1 }}
-      viewport={{ once: true, amount: 0.2 }}
-      transition={{ type: 'spring', stiffness: 120, damping: 10 }}
-    >
+    <div className="news-card">
       <div className="news-image natural-size">
         {canManage && (
           <div className="product-card-admin-actions">
@@ -195,7 +181,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ item, onClick, canManage, onE
 
         <p className="news-text">{item.title} - {item.clientInformation}</p>
       </div>
-    </motion.div>
+    </div>
   );
 };
 
