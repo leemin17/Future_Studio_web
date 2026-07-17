@@ -18,6 +18,14 @@ const splitUrls = (value: string) =>
     .map((url) => url.trim())
     .filter(Boolean);
 
+const getYouTubeId = (url: string) =>
+  url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([A-Za-z0-9_-]{6,})/i)?.[1] ?? '';
+
+const getYouTubeThumbnail = (url: string) => {
+  const videoId = getYouTubeId(url);
+  return videoId ? `https://img.youtube.com/vi/${videoId}/hqdefault.jpg` : '';
+};
+
 const emptyBlock = (type: ProjectEditorBlock['type'], index: number): ProjectEditorBlock => ({
   id: `existing-${type}-${index}-${Date.now()}`,
   type,
@@ -161,7 +169,9 @@ const ProductAdminModal: React.FC<ProductAdminModalProps> = ({ open, product, on
           uploadedUrls: block.files.length ? await uploadProductFiles(block.files, title) : [],
         }))),
       ]);
-      const thumbnailUrl = uploadedThumbnail[0] ?? imageUrl.trim();
+      const rawThumbnailUrl = imageUrl.trim();
+      const thumbnailYouTubeUrl = getYouTubeThumbnail(rawThumbnailUrl);
+      const thumbnailUrl = uploadedThumbnail[0] ?? thumbnailYouTubeUrl || rawThumbnailUrl;
       const finalPartnerLogoUrl = uploadedPartnerLogo[0] ?? partnerLogoUrl.trim();
       const quickViewLayout: NonNullable<NewsItem['quickViewLayout']> = resolvedBlocks.flatMap((block): NonNullable<NewsItem['quickViewLayout']> => {
         if (block.type === 'text') {
@@ -186,7 +196,7 @@ const ProductAdminModal: React.FC<ProductAdminModalProps> = ({ open, product, on
         imageUrl: thumbnailUrl,
         partnerLogoUrl: finalPartnerLogoUrl || undefined,
         category,
-        videoUrl: videos[0],
+        videoUrl: videos[0] ?? (thumbnailYouTubeUrl ? rawThumbnailUrl : undefined),
         modelUrl: quickViewLayout.flatMap((block) => block.items).find((item) => item.kind === 'model')?.url,
         imageGallery: images,
         videoGallery: videos,
@@ -264,7 +274,7 @@ const ProductAdminModal: React.FC<ProductAdminModalProps> = ({ open, product, on
               <section>
                 <div className="product-admin-sidebar-title"><span>Cover image</span><small>Shown on product pages</small></div>
                 <label className="product-admin-file-field">Thumbnail from computer<input id="product-thumbnail-file" type="file" accept="image/*" onChange={(event) => setThumbnailFile(event.target.files?.[0] ?? null)} /><span>{thumbnailFile ? thumbnailFile.name : 'Choose one image'}</span></label>
-                <label>Or thumbnail URL<input type="url" value={imageUrl} onChange={(event) => setImageUrl(event.target.value)} placeholder="https://..." /></label>
+                <label>Or thumbnail / YouTube URL<input type="url" value={imageUrl} onChange={(event) => setImageUrl(event.target.value)} placeholder="https://youtube.com/watch?v=..." /></label>
               </section>
 
               <section>

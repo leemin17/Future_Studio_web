@@ -16,6 +16,11 @@ const getVimeoId = (url: string) => {
   return match ? match[1] : null;
 };
 
+const getYouTubeThumbnail = (url: string) => {
+  const id = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([A-Za-z0-9_-]{6,})/i)?.[1];
+  return id ? `https://img.youtube.com/vi/${id}/hqdefault.jpg` : url;
+};
+
 interface ProductCardProps {
   item: NewsItem;
   onClick: () => void;
@@ -30,7 +35,11 @@ const ProductCard: React.FC<ProductCardProps> = ({ item, onClick, canManage, onE
   const playerRef = useRef<Player | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isHovering, setIsHovering] = useState(false);
-  const [thumbnailUrl, setThumbnailUrl] = useState(item.imageUrl);
+  const [thumbnailUrl, setThumbnailUrl] = useState(() => getYouTubeThumbnail(item.imageUrl));
+
+  useEffect(() => {
+    setThumbnailUrl(getYouTubeThumbnail(item.imageUrl));
+  }, [item.imageUrl]);
 
   const { ref, inView } = useInView({
     triggerOnce: true,

@@ -46,6 +46,9 @@ const productError = (message: string) => {
   if (message.includes('partner_logo_url')) {
     return new Error('Supabase is missing products.partner_logo_url. Run the latest supabase/schema.sql, then try again.');
   }
+  if (message.includes('products_category_check')) {
+    return new Error('Supabase does not allow this product category yet. Run 20260717_add_showreel_category.sql in the Supabase SQL Editor, then save again.');
+  }
   return new Error(message || 'Supabase could not save this product.');
 };
 
