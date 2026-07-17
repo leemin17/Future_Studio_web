@@ -1,16 +1,19 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { motion, useScroll, useTransform, useMotionValueEvent, AnimatePresence, LayoutGroup } from 'framer-motion';
-import { teamMembers as fallbackTeamMembers } from '@shared/fallbackData';
 import type { TeamMember } from '@shared/types';
 import ScrollReveal from '../components/ScrollReveal';
 import TeamMemberAdminModal from '../components/TeamMemberAdminModal';
 import { supabase } from '../lib/supabase';
-import { fetchTeamMembers } from '../services/teamMembers';
+import { deleteTeamMember, fetchTeamMembers } from '../services/teamMembers';
 
 const TeamPage = () => {
-    const [teamMembers, setTeamMembers] = useState<TeamMember[]>(fallbackTeamMembers);
+    const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
+    const [membersLoading, setMembersLoading] = useState(true);
+    const [membersError, setMembersError] = useState('');
     const [isAdmin, setIsAdmin] = useState(false);
     const [isAddMemberOpen, setIsAddMemberOpen] = useState(false);
+    const [editingMember, setEditingMember] = useState<TeamMember | null>(null);
+    const [deletingMemberId, setDeletingMemberId] = useState<number | null>(null);
     const memberIndicesById = useMemo(() => teamMembers
         .map((_, index) => index)
         .sort((firstIndex, secondIndex) => teamMembers[firstIndex].id - teamMembers[secondIndex].id), [teamMembers]);
@@ -56,13 +59,26 @@ const TeamPage = () => {
     }, []);
 
     useEffect(() => {
-        if (!supabase) return;
+        if (!supabase) {
+            setMembersError('Supabase chưa được cấu hình.');
+            setMembersLoading(false);
+            return;
+        }
         let active = true;
         void fetchTeamMembers()
             .then((members) => {
-                if (active && members.length) setTeamMembers(members);
+                if (!active) return;
+                setTeamMembers(members);
+                if (!members.length) setMembersError('Chưa có thành viên trong Supabase.');
             })
-            .catch((error) => console.warn('Unable to load team members:', error));
+            .catch((error) => {
+                if (!active) return;
+                console.warn('Unable to load team members:', error);
+                setMembersError('Không thể tải danh sách thành viên.');
+            })
+            .finally(() => {
+                if (active) setMembersLoading(false);
+            });
         return () => { active = false; };
     }, []);
 
@@ -95,19 +111,21 @@ const TeamPage = () => {
     }, []);
 
     const handlePrev = useCallback(() => {
+        if (!memberIndicesById.length) return;
         const currentPosition = memberIndicesById.indexOf(currentIndex);
         const previousPosition = Math.max(0, currentPosition - 1);
         goToMember(memberIndicesById[previousPosition]);
     }, [currentIndex, goToMember]);
 
     const handleNext = useCallback(() => {
+        if (!memberIndicesById.length) return;
         const currentPosition = memberIndicesById.indexOf(currentIndex);
         const nextPosition = Math.min(memberIndicesById.length - 1, currentPosition + 1);
         goToMember(memberIndicesById[nextPosition]);
     }, [currentIndex, goToMember]);
 
     useMotionValueEvent(teamCarouselScrollProgress, "change", (latest) => {
-        if (selectedMember || isMobile) return;
+        if (selectedMember || isMobile || !memberIndicesById.length) return;
         const nextPosition = Math.round(latest * (memberIndicesById.length - 1));
         if (nextPosition !== lastScrollMemberIndex.current) {
             goToMember(memberIndicesById[nextPosition]);
@@ -132,15 +150,58 @@ const TeamPage = () => {
         goToMember(index);
     }, [goToMember]);
 
+    const openCreateMember = () => {
+        setEditingMember(null);
+        setIsAddMemberOpen(true);
+    };
+
+    const openEditMember = (member: TeamMember) => {
+        setEditingMember(member);
+        setIsAddMemberOpen(true);
+    };
+
+    const handleDeleteMember = async (member: TeamMember) => {
+        if (!window.confirm(`Xóa vĩnh viễn thành viên "${member.name}"?`)) return;
+
+        setDeletingMemberId(member.id);
+        try {
+            await deleteTeamMember(member.id);
+            setTeamMembers((current) => current.filter((item) => item.id !== member.id));
+            if (selectedMember?.id === member.id) setSelectedMember(null);
+        } catch (error) {
+            window.alert(error instanceof Error ? error.message : 'Không thể xóa thành viên.');
+        } finally {
+            setDeletingMemberId(null);
+        }
+    };
+
     const showcaseIndex = currentIndex;
-    const showcaseMember = teamMembers[showcaseIndex] ?? teamMembers[0];
+    const hasTeamMembers = teamMembers.length > 0;
+    const showcaseMember: TeamMember = teamMembers[showcaseIndex] ?? teamMembers[0] ?? {
+        id: 0,
+        name: membersLoading ? 'Future Studio Team' : 'Team',
+        role: '',
+        image: 'images/team.jpg',
+        color: 'rgba(255, 255, 255, 0.15)',
+        bio: membersLoading ? 'Đang tải danh sách thành viên...' : membersError,
+    };
 
     return (
         <div className="teampage-wrapper" style={{ position: 'relative' }}>
             <TeamMemberAdminModal
                 open={isAddMemberOpen}
-                onClose={() => setIsAddMemberOpen(false)}
-                onSaved={(member) => setTeamMembers((current) => [...current, member].sort((a, b) => a.id - b.id))}
+                member={editingMember}
+                onClose={() => {
+                    setIsAddMemberOpen(false);
+                    setEditingMember(null);
+                }}
+                onSaved={(member) => setTeamMembers((current) => {
+                    const alreadyExists = current.some((item) => item.id === member.id);
+                    const nextMembers = alreadyExists
+                        ? current.map((item) => item.id === member.id ? member : item)
+                        : [...current, member];
+                    return nextMembers.sort((a, b) => a.id - b.id);
+                })}
             />
             <motion.div className="page-scroll-progress-bar" style={{ scaleX: scrollYProgress }} />
 
@@ -197,32 +258,69 @@ const TeamPage = () => {
                                 <div className="team-showcase">
                                     <div className="team-showcase-label">Team</div>
                                     {isAdmin && (
-                                        <button type="button" className="team-member-add-button" onClick={() => setIsAddMemberOpen(true)}>
+                                        <button type="button" className="team-member-add-button" onClick={openCreateMember}>
                                             <span aria-hidden="true">+</span> Thêm thành viên
                                         </button>
                                     )}
 
-                                    <button
-                                        type="button"
-                                        className="team-showcase-main"
-                                        onClick={() => setSelectedMember(showcaseMember)}
+                                    <div
+                                        className={`team-showcase-main ${!hasTeamMembers ? 'team-showcase-main--loading' : ''}`}
+                                        role="button"
+                                        tabIndex={hasTeamMembers ? 0 : -1}
+                                        aria-disabled={!hasTeamMembers}
+                                        onClick={() => { if (hasTeamMembers) setSelectedMember(showcaseMember); }}
+                                        onKeyDown={(event) => {
+                                            if (hasTeamMembers && (event.key === 'Enter' || event.key === ' ')) {
+                                                event.preventDefault();
+                                                setSelectedMember(showcaseMember);
+                                            }
+                                        }}
                                     >
-                                        <motion.img
-                                            key={showcaseMember.id}
-                                            src={showcaseMember.image}
-                                            alt={showcaseMember.name}
-                                            draggable={false}
-                                            initial={{
-                                                scale: 0.992,
-                                                opacity: 1
-                                            }}
-                                            animate={{
-                                                scale: 1,
-                                                opacity: 1
-                                            }}
-                                            transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-                                        />
-                                    </button>
+                                            <motion.img
+                                                key={showcaseMember.id}
+                                                src={showcaseMember.image}
+                                                alt={showcaseMember.name}
+                                                draggable={false}
+                                                initial={{
+                                                    scale: 0.992,
+                                                    opacity: 1
+                                                }}
+                                                animate={{
+                                                    scale: 1,
+                                                    opacity: 1
+                                                }}
+                                                transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+                                            />
+                                        {isAdmin && hasTeamMembers && (
+                                            <div className="team-member-card-admin-actions" aria-label="Quản lý thành viên">
+                                            <button
+                                                type="button"
+                                                className="team-member-card-edit"
+                                                onClick={(event) => {
+                                                    event.stopPropagation();
+                                                    openEditMember(showcaseMember);
+                                                }}
+                                                aria-label={`Sửa ${showcaseMember.name}`}
+                                            >
+                                                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4l10.5-10.5-4-4L4 16v4Zm12.5-16.5 4 4 1-1a1.4 1.4 0 0 0 0-2l-2-2a1.4 1.4 0 0 0-2 0l-1 1Z" /></svg>
+                                                <span>Sửa</span>
+                                            </button>
+                                            <button
+                                                type="button"
+                                                className="team-member-card-delete"
+                                                onClick={(event) => {
+                                                    event.stopPropagation();
+                                                    void handleDeleteMember(showcaseMember);
+                                                }}
+                                                disabled={deletingMemberId === showcaseMember.id}
+                                                aria-label={`Xóa ${showcaseMember.name}`}
+                                            >
+                                                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3h6l1 2h4v2H4V5h4l1-2Zm-2 6h10l-1 12H8L7 9Zm3 2v8h2v-8h-2Zm4 0v8h2v-8h-2Z" /></svg>
+                                                <span>{deletingMemberId === showcaseMember.id ? 'Đang xóa' : 'Xóa'}</span>
+                                            </button>
+                                            </div>
+                                        )}
+                                    </div>
 
                                     <motion.div
                                         className="team-showcase-info"

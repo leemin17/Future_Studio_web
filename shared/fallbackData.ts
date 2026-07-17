@@ -1,6 +1,6 @@
 
 
-import type { ContactLink, HeroMedia, NavItem, TeamMember } from './types.ts';
+import type { ContactLink, HeroMedia, NavItem } from './types.ts';
 
 export type { ContactLink, HeroMedia, NavItem, NewsItem, ProductCategory, TeamMember } from './types.ts';
 
@@ -52,54 +52,6 @@ export const heroDetails = [
     title: 'Tri ân Khách hàng & Ra mắt Sản phẩm Giới hạn',
     description1: 'Đánh dấu chặng đường phát triển, Future Studio tổ chức sự kiện đặc biệt để gửi lời cảm ơn sâu sắc tới những người đã luôn đồng hành.',
     description2: 'Nhiều phần quà hấp dẫn cùng dòng sản phẩm giới hạn được chế tác độc quyền sẽ chính thức lộ diện. Hãy là những người đầu tiên sở hữu!'
-  }
-];
-
-export const teamMembers: TeamMember[] = [
-  {
-    id: 1,
-    name: "Trần Tiến Đạt",
-    role: "BOSS & Founder",
-    image: "images/anhdat.jpg",
-    color: "rgba(255, 255, 255, 0.15)", 
-    bio: "Thiết kế không chỉ là tạo ra cái đẹp, mà là nghệ thuật kể câu chuyện của thương hiệu bằng ngôn ngữ thị giác.",
-    socials: { github: "#", linkedin: "#" }
-  },
-  {
-    id: 2,
-    name: "Lê Chí Cường",
-    role: "3D Artist",
-    image: "images/anhcuong.jpg",
-    color: " rgba(255, 255, 255, 0.15)", 
-    bio: "Đưa ý tưởng của bạn bước ra ngoài mặt giấy.",
-    socials: { behance: "#", dribbble: "#" }
-  },
-  {
-    id: 3,
-    name: "Hoàng Thị Trà My",
-    role: "Lighting Artist",
-    image: "images/anhTraMy.jpg",
-    color: "rgba(255, 255, 255, 0.15)",
-    bio: "Nơi ánh sáng làm chủ khung hình và bóng tối kể những câu chuyện bí ẩn.",
-    socials: { behance: "#", dribbble: "#" }
-  },
-  {
-    id: 4,
-    name: "Thiều Sinh Tuấn",
-    role: "2D Artist",
-    image: "images/anhSinhTuan.jpg",
-    color: "rgba(255, 255, 255, 0.15)",
-    bio: "Mỗi nét vẽ là một nhịp đập của tâm hồn, nơi màu sắc và hình khối hòa quyện để tạo nên những tác phẩm sống động.",
-    socials: { behance: "#", dribbble: "#" }
-  },
-  {
-    id: 5,
-    name: "Nguyễn Hà Vi",
-    role: "2D Artist",
-    image: "images/rem.jpg",
-    color: "rgba(255, 255, 255, 0.15)",
-    bio: "Sáng tạo không giới hạn. Vẽ nên mọi ý tưởng.",
-    socials: { behance: "#", dribbble: "#" }
   }
 ];
 

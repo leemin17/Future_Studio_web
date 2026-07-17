@@ -63,6 +63,11 @@ const Header: React.FC<HeaderProps> = ({ onLogoClick, showFixedHeader, isAtDetai
   const lenis = useLenis(); // Khởi tạo Lenis để dùng cho việc cuộn
   const navigate = useNavigate();
 
+  const closeMobileMenu = (target?: EventTarget | null) => {
+    setIsMobileMenuOpen(false);
+    if (target instanceof HTMLElement) target.blur();
+  };
+
   useEffect(() => {
     if (!supabase) return;
     void supabase.auth.getSession().then(({ data }) => setIsAdmin(Boolean(data.session)));
@@ -99,7 +104,14 @@ const Header: React.FC<HeaderProps> = ({ onLogoClick, showFixedHeader, isAtDetai
   return (
     <div className={`main-header ${headerClass} ${isAdmin ? 'admin-mode' : ''}`}>
 
-      <div className="header-logo" onClick={onLogoClick} style={{ cursor: 'pointer' }}>
+      <div
+        className="header-logo"
+        onClick={(event) => {
+          closeMobileMenu(event.currentTarget);
+          onLogoClick();
+        }}
+        style={{ cursor: 'pointer' }}
+      >
         Future Studio
       </div>
 
@@ -121,7 +133,8 @@ const Header: React.FC<HeaderProps> = ({ onLogoClick, showFixedHeader, isAtDetai
           <div key={item.id} className={`nav-item-wrapper ${item.id}`}>
             <button
               className={`header-nav-link ${!isAtDetailPage && activeSection === item.id ? 'active' : ''}`}
-              onClick={() => {
+              onClick={(event) => {
+                closeMobileMenu(event.currentTarget);
                 // Nếu item có path riêng (vd: /about), ưu tiên chuyển trang
                 if (item.path) {
                   navigate(item.path);
@@ -145,8 +158,8 @@ const Header: React.FC<HeaderProps> = ({ onLogoClick, showFixedHeader, isAtDetai
                   <button
                     key={sub.id}
                     className="dropdown-item"
-                    onClick={() => {
-                      setIsMobileMenuOpen(false); // Đóng menu mobile sau khi chuyển trang
+                    onClick={(event) => {
+                      closeMobileMenu(event.currentTarget);
                       if (sub.path) {
                         // Nếu có thuộc tính path -> Chuyển trang
                         navigate(sub.path);

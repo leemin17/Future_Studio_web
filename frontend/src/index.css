@@ -2126,8 +2126,8 @@ button:not(.header-nav-link):hover,
   }
 }
 
-/* --- Mobile (<= 768px) --- */
-@media (max-width: 768px) {
+/* Hamburger navigation is reserved for compact phone screens. */
+@media (max-width: 700px) {
 
   .main-header,
   .main-header:has(.header-center-menu) {
@@ -3196,10 +3196,14 @@ button:not(.header-nav-link):hover,
 }
 
 .modal-info h2 {
-  font-family: 'Titan One', cursive;
-  font-size: 32px;
+  font-family: 'Montserrat', 'Inter', system-ui, sans-serif;
+  font-size: clamp(28px, 3vw, 36px);
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -0.035em;
   color: var(--text-primary);
   margin-bottom: 8px;
+  text-wrap: balance;
 }
 
 .modal-info h4 {
@@ -4282,6 +4286,7 @@ iframe {
 /* Team showcase: 4-column desktop grid + horizontal member queue */
 .team-showcase {
   width: min(1220px, 92vw);
+  position: relative;
   grid-template-columns: 74px minmax(220px, 1fr) minmax(220px, 1fr) minmax(300px, 0.9fr);
   grid-template-rows: minmax(0, auto) auto;
   gap: clamp(18px, 2.6vw, 42px);
@@ -6608,10 +6613,85 @@ body .product-admin-backdrop .product-admin-session-actions .product-admin-close
 .product-admin-logout-button:disabled { opacity: .5; cursor: wait; }
 
 /* Team member administration */
+.team-members-state-page {
+  min-height: 100svh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  color: #fff;
+  background: #0d0e10;
+}
+
+.team-members-state {
+  display: grid;
+  gap: 10px;
+  text-align: center;
+}
+
+.team-members-state span {
+  font-family: 'Montserrat', 'Inter', system-ui, sans-serif;
+  font-size: clamp(26px, 4vw, 44px);
+  font-weight: 800;
+  letter-spacing: -.04em;
+}
+
+.team-members-state p {
+  margin: 0;
+  color: rgba(255, 255, 255, .62);
+  font-size: 13px;
+}
+
+.team-showcase-main--loading {
+  cursor: wait;
+  opacity: .55;
+}
+
+.team-showcase-main--loading img {
+  filter: grayscale(1) brightness(.45);
+}
+
+/* Keep every team portrait on one shared 4:5 frame */
+.team-showcase-main,
+.team-showcase-thumb,
+.modal-image {
+  aspect-ratio: 4 / 5;
+}
+
+.team-showcase-main img,
+.team-showcase-thumb img,
+.modal-image img {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  display: block;
+  object-fit: cover;
+  object-position: center top;
+}
+
+.modal-image {
+  min-width: 0;
+  overflow: hidden;
+  background: #0d0e10;
+}
+
+@media (max-width: 768px) {
+  .team-showcase-main {
+    height: auto;
+    aspect-ratio: 4 / 5;
+  }
+
+  .modal-image img {
+    height: 100%;
+    min-height: 0;
+  }
+}
+
 .team-member-add-button {
-  position: absolute;
-  top: 100px;
-  right: 24px;
+  position: static;
+  grid-column: 4;
+  grid-row: 2;
+  align-self: center;
+  justify-self: end;
   z-index: 5;
   min-height: 40px;
   display: inline-flex;
@@ -6630,6 +6710,60 @@ body .product-admin-backdrop .product-admin-session-actions .product-admin-close
 }
 
 .team-member-add-button span { font-size: 20px; font-weight: 400; }
+
+@media (max-width: 900px) {
+  .team-member-add-button {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    grid-column: auto;
+    grid-row: auto;
+  }
+}
+
+.team-member-card-admin-actions {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 8;
+  display: flex;
+  gap: 6px;
+  padding: 5px;
+  background: rgba(10, 11, 13, .86);
+  border: 1px solid rgba(255, 255, 255, .16);
+  border-radius: 9px;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, .28);
+  backdrop-filter: blur(12px);
+  opacity: 0;
+  transform: translateY(-5px);
+  transition: opacity .2s ease, transform .2s ease;
+}
+
+.team-showcase:hover .team-member-card-admin-actions,
+.team-showcase:focus-within .team-member-card-admin-actions {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.team-member-card-admin-actions button {
+  min-height: 32px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 9px;
+  color: #fff;
+  background: rgba(255, 255, 255, .08);
+  border: 0;
+  border-radius: 6px;
+  font: 750 10px/1 sans-serif;
+  cursor: pointer;
+  transition: background-color .2s ease, color .2s ease;
+}
+
+.team-member-card-admin-actions button:hover { color: #111; background: #fff; }
+.team-member-card-admin-actions .team-member-card-delete:hover { color: #fff; background: #d92d45; }
+.team-member-card-admin-actions button:disabled { opacity: .5; cursor: wait; }
+.team-member-card-admin-actions svg { width: 14px; height: 14px; fill: currentColor; }
 
 .team-admin-backdrop {
   position: fixed;
@@ -6672,7 +6806,10 @@ body .product-admin-backdrop .product-admin-session-actions .product-admin-close
 }
 
 .team-admin-preview {
-  min-height: 440px;
+  width: 100%;
+  min-height: 0;
+  aspect-ratio: 4 / 5;
+  align-self: start;
   display: grid;
   place-items: center;
   overflow: hidden;
@@ -6684,7 +6821,12 @@ body .product-admin-backdrop .product-admin-session-actions .product-admin-close
   letter-spacing: .08em;
 }
 
-.team-admin-preview img { width: 100%; height: 100%; object-fit: cover; }
+.team-admin-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+}
 .team-admin-fields { display: grid; align-content: start; gap: 14px; }
 .team-admin-fields label { display: grid; gap: 6px; color: #626a76; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: .07em; }
 .team-admin-fields input,
@@ -6700,10 +6842,18 @@ body .product-admin-backdrop .product-admin-session-actions .product-admin-close
 
 @media (max-width: 700px) {
   .team-member-add-button { top: 12px; right: 12px; min-height: 36px; padding: 0 12px; font-size: 9px; }
+  .team-member-card-admin-actions {
+    top: 56px;
+    right: 10px;
+    opacity: 1;
+    transform: none;
+  }
+  .team-member-card-admin-actions button { width: 34px; padding: 0; justify-content: center; }
+  .team-member-card-admin-actions button span { display: none; }
   .team-admin-backdrop { padding: 10px; }
   .team-admin-modal { max-height: calc(100svh - 20px); }
   .team-admin-form { grid-template-columns: 1fr; padding: 14px; }
-  .team-admin-preview { min-height: 300px; }
+  .team-admin-preview { min-height: 0; }
 }
 
 /* Final tablet/iPad layout overrides */
@@ -6725,7 +6875,7 @@ body .product-admin-backdrop .product-admin-session-actions .product-admin-close
   }
 }
 
-@media (max-width: 1100px), (hover: none) and (pointer: coarse) {
+@media (max-width: 700px) {
   .main-header,
   .main-header:has(.header-center-menu),
   .main-header.home-page-header,

@@ -1,15 +1,16 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import type { TeamMember } from '@shared/types';
-import { createTeamMember } from '../services/teamMembers';
+import { createTeamMember, updateTeamMember } from '../services/teamMembers';
 import { uploadTeamMemberImage } from '../services/storage';
 
 interface TeamMemberAdminModalProps {
   open: boolean;
+  member?: TeamMember | null;
   onClose: () => void;
   onSaved: (member: TeamMember) => void;
 }
 
-const TeamMemberAdminModal: React.FC<TeamMemberAdminModalProps> = ({ open, onClose, onSaved }) => {
+const TeamMemberAdminModal: React.FC<TeamMemberAdminModalProps> = ({ open, member, onClose, onSaved }) => {
   const [name, setName] = useState('');
   const [role, setRole] = useState('');
   const [bio, setBio] = useState('');
@@ -31,13 +32,14 @@ const TeamMemberAdminModal: React.FC<TeamMemberAdminModalProps> = ({ open, onClo
 
   useEffect(() => {
     if (!open) return;
-    setName('');
-    setRole('');
-    setBio('');
-    setImageUrl('');
+    setName(member?.name ?? '');
+    setRole(member?.role ?? '');
+    setBio(member?.bio ?? '');
+    setImageUrl(member?.image ?? '');
     setImageFile(null);
+    setSubmitting(false);
     setErrorMessage('');
-  }, [open]);
+  }, [open, member]);
 
   if (!open) return null;
 
@@ -54,13 +56,17 @@ const TeamMemberAdminModal: React.FC<TeamMemberAdminModalProps> = ({ open, onClo
         role: role.trim(),
         bio: bio.trim(),
         image: resolvedImage,
-        color: 'rgba(255, 255, 255, 0.15)',
+        color: member?.color ?? 'rgba(255, 255, 255, 0.15)',
+        socials: member?.socials ?? {},
+        skills: member?.skills ?? [],
       };
-      const savedMember = await createTeamMember(nextMember);
+      const savedMember = member
+        ? await updateTeamMember(member.id, nextMember)
+        : await createTeamMember(nextMember);
       onSaved(savedMember);
       onClose();
     } catch (error) {
-      setErrorMessage(error instanceof Error ? error.message : 'Không thể thêm thành viên.');
+      setErrorMessage(error instanceof Error ? error.message : `Không thể ${member ? 'cập nhật' : 'thêm'} thành viên.`);
     } finally {
       setSubmitting(false);
     }
@@ -72,7 +78,7 @@ const TeamMemberAdminModal: React.FC<TeamMemberAdminModalProps> = ({ open, onClo
         <header className="team-admin-header">
           <div>
             <span>Future Studio CMS</span>
-            <h2>Thêm thành viên</h2>
+            <h2>{member ? 'Chỉnh sửa thành viên' : 'Thêm thành viên'}</h2>
           </div>
           <button type="button" onClick={onClose} aria-label="Đóng">×</button>
         </header>
@@ -89,12 +95,12 @@ const TeamMemberAdminModal: React.FC<TeamMemberAdminModalProps> = ({ open, onClo
             <label className="team-admin-file-field">
               Ảnh từ máy tính
               <input type="file" accept="image/*" onChange={(event) => setImageFile(event.target.files?.[0] ?? null)} />
-              <span>{imageFile ? imageFile.name : 'Chọn một ảnh'}</span>
+              <span>{imageFile ? imageFile.name : member ? 'Chọn ảnh mới nếu muốn thay đổi' : 'Chọn một ảnh'}</span>
             </label>
             <label>Hoặc URL ảnh<input type="url" value={imageUrl} onChange={(event) => setImageUrl(event.target.value)} placeholder="https://..." /></label>
             {errorMessage && <p className="team-admin-error">{errorMessage}</p>}
             <button className="team-admin-submit" type="submit" disabled={submitting}>
-              {submitting ? 'Đang tải ảnh và lưu...' : 'Thêm thành viên'}
+              {submitting ? 'Đang tải ảnh và lưu...' : member ? 'Lưu thay đổi' : 'Thêm thành viên'}
             </button>
           </div>
         </form>

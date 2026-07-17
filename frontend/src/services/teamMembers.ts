@@ -6,13 +6,15 @@ const requireSupabase = () => {
   return supabase;
 };
 
+const normalizeText = (value: unknown) => String(value ?? '').normalize('NFC');
+
 const mapMember = (row: Record<string, unknown>): TeamMember => ({
   id: Number(row.id),
-  name: String(row.name ?? ''),
-  role: String(row.role ?? ''),
+  name: normalizeText(row.name),
+  role: normalizeText(row.role),
   image: String(row.image ?? ''),
   color: String(row.color ?? 'rgba(255, 255, 255, 0.15)'),
-  bio: String(row.bio ?? ''),
+  bio: normalizeText(row.bio),
   socials: (row.socials ?? {}) as Record<string, string>,
   skills: (row.skills ?? []) as TeamMember['skills'],
 });
@@ -46,4 +48,32 @@ export const createTeamMember = async (member: Omit<TeamMember, 'id'>): Promise<
 
   if (error) throw new Error(error.message || 'Unable to create team member.');
   return mapMember(data);
+};
+
+export const updateTeamMember = async (id: number, member: Omit<TeamMember, 'id'>): Promise<TeamMember> => {
+  const client = requireSupabase();
+  const { data, error } = await client
+    .from('members')
+    .update({
+      name: member.name,
+      role: member.role,
+      image: member.image,
+      color: member.color,
+      bio: member.bio,
+      socials: member.socials ?? {},
+      skills: member.skills ?? [],
+      updated_at: new Date().toISOString(),
+    })
+    .eq('id', id)
+    .select('id, name, role, image, color, bio, socials, skills')
+    .single();
+
+  if (error) throw new Error(error.message || 'Unable to update team member.');
+  return mapMember(data);
+};
+
+export const deleteTeamMember = async (id: number): Promise<void> => {
+  const client = requireSupabase();
+  const { error } = await client.from('members').delete().eq('id', id);
+  if (error) throw new Error(error.message || 'Unable to delete team member.');
 };
