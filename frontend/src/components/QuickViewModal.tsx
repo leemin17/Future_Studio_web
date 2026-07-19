@@ -18,18 +18,14 @@ const backdropVariants: Variants = {
 };
 
 const modalVariants: Variants = {
-  hidden: { y: '40px', opacity: 0, scale: 0.98 },
+  hidden: { opacity: 0 },
   visible: {
-    y: '0',
     opacity: 1,
-    scale: 1,
-    transition: { type: 'spring', stiffness: 300, damping: 30 },
+    transition: { duration: 0.2, ease: 'easeOut' },
   },
   exit: {
-    y: '20px',
     opacity: 0,
-    scale: 0.98,
-    transition: { duration: 0.2 },
+    transition: { duration: 0.15, ease: 'easeIn' },
   },
 };
 
