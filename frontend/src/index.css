@@ -6898,7 +6898,7 @@ iframe {
   display: block;
   border: 0;
   pointer-events: none;
-  transform: scale(1.01);
+  transform: none;
 }
 
 .product-card-admin-actions {
