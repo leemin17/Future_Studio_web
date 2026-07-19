@@ -10,9 +10,15 @@
     "dev:frontend": "npm run dev -w frontend",
     "dev:backend": "npm run dev -w backend",
     "build": "npm run build -w frontend",
-    "migrate:supabase": "tsx scripts/migrate-data-to-supabase.ts"
+    "migrate:supabase": "tsx scripts/migrate-data-to-supabase.ts",
+    "test": "npm run test:e2e",
+    "test:e2e": "playwright test",
+    "test:e2e:headed": "playwright test --headed",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:report": "playwright show-report"
   },
   "devDependencies": {
+    "@playwright/test": "^1.61.1",
     "concurrently": "^9.2.1"
   },
   "dependencies": {
