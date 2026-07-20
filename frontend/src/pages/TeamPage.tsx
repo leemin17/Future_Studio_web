@@ -303,7 +303,7 @@ const TeamPage = () => {
                                                 aria-label={`Sửa ${showcaseMember.name}`}
                                             >
                                                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4l10.5-10.5-4-4L4 16v4Zm12.5-16.5 4 4 1-1a1.4 1.4 0 0 0 0-2l-2-2a1.4 1.4 0 0 0-2 0l-1 1Z" /></svg>
-                                                <span>Sửa</span>
+                                                <span>edit</span>
                                             </button>
                                             <button
                                                 type="button"
@@ -316,7 +316,7 @@ const TeamPage = () => {
                                                 aria-label={`Xóa ${showcaseMember.name}`}
                                             >
                                                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3h6l1 2h4v2H4V5h4l1-2Zm-2 6h10l-1 12H8L7 9Zm3 2v8h2v-8h-2Zm4 0v8h2v-8h-2Z" /></svg>
-                                                <span>{deletingMemberId === showcaseMember.id ? 'Đang xóa' : 'Xóa'}</span>
+                                                <span>{deletingMemberId === showcaseMember.id ? 'Đang xóa' : 'delete'}</span>
                                             </button>
                                             </div>
                                         )}

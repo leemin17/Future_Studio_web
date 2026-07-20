@@ -1,5 +1,6 @@
 import React, { useMemo, useRef, useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import type { NewsItem, ProductCategory } from '@shared/types';
 import QuickViewModal from '../components/QuickViewModal';
@@ -11,6 +12,8 @@ import ConfirmDialog from '../components/ConfirmDialog';
 import { supabase } from '../lib/supabase';
 import { deleteDatabaseProduct } from '../services/products';
 import { productsQueryKey, useSupabaseProducts } from '../hooks/useSupabaseProducts';
+import { getProjectIdFromSlug, getProjectPath } from '../utils/projectRoutes';
+import { applySeoMetadata, getAbsoluteMediaUrl } from '../utils/seo';
 
 const getVimeoId = (url: string) => {
   const match = /vimeo.*\/(\d+)/i.exec(url);
@@ -79,7 +82,8 @@ const ProductCard: React.FC<ProductCardProps> = ({ item, onClick, canManage, onE
         playerRef.current = player;
 
         return () => {
-          player.destroy();
+          playerRef.current = null;
+          void player.destroy().catch(() => undefined);
         };
       }
     }
@@ -190,6 +194,9 @@ interface AllProductsPageProps {
 }
 
 const AllProductsPage: React.FC<AllProductsPageProps> = ({ category }) => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { projectSlug } = useParams<{ projectSlug?: string }>();
   const [selectedProduct, setSelectedProduct] = useState<NewsItem | null>(null);
   const databaseProducts = useSupabaseProducts();
   const queryClient = useQueryClient();
@@ -198,6 +205,7 @@ const AllProductsPage: React.FC<AllProductsPageProps> = ({ category }) => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [pendingDelete, setPendingDelete] = useState<NewsItem | null>(null);
   const categoryFilter = category;
+  const routeProductId = projectSlug ? getProjectIdFromSlug(projectSlug) : null;
 
   const allProducts = useMemo(
     () => {
@@ -227,6 +235,23 @@ const AllProductsPage: React.FC<AllProductsPageProps> = ({ category }) => {
     return () => data.subscription.unsubscribe();
   }, []);
 
+  useEffect(() => {
+    if (routeProductId === null) return;
+    const routeProduct = databaseProducts.find((item) => item.id === routeProductId);
+    if (routeProduct) setSelectedProduct(routeProduct);
+  }, [databaseProducts, routeProductId]);
+
+  useEffect(() => {
+    if (!selectedProduct || !projectSlug) return;
+    applySeoMetadata({
+      title: `${selectedProduct.title} | Future Studio Vietnam`,
+      description: selectedProduct.describe || `${selectedProduct.title} - dự án của Future Studio Vietnam dành cho ${selectedProduct.clientInformation}.`,
+      path: getProjectPath(selectedProduct),
+      image: getAbsoluteMediaUrl(selectedProduct.imageUrl),
+      robots: 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1',
+    });
+  }, [projectSlug, selectedProduct]);
+
   const openCreate = () => {
     setEditingProduct(null);
     setIsAdminModalOpen(true);
@@ -250,10 +275,15 @@ const AllProductsPage: React.FC<AllProductsPageProps> = ({ category }) => {
 
   const handleProductClick = (item: NewsItem) => {
     setSelectedProduct(item);
+    navigate(getProjectPath(item), { state: { quickViewFrom: location.pathname } });
   };
 
   const handleCloseQuickView = () => {
     setSelectedProduct(null);
+    if (projectSlug) {
+      const state = location.state as { quickViewFrom?: string } | null;
+      navigate(state?.quickViewFrom || '/all-products', { replace: true });
+    }
   };
 
   const isQuickViewOpen = Boolean(selectedProduct);

@@ -185,7 +185,7 @@ const ProductAdminModal: React.FC<ProductAdminModalProps> = ({ open, product, on
     defaultValues: emptyProductForm,
   });
   const formValues = watch();
-  const { title, clientInformation, category, date, describe, imageUrl, partnerLogoUrl } = formValues;
+  const { title, clientInformation, imageUrl, partnerLogoUrl } = formValues;
 
   useEffect(() => {
     if (!open) return;

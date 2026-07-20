@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://futurestudiovn.com/sitemap.xml

@@ -1,19 +1,13 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import HeroSlider from '../components/HeroSlider';
-import QuickViewModal from '../components/QuickViewModal';
-import type { NewsItem } from '@shared/types';
+import { getProjectPath } from '../utils/projectRoutes';
 
 const HomePage: React.FC = () => {
-  const [selectedProduct, setSelectedProduct] = useState<NewsItem | null>(null);
+  const navigate = useNavigate();
 
   return (
-    <>
-      <HeroSlider onSelectProduct={setSelectedProduct} />
-      <QuickViewModal
-        product={selectedProduct}
-        onClose={() => setSelectedProduct(null)}
-      />
-    </>
+    <HeroSlider onSelectProduct={(product) => navigate(getProjectPath(product), { state: { quickViewFrom: '/' } })} />
   );
 };
 

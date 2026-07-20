@@ -14,7 +14,7 @@ export const useAppNavigation = () => {
 
   const goToProduct = useCallback(
     (id: number | string) => {
-      navigate(`/product/${id}`);
+      navigate(`/projects/project-${id}`);
       scrollToTop();
     },
     [navigate],

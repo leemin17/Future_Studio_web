@@ -5,6 +5,7 @@ import { AnimatePresence } from 'framer-motion';
 import Header from './components/Header';
 import AppRoutes from './pages';
 import Preloader from './components/Preloader';
+import RouteMetadata from './components/RouteMetadata';
 import { useAppNavigation } from './hooks/useAppNavigation';
 
 const App: React.FC = () => {
@@ -38,6 +39,7 @@ const App: React.FC = () => {
   return (
     <>
       {/* Preloader sẽ xuất hiện mỗi khi isLoading = true */}
+      <RouteMetadata />
       <AnimatePresence mode="wait">
         {isLoading && (
           <Preloader 

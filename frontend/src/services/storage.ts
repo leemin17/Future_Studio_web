@@ -140,8 +140,8 @@ export const uploadProductFiles = async (
 
     const result = await Promise.race([uppy.upload(), inactivityPromise]);
     if (inactivityTimer) clearTimeout(inactivityTimer);
-    if (!result || result.failed.length) {
-      throw new Error(result?.failed[0]?.error?.message || 'One or more files could not be uploaded.');
+    if (!result || (result.failed?.length ?? 0) > 0) {
+      throw new Error(String(result?.failed?.[0]?.error || 'One or more files could not be uploaded.'));
     }
 
     onProgress?.(100);

@@ -30,6 +30,7 @@ const AppRoutes: React.FC = () => {
                     <Route path="/tvc" element={<PageTransition><AllProductsPage category="tvc" /></PageTransition>} />
                     <Route path="/art" element={<PageTransition><AllProductsPage category="art" /></PageTransition>} />
                     <Route path="/showreel" element={<PageTransition><AllProductsPage category="showreel" /></PageTransition>} />
+                    <Route path="/projects/:projectSlug" element={<PageTransition><AllProductsPage /></PageTransition>} />
                     <Route path="/team" element={<PageTransition><TeamPage /></PageTransition>} />
                     <Route path="/contact" element={<PageTransition><ContactPage /></PageTransition>} />
                     <Route path="/admin" element={<AdminPage />} />
