@@ -6345,7 +6345,7 @@ iframe {
 .confirm-dialog-overlay {
   position: fixed;
   inset: 0;
-  z-index: 5000;
+  z-index: calc(var(--layer-modal) + 100);
   background: rgba(0, 0, 0, 0.72);
   backdrop-filter: blur(8px);
   animation: confirm-dialog-fade 160ms ease-out;
@@ -6355,7 +6355,7 @@ iframe {
   position: fixed;
   top: 50%;
   left: 50%;
-  z-index: 5001;
+  z-index: calc(var(--layer-modal) + 101);
   width: min(440px, calc(100vw - 32px));
   padding: 28px;
   border: 1px solid rgba(255, 255, 255, 0.15);
@@ -6429,6 +6429,33 @@ iframe {
   font-weight: 700;
   line-height: 1.35;
   text-transform: none;
+}
+
+.product-admin-save-progress {
+  display: grid;
+  gap: 7px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: #eef3f8;
+  color: #38414d;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .03em;
+}
+
+.product-admin-save-progress > div {
+  height: 5px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #d7dde5;
+}
+
+.product-admin-save-progress i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #d7bd24, #f4df56);
+  transition: width .2s ease;
 }
 
 @keyframes confirm-dialog-fade {
@@ -6573,6 +6600,40 @@ iframe {
   font-size: 10px;
   font-weight: 700;
   line-height: 1.4;
+}
+
+.video-frame-action-status {
+  display: grid;
+  gap: 6px;
+  padding: 9px 10px;
+  border: 1px solid #d8ca6a;
+  border-radius: 7px;
+  background: rgba(255, 255, 255, .72);
+  color: #4d4617;
+  font-size: 9px;
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+.video-frame-action-status > div {
+  height: 4px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #e1e3e6;
+}
+
+.video-frame-action-status i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #c4a900, #f4df56);
+  transition: width .22s ease;
+}
+
+.video-frame-action-status--error {
+  border-color: #e5a6aa;
+  background: #fff2f3;
+  color: #a32630;
 }
 
 .project-editor-toolbar>p {
@@ -8582,6 +8643,13 @@ body .product-admin-backdrop .product-admin-session-actions .product-admin-close
 
 .project-editor-frame-tool .video-frame-capture-button:hover,
 .project-editor-frame-tool .video-frame-capture-result button:hover {
+  transform: none;
+}
+
+.project-editor-frame-tool .video-frame-capture-button:disabled,
+.project-editor-frame-tool .video-frame-capture-result button:disabled {
+  cursor: wait;
+  opacity: .55;
   transform: none;
 }
 

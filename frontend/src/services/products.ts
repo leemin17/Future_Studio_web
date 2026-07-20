@@ -68,6 +68,29 @@ const rowToProduct = (row: ProductRow): NewsItem => ({
   quickViewLayout: row.quick_view_layout ?? undefined,
 });
 
+const getProductStoragePaths = (row: ProductRow): string[] => {
+  const mediaUrls = [
+    row.image_url,
+    row.partner_logo_url,
+    ...(row.image_gallery ?? []),
+    ...(row.video_gallery ?? []),
+    ...(row.quick_view_layout ?? []).flatMap((block) => block.items.map((item) => item.url)),
+  ].filter((url): url is string => Boolean(url));
+  const publicObjectMarker = '/storage/v1/object/public/product-media/';
+
+  return [...new Set(mediaUrls.flatMap((mediaUrl) => {
+    try {
+      const parsedUrl = new URL(mediaUrl);
+      const markerIndex = parsedUrl.pathname.indexOf(publicObjectMarker);
+      if (markerIndex < 0) return [];
+      const encodedPath = parsedUrl.pathname.slice(markerIndex + publicObjectMarker.length);
+      return encodedPath ? [decodeURIComponent(encodedPath)] : [];
+    } catch {
+      return [];
+    }
+  }))];
+};
+
 export const fetchDatabaseProducts = async (): Promise<NewsItem[]> => {
   const client = requireSupabase();
   const { data, error } = await client
@@ -102,6 +125,25 @@ export const updateDatabaseProduct = async (id: number, product: NewProductInput
 };
 
 export const deleteDatabaseProduct = async (id: number): Promise<void> => {
-  const { error } = await requireSupabase().from('products').delete().eq('id', id);
-  if (error) throw productError(error.message);
+  const client = requireSupabase();
+  const { data: existingProduct, error: fetchError } = await client
+    .from('products')
+    .select('*')
+    .eq('id', id)
+    .maybeSingle();
+
+  if (fetchError) throw productError(fetchError.message);
+
+  const storagePaths = existingProduct
+    ? getProductStoragePaths(existingProduct as ProductRow)
+    : [];
+  const { error: deleteError } = await client.from('products').delete().eq('id', id);
+  if (deleteError) throw productError(deleteError.message);
+
+  if (storagePaths.length) {
+    const { error: storageError } = await client.storage.from('product-media').remove(storagePaths);
+    if (storageError) {
+      console.warn(`Product ${id} was deleted, but its media cleanup failed:`, storageError.message);
+    }
+  }
 };

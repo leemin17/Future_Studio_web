@@ -3,7 +3,7 @@ import { Camera, ImagePlus, Upload } from 'lucide-react';
 
 interface VideoFrameCaptureProps {
   onUseAsCover: (file: File) => void;
-  onAddToQuickView: (file: File) => void;
+  onAddToQuickView: (file: File) => void | Promise<void>;
 }
 
 const formatTime = (seconds: number) => {
@@ -22,6 +22,10 @@ const VideoFrameCapture: React.FC<VideoFrameCaptureProps> = ({ onUseAsCover, onA
   const [capturedFile, setCapturedFile] = useState<File | null>(null);
   const [capturedUrl, setCapturedUrl] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
+  const [processing, setProcessing] = useState(false);
+  const [addingToQuickView, setAddingToQuickView] = useState(false);
+  const [addProgress, setAddProgress] = useState(0);
+  const [actionMessage, setActionMessage] = useState('');
 
   useEffect(() => {
     if (!videoFile) {
@@ -56,29 +60,61 @@ const VideoFrameCapture: React.FC<VideoFrameCaptureProps> = ({ onUseAsCover, onA
       return;
     }
 
-    const canvas = document.createElement('canvas');
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-    const context = canvas.getContext('2d');
-    if (!context) {
-      setErrorMessage('This browser could not prepare the selected frame.');
-      return;
-    }
-
-    context.drawImage(video, 0, 0, canvas.width, canvas.height);
-    const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, 'image/jpeg', 0.95));
-    if (!blob) {
-      setErrorMessage('The selected frame could not be converted to an image.');
-      return;
-    }
-
-    const baseName = videoFile?.name.replace(/\.[^.]+$/, '') || 'video';
-    const frameFile = new File([blob], `${baseName}-frame-${currentTime.toFixed(1).replace('.', '-')}.jpg`, {
-      type: 'image/jpeg',
-      lastModified: Date.now(),
-    });
-    setCapturedFile(frameFile);
+    setProcessing(true);
     setErrorMessage('');
+    video.pause();
+
+    try {
+      await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+      const maxDimension = 1920;
+      const scale = Math.min(1, maxDimension / Math.max(video.videoWidth, video.videoHeight));
+      const outputWidth = Math.max(1, Math.round(video.videoWidth * scale));
+      const outputHeight = Math.max(1, Math.round(video.videoHeight * scale));
+      const canvas = document.createElement('canvas');
+      canvas.width = outputWidth;
+      canvas.height = outputHeight;
+      const context = canvas.getContext('2d', { alpha: false });
+      if (!context) throw new Error('This browser could not prepare the selected frame.');
+
+      context.imageSmoothingEnabled = true;
+      context.imageSmoothingQuality = 'high';
+      context.drawImage(video, 0, 0, outputWidth, outputHeight);
+      const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, 'image/jpeg', 0.9));
+      canvas.width = 1;
+      canvas.height = 1;
+      if (!blob) throw new Error('The selected frame could not be converted to an image.');
+
+      const baseName = videoFile?.name.replace(/\.[^.]+$/, '') || 'video';
+      const frameFile = new File([blob], `${baseName}-frame-${currentTime.toFixed(1).replace('.', '-')}.jpg`, {
+        type: 'image/jpeg',
+        lastModified: Date.now(),
+      });
+      setCapturedFile(frameFile);
+    } catch (error) {
+      setErrorMessage(error instanceof Error ? error.message : 'The selected frame could not be captured.');
+    } finally {
+      setProcessing(false);
+    }
+  };
+
+  const addCapturedFrame = async () => {
+    if (!capturedFile || addingToQuickView) return;
+    setAddingToQuickView(true);
+    setAddProgress(15);
+    setActionMessage('Preparing captured image...');
+    try {
+      await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+      setAddProgress(45);
+      setActionMessage('Adding image block...');
+      await onAddToQuickView(capturedFile);
+      setAddProgress(100);
+      setActionMessage('Image added to Quick View.');
+    } catch (error) {
+      setAddProgress(0);
+      setActionMessage(error instanceof Error ? error.message : 'Unable to add this image to Quick View.');
+    } finally {
+      setAddingToQuickView(false);
+    }
   };
 
   return (
@@ -126,8 +162,8 @@ const VideoFrameCapture: React.FC<VideoFrameCaptureProps> = ({ onUseAsCover, onA
             />
             <span>{formatTime(currentTime)} / {formatTime(duration)}</span>
           </div>
-          <button type="button" className="video-frame-capture-button" onClick={() => void captureFrame()}>
-            <Camera size={16} aria-hidden="true" /> Capture current frame
+          <button type="button" className="video-frame-capture-button" disabled={processing} onClick={() => void captureFrame()}>
+            <Camera size={16} aria-hidden="true" /> {processing ? 'Creating image...' : 'Capture current frame'}
           </button>
         </>
       )}
@@ -136,11 +172,18 @@ const VideoFrameCapture: React.FC<VideoFrameCaptureProps> = ({ onUseAsCover, onA
         <div className="video-frame-capture-result">
           <img src={capturedUrl} alt={`Captured at ${formatTime(currentTime)}`} />
           <div>
-            <button type="button" onClick={() => onUseAsCover(capturedFile)}>Use as cover</button>
-            <button type="button" onClick={() => onAddToQuickView(capturedFile)}>
-              <ImagePlus size={14} aria-hidden="true" /> Add to Quick View
+            <button type="button" disabled={processing} onClick={() => onUseAsCover(capturedFile)}>Use as cover</button>
+            <button type="button" disabled={processing || addingToQuickView} onClick={() => void addCapturedFrame()}>
+              <ImagePlus size={14} aria-hidden="true" /> {addingToQuickView ? 'Adding...' : 'Add to Quick View'}
             </button>
           </div>
+        </div>
+      )}
+
+      {(addingToQuickView || actionMessage) && (
+        <div className={`video-frame-action-status ${addProgress === 0 && actionMessage ? 'video-frame-action-status--error' : ''}`} role="status" aria-live="polite">
+          <div><i style={{ width: `${addProgress}%` }} /></div>
+          <span>{actionMessage}</span>
         </div>
       )}
 

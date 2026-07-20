@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import type { NewsItem } from '@shared/types';
@@ -28,6 +28,85 @@ const getYouTubeId = (url: string) =>
 const getYouTubeThumbnail = (url: string) => {
   const videoId = getYouTubeId(url);
   return videoId ? `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg` : '';
+};
+
+const getVimeoId = (url: string) =>
+  url.match(/(?:vimeo\.com\/(?:video\/)?)(\d+)/i)?.[1] ?? '';
+
+const getRemoteVideoThumbnail = (url: string) => {
+  const youtubeThumbnail = getYouTubeThumbnail(url);
+  if (youtubeThumbnail) return youtubeThumbnail;
+  const vimeoId = getVimeoId(url);
+  return vimeoId ? `https://vumbnail.com/${vimeoId}.jpg` : '';
+};
+
+const createVideoThumbnail = (file: File): Promise<File> => new Promise((resolve, reject) => {
+  const video = document.createElement('video');
+  const objectUrl = URL.createObjectURL(file);
+  const timeout = window.setTimeout(() => finish(new Error('The video took too long to prepare a thumbnail.')), 15_000);
+  let settled = false;
+
+  const cleanup = () => {
+    window.clearTimeout(timeout);
+    video.removeAttribute('src');
+    video.load();
+    URL.revokeObjectURL(objectUrl);
+  };
+  const finish = (error?: Error, thumbnail?: File) => {
+    if (settled) return;
+    settled = true;
+    cleanup();
+    if (error) reject(error);
+    else if (thumbnail) resolve(thumbnail);
+  };
+
+  video.muted = true;
+  video.playsInline = true;
+  video.preload = 'auto';
+  video.onerror = () => finish(new Error('The selected video could not be used to create a thumbnail.'));
+  video.onloadeddata = () => {
+    try {
+      const maxDimension = 1600;
+      const scale = Math.min(1, maxDimension / Math.max(video.videoWidth, video.videoHeight));
+      const canvas = document.createElement('canvas');
+      canvas.width = Math.max(1, Math.round(video.videoWidth * scale));
+      canvas.height = Math.max(1, Math.round(video.videoHeight * scale));
+      const context = canvas.getContext('2d', { alpha: false });
+      if (!context) throw new Error('The browser could not prepare the video thumbnail.');
+      context.drawImage(video, 0, 0, canvas.width, canvas.height);
+      canvas.toBlob((blob) => {
+        canvas.width = 1;
+        canvas.height = 1;
+        if (!blob) {
+          finish(new Error('The video thumbnail could not be created.'));
+          return;
+        }
+        const baseName = file.name.replace(/\.[^.]+$/, '') || 'video';
+        finish(undefined, new File([blob], `${baseName}-thumbnail.jpg`, {
+          type: 'image/jpeg',
+          lastModified: Date.now(),
+        }));
+      }, 'image/jpeg', 0.88);
+    } catch (error) {
+      finish(error instanceof Error ? error : new Error('The video thumbnail could not be created.'));
+    }
+  };
+  video.src = objectUrl;
+  video.load();
+});
+
+const withSaveTimeout = async <T,>(operation: Promise<T>, timeoutMs: number, message: string): Promise<T> => {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  try {
+    return await Promise.race([
+      operation,
+      new Promise<never>((_resolve, reject) => {
+        timer = setTimeout(() => reject(new Error(message)), timeoutMs);
+      }),
+    ]);
+  } finally {
+    if (timer) clearTimeout(timer);
+  }
 };
 
 const emptyBlock = (type: ProjectEditorBlock['type'], index: number): ProjectEditorBlock => ({
@@ -90,8 +169,11 @@ const ProductAdminModal: React.FC<ProductAdminModalProps> = ({ open, product, on
   const [projectBlocks, setProjectBlocks] = useState<ProjectEditorBlock[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [saveStage, setSaveStage] = useState<'idle' | 'preparing' | 'uploading' | 'saving'>('idle');
+  const [saveProgress, setSaveProgress] = useState(0);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [pendingValues, setPendingValues] = useState<ProductFormValues | null>(null);
+  const saveInFlightRef = useRef(false);
   const {
     register,
     reset,
@@ -125,6 +207,8 @@ const ProductAdminModal: React.FC<ProductAdminModalProps> = ({ open, product, on
     if (!open) return;
     document.body.style.overflow = 'hidden';
     setErrorMessage('');
+    setSaveStage('idle');
+    setSaveProgress(0);
 
     if (!supabase) {
       setCheckingSession(false);
@@ -179,26 +263,48 @@ const ProductAdminModal: React.FC<ProductAdminModalProps> = ({ open, product, on
   };
 
   const handleSave = async (values: ProductFormValues) => {
+    if (saveInFlightRef.current) return;
+    saveInFlightRef.current = true;
     setConfirmOpen(false);
     setSubmitting(true);
     setErrorMessage('');
+    setSaveStage('preparing');
+    setSaveProgress(0);
     try {
-      if (!thumbnailFile && !imageUrl.trim()) {
-        throw new Error('Choose a thumbnail file or enter a thumbnail URL.');
+      const firstVideoBlock = projectBlocks.find((block) => block.type === 'video');
+      const firstLocalVideo = firstVideoBlock?.files.find((file) => file.type.startsWith('video/'));
+      const firstVideoLink = firstVideoBlock ? splitUrls(firstVideoBlock.url)[0] ?? '' : '';
+      const automaticRemoteThumbnail = getRemoteVideoThumbnail(firstVideoLink);
+      const generatedVideoThumbnail = !thumbnailFile && !imageUrl.trim() && firstLocalVideo
+        ? await createVideoThumbnail(firstLocalVideo)
+        : null;
+      const effectiveThumbnailFile = thumbnailFile ?? generatedVideoThumbnail;
+
+      if (!effectiveThumbnailFile && !imageUrl.trim() && !automaticRemoteThumbnail) {
+        throw new Error('Add a thumbnail or include a YouTube, Vimeo, or uploaded video so a thumbnail can be created automatically.');
       }
 
-      const [uploadedThumbnail, uploadedPartnerLogo, resolvedBlocks] = await Promise.all([
-        thumbnailFile ? uploadProductFiles([thumbnailFile], title) : Promise.resolve([]),
-        partnerLogoFile ? uploadProductFiles([partnerLogoFile], `${title}-partner-logo`) : Promise.resolve([]),
-        Promise.all(projectBlocks.map(async (block) => ({
-          ...block,
-          uploadedUrls: block.files.length ? await uploadProductFiles(block.files, title) : [],
-        }))),
-      ]);
+      const filesToUpload = [
+        ...(effectiveThumbnailFile ? [effectiveThumbnailFile] : []),
+        ...(partnerLogoFile ? [partnerLogoFile] : []),
+        ...projectBlocks.flatMap((block) => block.files),
+      ];
+      setSaveStage(filesToUpload.length ? 'uploading' : 'saving');
+      const uploadedUrls = filesToUpload.length
+        ? await uploadProductFiles(filesToUpload, values.title, setSaveProgress)
+        : [];
+      let uploadedIndex = 0;
+      const uploadedThumbnail = effectiveThumbnailFile ? uploadedUrls[uploadedIndex++] : undefined;
+      const uploadedPartnerLogo = partnerLogoFile ? uploadedUrls[uploadedIndex++] : undefined;
+      const resolvedBlocks = projectBlocks.map((block) => {
+        const blockUrls = uploadedUrls.slice(uploadedIndex, uploadedIndex + block.files.length);
+        uploadedIndex += block.files.length;
+        return { ...block, uploadedUrls: blockUrls };
+      });
       const rawThumbnailUrl = values.imageUrl.trim();
-      const thumbnailYouTubeUrl = getYouTubeThumbnail(rawThumbnailUrl);
-      const thumbnailUrl = uploadedThumbnail[0] ?? (thumbnailYouTubeUrl || rawThumbnailUrl);
-      const finalPartnerLogoUrl = uploadedPartnerLogo[0] ?? values.partnerLogoUrl.trim();
+      const thumbnailFromVideoUrl = getRemoteVideoThumbnail(rawThumbnailUrl);
+      const thumbnailUrl = uploadedThumbnail ?? (thumbnailFromVideoUrl || rawThumbnailUrl || automaticRemoteThumbnail);
+      const finalPartnerLogoUrl = uploadedPartnerLogo ?? values.partnerLogoUrl.trim();
       const quickViewLayout: NonNullable<NewsItem['quickViewLayout']> = resolvedBlocks.flatMap((block): NonNullable<NewsItem['quickViewLayout']> => {
         if (block.type === 'text') {
           return block.content.trim() ? [{ type: 'text' as const, items: [{ kind: 'text' as const, content: block.content.trim(), html: block.html, textStyle: block.textStyle }] }] : [];
@@ -222,15 +328,21 @@ const ProductAdminModal: React.FC<ProductAdminModalProps> = ({ open, product, on
         imageUrl: thumbnailUrl,
         partnerLogoUrl: finalPartnerLogoUrl || undefined,
         category: values.category,
-        videoUrl: videos[0] ?? (thumbnailYouTubeUrl ? rawThumbnailUrl : undefined),
+        videoUrl: videos[0] ?? (thumbnailFromVideoUrl ? rawThumbnailUrl : undefined),
         modelUrl: quickViewLayout.flatMap((block) => block.items).find((item) => item.kind === 'model')?.url,
         imageGallery: images,
         videoGallery: videos,
         quickViewLayout,
       };
-      const savedProduct = product
-        ? await updateDatabaseProduct(product.id, productInput)
-        : await createDatabaseProduct(productInput);
+      setSaveStage('saving');
+      const saveOperation = product
+        ? updateDatabaseProduct(product.id, productInput)
+        : createDatabaseProduct(productInput);
+      const savedProduct = await withSaveTimeout(
+        saveOperation,
+        30_000,
+        'Supabase did not respond while saving the project. Check the connection and try again.',
+      );
       onSaved(savedProduct);
       onClose();
       reset(emptyProductForm);
@@ -240,7 +352,11 @@ const ProductAdminModal: React.FC<ProductAdminModalProps> = ({ open, product, on
     } catch (error) {
       setErrorMessage(error instanceof Error ? error.message : 'Unable to save this product.');
     } finally {
+      saveInFlightRef.current = false;
+      setPendingValues(null);
       setSubmitting(false);
+      setSaveStage('idle');
+      setSaveProgress(0);
     }
   };
 
@@ -307,11 +423,17 @@ const ProductAdminModal: React.FC<ProductAdminModalProps> = ({ open, product, on
 
               <div className="product-admin-sidebar-actions">
                 {errorMessage && <p className="product-admin-error">{errorMessage}</p>}
+                {submitting && (
+                  <div className="product-admin-save-progress" role="status" aria-live="polite">
+                    <span>{saveStage === 'uploading' ? `Uploading media ${saveProgress}%` : saveStage === 'saving' ? 'Saving product data...' : 'Preparing files...'}</span>
+                    <div><i style={{ width: `${saveStage === 'uploading' ? saveProgress : saveStage === 'saving' ? 100 : 8}%` }} /></div>
+                  </div>
+                )}
                 <p className="product-admin-confirm-note">
                   <strong>Final confirmation</strong>
                   <span>{product ? 'Saving will replace the current product information and Quick View layout.' : 'Completing will publish this project to the selected product category.'}</span>
                 </p>
-                <button className="product-admin-submit" type="submit" disabled={submitting}>{submitting ? 'Uploading and saving...' : product ? 'Save changes' : 'Complete project'}</button>
+                <button className="product-admin-submit" type="submit" disabled={submitting}>{submitting ? saveStage === 'uploading' ? `Uploading ${saveProgress}%` : 'Saving...' : product ? 'Save changes' : 'Complete project'}</button>
               </div>
             </aside>
 

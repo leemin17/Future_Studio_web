@@ -68,6 +68,8 @@ const ProjectBlockEditor: React.FC<ProjectBlockEditorProps> = ({ blocks, onChang
   const [videoOptionsOpen, setVideoOptionsOpen] = React.useState(false);
   const [videoLink, setVideoLink] = React.useState('');
   const [previewFileUrls, setPreviewFileUrls] = React.useState<Map<File, string>>(new Map());
+  const deferredBlocks = React.useDeferredValue(blocks);
+  const [, startPreviewTransition] = React.useTransition();
 
   React.useEffect(() => {
     const files = [...blocks.flatMap((block) => block.files), ...(partnerLogoFile ? [partnerLogoFile] : [])];
@@ -78,7 +80,7 @@ const ProjectBlockEditor: React.FC<ProjectBlockEditorProps> = ({ blocks, onChang
   }, [blocks, partnerLogoFile]);
 
   const previewData = useMemo(() => {
-    const quickViewLayout: NonNullable<NewsItem['quickViewLayout']> = blocks.flatMap((block): NonNullable<NewsItem['quickViewLayout']> => {
+    const quickViewLayout: NonNullable<NewsItem['quickViewLayout']> = deferredBlocks.flatMap((block): NonNullable<NewsItem['quickViewLayout']> => {
       const fileUrls = block.files.map((file) => previewFileUrls.get(file)).filter((url): url is string => Boolean(url));
       const externalUrls = block.url.split(/\r?\n/).map((url) => url.trim()).filter(Boolean);
       const urls = [...fileUrls, ...externalUrls];
@@ -103,7 +105,7 @@ const ProjectBlockEditor: React.FC<ProjectBlockEditorProps> = ({ blocks, onChang
       quickViewLayout,
     };
     return product;
-  }, [blocks, clientInformation, partnerLogoFile, partnerLogoUrl, previewFileUrls, title]);
+  }, [clientInformation, deferredBlocks, partnerLogoFile, partnerLogoUrl, previewFileUrls, title]);
   const visibleBlocks = blocks.filter((block) => block.type === 'text' || block.files.length > 0 || block.url.trim());
 
   const addSimpleBlock = (type: ProjectBlockType) => {
@@ -181,7 +183,17 @@ const ProjectBlockEditor: React.FC<ProjectBlockEditorProps> = ({ blocks, onChang
           </div>
           <VideoFrameCapture
             onUseAsCover={onUseFrameAsCover}
-            onAddToQuickView={(file) => addFiles('image', [file])}
+            onAddToQuickView={(file) => new Promise<void>((resolve, reject) => {
+              requestAnimationFrame(() => {
+                try {
+                  const imageBlock = makeBlock('image', [file]);
+                  startPreviewTransition(() => onChange([...blocks, imageBlock]));
+                  requestAnimationFrame(() => resolve());
+                } catch (error) {
+                  reject(error instanceof Error ? error : new Error('Quick View could not add this image block.'));
+                }
+              });
+            })}
           />
         </div>
         {videoOptionsOpen && (
