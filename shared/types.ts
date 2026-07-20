@@ -24,7 +24,21 @@ export interface QuickViewItem {
   kind?: 'image' | 'video' | 'text' | 'embed' | 'model';
   url?: string;
   content?: string;
+  html?: string;
   caption?: string;
+  textStyle?: QuickViewTextStyle;
+}
+
+export interface QuickViewTextStyle {
+  fontFamily?: string;
+  fontSize?: number;
+  fontWeight?: 400 | 600 | 700 | 800;
+  fontStyle?: 'normal' | 'italic';
+  textDecoration?: 'none' | 'underline';
+  textAlign?: 'left' | 'center' | 'right';
+  color?: string;
+  backgroundColor?: string;
+  width?: 50 | 75 | 100;
 }
 
 export interface QuickViewLayoutBlock {

@@ -6338,13 +6338,241 @@ iframe {
 }
 
 .project-editor-blocks--controls {
-  max-height: 56vh;
-  overflow-y: auto;
+  display: none;
+}
+
+/* Shared Radix confirmation dialog */
+.confirm-dialog-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 5000;
+  background: rgba(0, 0, 0, 0.72);
+  backdrop-filter: blur(8px);
+  animation: confirm-dialog-fade 160ms ease-out;
+}
+
+.confirm-dialog-content {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  z-index: 5001;
+  width: min(440px, calc(100vw - 32px));
+  padding: 28px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 18px;
+  background: #111315;
+  color: #f7f7f2;
+  box-shadow: 0 28px 80px rgba(0, 0, 0, 0.55);
+  transform: translate(-50%, -50%);
+  animation: confirm-dialog-enter 180ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.confirm-dialog-title {
   margin: 0;
-  padding: 10px;
-  background: #f4f5f7;
-  border: 0;
-  border-top: 1px solid #e1e3e7;
+  font-size: clamp(20px, 2vw, 26px);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+.confirm-dialog-description {
+  margin: 12px 0 24px;
+  color: rgba(255, 255, 255, 0.66);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.confirm-dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.confirm-dialog-button {
+  min-height: 42px;
+  padding: 0 18px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.confirm-dialog-button--cancel {
+  border-color: rgba(255, 255, 255, 0.16);
+  background: transparent;
+  color: #fff;
+}
+
+.confirm-dialog-button--primary {
+  background: #f4df56;
+  color: #0b0c0d;
+}
+
+.confirm-dialog-button--danger {
+  background: #ff5b5f;
+  color: #100506;
+}
+
+.confirm-dialog-button:disabled {
+  cursor: wait;
+  opacity: 0.55;
+}
+
+.product-admin-field-error {
+  display: block;
+  margin-top: 6px;
+  color: #c9333b;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.35;
+  text-transform: none;
+}
+
+@keyframes confirm-dialog-fade {
+  from { opacity: 0; }
+}
+
+@keyframes confirm-dialog-enter {
+  from { opacity: 0; transform: translate(-50%, calc(-50% + 12px)) scale(0.98); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .confirm-dialog-overlay,
+  .confirm-dialog-content {
+    animation: none;
+  }
+}
+
+/* Local video frame capture inside Product Admin */
+.video-frame-capture {
+  display: grid;
+  gap: 10px;
+}
+
+.product-admin-workspace-sidebar > .product-admin-frame-tool {
+  border-color: #d7bd24;
+  background: linear-gradient(145deg, #fffef7, #fff9cf);
+  box-shadow: 0 10px 30px rgba(215, 189, 36, 0.16);
+}
+
+.product-admin-frame-tool .product-admin-sidebar-title small {
+  padding: 3px 7px;
+  border-radius: 999px;
+  background: #f4df56;
+  color: #121313;
+  font-weight: 900;
+}
+
+.video-frame-capture-picker {
+  display: flex !important;
+  min-height: 42px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border: 1px dashed #aeb4bc;
+  border-radius: 8px;
+  background: #f5f7f9;
+  color: #22272d;
+  font-size: 10px !important;
+  font-weight: 800 !important;
+  line-height: 1.3;
+  text-align: center;
+  cursor: pointer;
+}
+
+.video-frame-capture-picker input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  opacity: 0;
+}
+
+.video-frame-capture-player {
+  display: block;
+  width: 100%;
+  max-height: 190px;
+  border-radius: 8px;
+  background: #08090a;
+  object-fit: contain;
+}
+
+.video-frame-capture-timeline {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+}
+
+.video-frame-capture-timeline input {
+  width: 100%;
+  accent-color: #111315;
+}
+
+.video-frame-capture-timeline span {
+  color: #6b727b;
+  font-size: 9px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.video-frame-capture-button,
+.video-frame-capture-result button {
+  display: inline-flex;
+  min-height: 36px;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 0 12px;
+  border: 1px solid #151719;
+  border-radius: 7px;
+  background: #151719;
+  color: #fff;
+  font: inherit;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.video-frame-capture-result {
+  display: grid;
+  gap: 8px;
+  padding-top: 2px;
+}
+
+.video-frame-capture-result img {
+  display: block;
+  width: 100%;
+  max-height: 180px;
+  border-radius: 8px;
+  background: #0b0c0d;
+  object-fit: contain;
+}
+
+.video-frame-capture-result > div {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.video-frame-capture-result button:last-child {
+  border-color: #d7bd24;
+  background: #f4df56;
+  color: #121313;
+}
+
+.video-frame-capture-error {
+  margin: 0;
+  color: #c9333b;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1.4;
 }
 
 .project-editor-toolbar>p {
@@ -6398,6 +6626,91 @@ iframe {
 
 .quick-view-modal--embedded .quick-view-media-full {
   min-height: 0;
+}
+
+.quick-view-modal--embedded .quick-view-media-stack {
+  position: relative;
+}
+
+.quick-view-block-controls {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 8;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px;
+  color: #fff;
+  background: rgba(10, 11, 13, .86);
+  border: 1px solid rgba(255, 255, 255, .16);
+  border-radius: 999px;
+  box-shadow: 0 8px 26px rgba(0, 0, 0, .28);
+  opacity: 0;
+  transform: translateY(-4px);
+  transition: opacity .18s ease, transform .18s ease;
+}
+
+.quick-view-media-stack:hover>.quick-view-block-controls,
+.quick-view-block-controls:focus-within {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.quick-view-block-controls>span {
+  padding: 0 7px;
+  color: rgba(255, 255, 255, .6);
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.quick-view-block-controls label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding-left: 7px;
+  color: rgba(255, 255, 255, .65);
+  border-left: 1px solid rgba(255, 255, 255, .14);
+  font-size: 9px;
+  font-weight: 700;
+}
+
+.quick-view-block-controls select,
+.quick-view-block-controls button {
+  min-height: 27px;
+  padding: 5px 8px;
+  color: #fff;
+  background: rgba(255, 255, 255, .1);
+  border: 0;
+  border-radius: 999px;
+  font: 800 9px/1 inherit;
+  cursor: pointer;
+}
+
+.quick-view-block-controls select {
+  padding-right: 4px;
+}
+
+.quick-view-block-controls button:hover {
+  background: rgba(255, 255, 255, .2);
+}
+
+.quick-view-block-controls button:disabled {
+  opacity: .25;
+  cursor: not-allowed;
+}
+
+.quick-view-block-controls .quick-view-block-delete:hover {
+  background: #d9364f;
+}
+
+@media (hover: none), (max-width: 780px) {
+  .quick-view-block-controls {
+    opacity: 1;
+    transform: none;
+  }
 }
 
 .project-editor-block {
@@ -6729,15 +7042,260 @@ iframe {
 }
 
 .quick-view-text-block {
-  width: min(920px, 100%);
+  width: min(980px, 100%);
   margin: 0 auto;
-  padding: clamp(42px, 8vw, 110px) clamp(22px, 7vw, 92px);
+  padding: clamp(32px, 6vw, 88px) clamp(20px, 7vw, 96px);
   box-sizing: border-box;
-  color: #f5f5f5;
-  font-size: clamp(24px, 4vw, 52px);
-  font-weight: 650;
-  line-height: 1.18;
+  color: #f5f5f2;
+  background: #0b0b0c;
+  font-size: clamp(18px, 2.1vw, 34px);
+  font-weight: 600;
+  line-height: 1.45;
+  letter-spacing: -.025em;
   white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.quick-view-text-editor-shell {
+  position: relative;
+  width: 100%;
+  background: #0b0b0c;
+  max-width: 100%;
+  margin-inline: auto;
+}
+
+.quick-view-text-toolbar {
+  position: sticky;
+  top: 58px;
+  z-index: 7;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 7px;
+  color: #20242b;
+  background: rgba(250, 251, 252, .96);
+  border: 1px solid #d8dce2;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, .16);
+  backdrop-filter: blur(12px);
+}
+
+.quick-view-text-toolbar button,
+.quick-view-text-toolbar select,
+.quick-view-text-size,
+.quick-view-text-color {
+  min-height: 31px;
+  box-sizing: border-box;
+  color: #252a32;
+  background: #fff;
+  border: 1px solid #d8dce2;
+  border-radius: 4px;
+}
+
+.quick-view-text-toolbar button {
+  width: 31px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  cursor: pointer;
+}
+
+.quick-view-text-toolbar button:hover,
+.quick-view-text-toolbar button.is-active {
+  color: #fff;
+  background: #17191d;
+  border-color: #17191d;
+}
+
+.quick-view-text-toolbar select {
+  max-width: 145px;
+  padding: 4px 7px;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.quick-view-text-size {
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+}
+
+.quick-view-text-size input {
+  width: 48px;
+  min-height: 29px;
+  padding: 4px 2px 4px 7px;
+  border: 0;
+  outline: 0;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.quick-view-text-size span {
+  padding-right: 6px;
+  color: #747b86;
+  font-size: 8px;
+}
+
+.quick-view-text-toolbar-divider {
+  width: 1px;
+  height: 23px;
+  margin: 0 2px;
+  background: #d8dce2;
+}
+
+.quick-view-text-color {
+  position: relative;
+  width: 36px;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  font-size: 9px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.quick-view-text-color input {
+  position: absolute;
+  inset: auto 0 0;
+  width: 100%;
+  height: 6px;
+  padding: 0;
+  border: 0;
+  cursor: pointer;
+}
+
+.quick-view-text-width {
+  width: 60px;
+}
+
+.quick-view-text-editor-shell--published {
+  background: transparent;
+}
+
+.quick-view-rich-text-editor {
+  max-width: 100%;
+  margin-inline: auto;
+}
+
+.quick-view-rich-text-editor .tiptap {
+  min-height: clamp(190px, 32vh, 420px);
+  padding: clamp(32px, 6vw, 88px) clamp(20px, 7vw, 96px);
+  color: inherit;
+  background: inherit;
+  border: 1px dashed rgba(255, 255, 255, .22);
+  outline: 0;
+  font-size: 30px;
+  line-height: 1.45;
+  cursor: text;
+}
+
+.quick-view-rich-text-editor .tiptap:focus {
+  border-color: rgba(255, 255, 255, .72);
+}
+
+.quick-view-rich-text-editor .tiptap p,
+.quick-view-rich-text-published p {
+  margin: 0 0 .65em;
+}
+
+.quick-view-rich-text-editor .tiptap p:last-child,
+.quick-view-rich-text-published p:last-child {
+  margin-bottom: 0;
+}
+
+.quick-view-rich-text-editor .tiptap p.is-editor-empty:first-child::before {
+  content: 'Write your project title, story or description here...';
+  float: left;
+  height: 0;
+  color: rgba(245, 245, 242, .35);
+  pointer-events: none;
+}
+
+.quick-view-rich-text-editor .quick-view-text-toolbar {
+  position: sticky;
+  top: 58px;
+}
+
+.quick-view-rich-text-delete {
+  margin-left: auto;
+  color: #b62539 !important;
+}
+
+.quick-view-rich-text-delete:hover {
+  color: #fff !important;
+  background: #d9364f !important;
+  border-color: #d9364f !important;
+}
+
+.quick-view-rich-text-published {
+  white-space: normal;
+}
+
+.quick-view-text-block--editor {
+  display: block;
+  min-height: clamp(190px, 32vh, 420px);
+  border: 1px dashed rgba(255, 255, 255, .18);
+  outline: 0;
+  font-family: inherit;
+  -webkit-text-fill-color: currentColor;
+  caret-color: currentColor;
+  opacity: 1;
+  cursor: text;
+  user-select: text;
+  white-space: pre-wrap;
+  transition: border-color .2s ease, background-color .2s ease;
+}
+
+.quick-view-text-block--editor:empty::before {
+  content: attr(data-placeholder);
+  color: rgba(245, 245, 242, .38);
+  -webkit-text-fill-color: rgba(245, 245, 242, .38);
+  pointer-events: none;
+}
+
+@media (max-width: 780px) {
+  .quick-view-text-editor-shell {
+    width: 100% !important;
+  }
+
+  .quick-view-text-toolbar {
+    top: 50px;
+  }
+
+  .quick-view-text-block--editor {
+    font-size: min(var(--text-editor-size, 30px), 11vw) !important;
+  }
+}
+
+.quick-view-text-block--editor:hover {
+  border-color: rgba(255, 255, 255, .38);
+}
+
+.quick-view-text-block--editor:focus {
+  background: #101112;
+  border-color: #fff;
+}
+
+.quick-view-text-editor-shell>button {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 2;
+  padding: 7px 10px;
+  color: rgba(255, 255, 255, .66);
+  background: rgba(0, 0, 0, .72);
+  border: 1px solid rgba(255, 255, 255, .16);
+  border-radius: 999px;
+  font-size: 9px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  cursor: pointer;
+}
+
+.quick-view-text-editor-shell>button:hover {
+  color: #fff;
+  border-color: rgba(255, 255, 255, .48);
 }
 
 .quick-view-embed-block {
@@ -7944,5 +8502,97 @@ body .product-admin-backdrop .product-admin-session-actions .product-admin-close
     height: 34px;
     flex-basis: 34px;
     padding: 5px;
+  }
+}
+
+.project-editor-toolbar {
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+
+.project-editor-toolbar > .project-editor-frame-tool {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 10px;
+  width: 100%;
+  min-width: 0;
+  padding: 12px;
+  border-top: 1px solid #dfe2e7;
+  background: linear-gradient(145deg, #fffef7, #fff9cf);
+  box-sizing: border-box;
+}
+
+.project-editor-frame-tool-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  color: #202328;
+}
+
+.project-editor-frame-tool-title strong {
+  font-size: 10px;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+}
+
+.project-editor-frame-tool-title small {
+  padding: 3px 7px;
+  border-radius: 999px;
+  background: #f4df56;
+  color: #121313;
+  font-size: 8px;
+  font-weight: 900;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+.project-editor-shell {
+  grid-template-columns: minmax(0, 1fr) clamp(340px, 24vw, 400px);
+}
+
+.project-editor-toolbar {
+  overflow-x: hidden;
+}
+
+.project-editor-frame-tool .video-frame-capture,
+.project-editor-frame-tool .video-frame-capture-result,
+.project-editor-frame-tool .video-frame-capture-result > div {
+  width: 100%;
+  min-width: 0;
+}
+
+.project-editor-frame-tool .video-frame-capture-player,
+.project-editor-frame-tool .video-frame-capture-result img {
+  width: 100%;
+  max-width: 100%;
+}
+
+.project-editor-frame-tool .video-frame-capture-button,
+.project-editor-frame-tool .video-frame-capture-result button {
+  display: inline-flex;
+  width: 100%;
+  min-width: 0;
+  min-height: 38px;
+  padding: 8px 10px;
+  border: 1px solid #151719;
+  border-radius: 7px;
+  transform: none;
+}
+
+.project-editor-frame-tool .video-frame-capture-button:hover,
+.project-editor-frame-tool .video-frame-capture-result button:hover {
+  transform: none;
+}
+
+@media (max-width: 1100px) and (min-width: 781px) {
+  .project-editor-shell {
+    grid-template-columns: minmax(0, 1fr) 300px;
+  }
+}
+
+@media (max-width: 780px) {
+  .project-editor-shell {
+    grid-template-columns: 1fr;
   }
 }

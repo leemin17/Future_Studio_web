@@ -1,16 +1,16 @@
 import React, { useMemo, useRef, useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import type { NewsItem, ProductCategory } from '@shared/types';
 import QuickViewModal from '../components/QuickViewModal';
 import Player from '@vimeo/player';
 import { resolveMediaUrl } from '../utils/media';
 import { sortByDateDesc } from '../utils/date';
 import ProductAdminModal from '../components/ProductAdminModal';
-import { isSupabaseConfigured, supabase } from '../lib/supabase';
-import {
-  deleteDatabaseProduct,
-  fetchDatabaseProducts,
-} from '../services/products';
+import ConfirmDialog from '../components/ConfirmDialog';
+import { supabase } from '../lib/supabase';
+import { deleteDatabaseProduct } from '../services/products';
+import { productsQueryKey, useSupabaseProducts } from '../hooks/useSupabaseProducts';
 
 const getVimeoId = (url: string) => {
   const match = /vimeo.*\/(\d+)/i.exec(url);
@@ -191,11 +191,12 @@ interface AllProductsPageProps {
 
 const AllProductsPage: React.FC<AllProductsPageProps> = ({ category }) => {
   const [selectedProduct, setSelectedProduct] = useState<NewsItem | null>(null);
-  const [databaseProducts, setDatabaseProducts] = useState<NewsItem[]>([]);
+  const databaseProducts = useSupabaseProducts();
+  const queryClient = useQueryClient();
   const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<NewsItem | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
-  const [deletingId, setDeletingId] = useState<number | null>(null);
+  const [pendingDelete, setPendingDelete] = useState<NewsItem | null>(null);
   const categoryFilter = category;
 
   const allProducts = useMemo(
@@ -208,20 +209,13 @@ const AllProductsPage: React.FC<AllProductsPageProps> = ({ category }) => {
     [databaseProducts, categoryFilter],
   );
 
-  useEffect(() => {
-    if (!isSupabaseConfigured) return;
-    let active = true;
-    void fetchDatabaseProducts()
-      .then((items) => {
-        if (active) {
-          setDatabaseProducts(items);
-        }
-      })
-      .catch((error) => console.warn('Unable to load database products:', error));
-    return () => {
-      active = false;
-    };
-  }, []);
+  const deleteMutation = useMutation({
+    mutationFn: deleteDatabaseProduct,
+    onSuccess: (_result, deletedId) => {
+      queryClient.setQueryData<NewsItem[]>(productsQueryKey, (current = []) => current.filter((item) => item.id !== deletedId));
+      if (selectedProduct?.id === deletedId) setSelectedProduct(null);
+    },
+  });
 
   useEffect(() => {
     if (!supabase) return;
@@ -244,17 +238,13 @@ const AllProductsPage: React.FC<AllProductsPageProps> = ({ category }) => {
     setIsAdminModalOpen(true);
   };
 
-  const handleDelete = async (product: NewsItem) => {
-    if (!window.confirm(`Permanently delete "${product.title}"? This action cannot be undone and the product will disappear from all categories.`)) return;
-    setDeletingId(product.id);
+  const handleDelete = async () => {
+    if (!pendingDelete) return;
     try {
-      await deleteDatabaseProduct(product.id);
-      setDatabaseProducts((current) => current.filter((item) => item.id !== product.id));
-      if (selectedProduct?.id === product.id) setSelectedProduct(null);
+      await deleteMutation.mutateAsync(pendingDelete.id);
+      setPendingDelete(null);
     } catch (error) {
       window.alert(error instanceof Error ? error.message : 'Unable to delete this product.');
-    } finally {
-      setDeletingId(null);
     }
   };
 
@@ -296,11 +286,21 @@ const AllProductsPage: React.FC<AllProductsPageProps> = ({ category }) => {
         product={editingProduct}
         onClose={() => { setIsAdminModalOpen(false); setEditingProduct(null); }}
         onSaved={(savedProduct) => {
-          setDatabaseProducts((current) => {
+          queryClient.setQueryData<NewsItem[]>(productsQueryKey, (current = []) => {
             const exists = current.some((item) => item.id === savedProduct.id);
             return exists ? current.map((item) => item.id === savedProduct.id ? savedProduct : item) : [savedProduct, ...current];
           });
         }}
+      />
+      <ConfirmDialog
+        open={Boolean(pendingDelete)}
+        onOpenChange={(nextOpen) => { if (!nextOpen) setPendingDelete(null); }}
+        title="Delete this project?"
+        description={`"${pendingDelete?.title ?? 'This project'}" will be permanently removed from every product category.`}
+        confirmLabel="Delete permanently"
+        danger
+        busy={deleteMutation.isPending}
+        onConfirm={() => void handleDelete()}
       />
 
       <section className="all-products-section">
@@ -312,8 +312,8 @@ const AllProductsPage: React.FC<AllProductsPageProps> = ({ category }) => {
               onClick={() => handleProductClick(item)}
               canManage={isAdmin}
               onEdit={() => openEdit(item)}
-              onDelete={() => void handleDelete(item)}
-              deleting={deletingId === item.id}
+              onDelete={() => setPendingDelete(item)}
+              deleting={deleteMutation.isPending && deleteMutation.variables === item.id}
             />
           ))}
           {isAdmin && (

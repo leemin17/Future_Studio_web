@@ -1,23 +1,16 @@
-import { useEffect, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import type { NewsItem } from '@shared/types';
 import { isSupabaseConfigured } from '../lib/supabase';
 import { fetchDatabaseProducts } from '../services/products';
 
+export const productsQueryKey = ['products'] as const;
+
 export const useSupabaseProducts = (): NewsItem[] => {
-  const [products, setProducts] = useState<NewsItem[]>([]);
+  const { data } = useQuery({
+    queryKey: productsQueryKey,
+    queryFn: fetchDatabaseProducts,
+    enabled: isSupabaseConfigured,
+  });
 
-  useEffect(() => {
-    if (!isSupabaseConfigured) return;
-    let active = true;
-    void fetchDatabaseProducts()
-      .then((items) => {
-        if (active) setProducts(items);
-      })
-      .catch(() => undefined);
-    return () => {
-      active = false;
-    };
-  }, []);
-
-  return products;
+  return data ?? [];
 };

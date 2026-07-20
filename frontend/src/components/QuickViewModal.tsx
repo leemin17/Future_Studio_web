@@ -1,14 +1,22 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { motion, AnimatePresence, type Variants } from 'framer-motion';
-import type { NewsItem } from '@shared/types';
+import type { NewsItem, QuickViewTextStyle } from '@shared/types';
+import DOMPurify from 'dompurify';
 import { IoRefresh } from 'react-icons/io5';
 import Player from '@vimeo/player';
 import { getAssetUrl, resolveMediaUrl } from '../utils/media';
+import RichTextBlockEditor from './RichTextBlockEditor';
 
 interface QuickViewModalProps {
   product: NewsItem | null;
   onClose: () => void;
   embedded?: boolean;
+  onEmbeddedTextChange?: (textIndex: number, value: string, html: string) => void;
+  onEmbeddedTextRemove?: (textIndex: number) => void;
+  onEmbeddedTextStyleChange?: (textIndex: number, textStyle: QuickViewTextStyle) => void;
+  onEmbeddedBlockMove?: (blockIndex: number, direction: -1 | 1) => void;
+  onEmbeddedBlockRemove?: (blockIndex: number) => void;
+  onEmbeddedGridColumnsChange?: (blockIndex: number, columns: 1 | 2 | 3 | 4) => void;
 }
 
 const backdropVariants: Variants = {
@@ -54,9 +62,11 @@ type MediaItem = {
   kind: MediaType;
   url: string;
   content?: string;
+  html?: string;
   caption?: string;
   isVimeo?: boolean;
   isYouTube?: boolean;
+  textStyle?: QuickViewTextStyle;
 };
 
 type QuickLayoutBlock = {
@@ -70,7 +80,7 @@ const inferMediaKind = (url: string, kind?: MediaType): MediaType => {
   return /\.(mp4|webm|mov|m4v)$/i.test(url) || url.includes('vimeo') || isYouTubeUrl(url) ? 'video' : 'image';
 };
 
-const toMediaItem = (url: string, kind?: MediaType, content?: string, caption?: string): MediaItem => {
+const toMediaItem = (url: string, kind?: MediaType, content?: string, caption?: string, textStyle?: QuickViewTextStyle, html?: string): MediaItem => {
   const normalizedKind = inferMediaKind(url, kind);
   return {
     kind: normalizedKind,
@@ -79,6 +89,8 @@ const toMediaItem = (url: string, kind?: MediaType, content?: string, caption?: 
     caption,
     isVimeo: normalizedKind === 'video' && url.includes('vimeo'),
     isYouTube: normalizedKind === 'video' && isYouTubeUrl(url),
+    textStyle,
+    html,
   };
 };
 
@@ -118,7 +130,7 @@ const buildQuickMedia = (product: NewsItem | null): MediaItem[] => {
   return media;
 };
 
-const buildQuickLayout = (product: NewsItem | null, mediaItems: MediaItem[]): QuickLayoutBlock[] => {
+const buildQuickLayout = (product: NewsItem | null, mediaItems: MediaItem[], keepEmptyText = false): QuickLayoutBlock[] => {
   const customLayout = product?.quickViewLayout ?? [];
 
   if (customLayout.length) {
@@ -129,8 +141,11 @@ const buildQuickLayout = (product: NewsItem | null, mediaItems: MediaItem[]): Qu
         items: block.items
           .map((item) => {
             const normalized = String(item.url ?? '').trim();
-            const content = String(item.content ?? '').trim();
-            return normalized || content ? toMediaItem(normalized, item.kind, content, item.caption) : null;
+            const rawContent = String(item.content ?? '');
+            const content = keepEmptyText && item.kind === 'text' ? rawContent : rawContent.trim();
+            return normalized || content || (keepEmptyText && item.kind === 'text')
+              ? toMediaItem(normalized, item.kind, content, item.caption, item.textStyle, item.html)
+              : null;
           })
           .filter((item): item is MediaItem => Boolean(item)),
       }))
@@ -251,13 +266,13 @@ const QuickViewVideo: React.FC<QuickViewVideoProps> = ({ item, product }) => {
   );
 };
 
-const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, onClose, embedded = false }) => {
+const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, onClose, embedded = false, onEmbeddedTextChange, onEmbeddedTextRemove, onEmbeddedTextStyleChange, onEmbeddedBlockMove, onEmbeddedBlockRemove, onEmbeddedGridColumnsChange }) => {
   const mediaItems = useMemo(() => buildQuickMedia(product), [product]);
-  const mediaLayout = useMemo(() => buildQuickLayout(product, mediaItems), [product, mediaItems]);
+  const mediaLayout = useMemo(() => buildQuickLayout(product, mediaItems, embedded), [embedded, product, mediaItems]);
   const hasCustomLayout = Boolean(product?.quickViewLayout?.length);
   const hasVideo = mediaLayout.some((block) => block.items.some((item) => item.kind === 'video'));
 
-  const renderMedia = (item: MediaItem | undefined) => {
+  const renderMedia = (item: MediaItem | undefined, textIndex = 0) => {
     if (!item) return null;
 
     if (item.kind === 'image') {
@@ -271,7 +286,37 @@ const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, onClose, embed
     if (item.kind === 'video') {
       return <figure className="quick-view-content-figure"><QuickViewVideo item={item} product={product} />{item.caption && <figcaption>{item.caption}</figcaption>}</figure>;
     }
-    if (item.kind === 'text') return <div className="quick-view-text-block">{item.content}</div>;
+    if (item.kind === 'text') {
+      const textStyle: Required<QuickViewTextStyle> = {
+        fontFamily: item.textStyle?.fontFamily ?? 'inherit',
+        fontSize: item.textStyle?.fontSize ?? 30,
+        fontWeight: item.textStyle?.fontWeight ?? 600,
+        fontStyle: item.textStyle?.fontStyle ?? 'normal',
+        textDecoration: item.textStyle?.textDecoration ?? 'none',
+        textAlign: item.textStyle?.textAlign ?? 'left',
+        color: item.textStyle?.color ?? '#f5f5f2',
+        backgroundColor: item.textStyle?.backgroundColor ?? '#0b0b0c',
+        width: item.textStyle?.width ?? 100,
+      };
+      const textBoxStyle = {
+        width: `${textStyle.width}%`,
+        backgroundColor: textStyle.backgroundColor,
+      };
+      const editableTextStyle = {
+        color: textStyle.color,
+        backgroundColor: textStyle.backgroundColor,
+        fontFamily: textStyle.fontFamily,
+        fontSize: `${textStyle.fontSize}px`,
+        fontWeight: textStyle.fontWeight,
+        fontStyle: textStyle.fontStyle,
+        textDecoration: textStyle.textDecoration,
+        textAlign: textStyle.textAlign,
+      } as const;
+      if (embedded && onEmbeddedTextChange) {
+        return <RichTextBlockEditor html={item.html} content={item.content ?? ''} textStyle={item.textStyle ?? {}} onChange={(content, html) => onEmbeddedTextChange(textIndex, content, html)} onStyleChange={(textStyle) => onEmbeddedTextStyleChange?.(textIndex, textStyle)} onRemove={() => onEmbeddedTextRemove?.(textIndex)} />;
+      }
+      return <div className="quick-view-text-editor-shell quick-view-text-editor-shell--published" style={textBoxStyle}><div className="quick-view-text-block quick-view-rich-text-published" style={editableTextStyle} dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(item.html || `<p>${item.content ?? ''}</p>`) }} /></div>;
+    }
     return <iframe className="quick-view-embed-block" src={item.url} title={`${item.kind} - ${product?.title}`} loading="lazy" allow="autoplay; fullscreen; picture-in-picture; xr-spatial-tracking" allowFullScreen />;
   };
 
@@ -308,15 +353,26 @@ const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, onClose, embed
                     key={`${block.type}-${blockIndex}`}
                     className={`quick-view-media-stack quick-view-media-stack--${block.type} quick-view-media-stack--cols-${block.columns ?? 1}`}
                   >
+                    {embedded && block.type !== 'text' && onEmbeddedBlockRemove && (
+                      <div className="quick-view-block-controls">
+                        <span>Block {String(blockIndex + 1).padStart(2, '0')}</span>
+                        {block.type === 'grid' && onEmbeddedGridColumnsChange && (
+                          <label>Columns<select value={block.columns ?? 1} onChange={(event) => onEmbeddedGridColumnsChange(blockIndex, Number(event.target.value) as 1 | 2 | 3 | 4)}><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></label>
+                        )}
+                        {onEmbeddedBlockMove && <button type="button" onClick={() => onEmbeddedBlockMove(blockIndex, -1)} disabled={blockIndex === 0} aria-label="Move block up">Up</button>}
+                        {onEmbeddedBlockMove && <button type="button" onClick={() => onEmbeddedBlockMove(blockIndex, 1)} disabled={blockIndex === mediaLayout.length - 1} aria-label="Move block down">Down</button>}
+                        <button type="button" className="quick-view-block-delete" onClick={() => onEmbeddedBlockRemove(blockIndex)}>Delete</button>
+                      </div>
+                    )}
                     {block.items.map((item, index) => {
                       const isFeatured = block.type === 'full' || (!hasCustomLayout && blockIndex === 0 && index === 0);
 
                       return (
                         <div
-                          key={`${item.kind}-${item.url || item.content}-${index}`}
+                          key={`${blockIndex}-${item.kind}-${index}`}
                           className={`quick-view-media-card quick-view-media-card--${item.kind} ${isFeatured ? 'quick-view-media-card--featured' : ''}`}
                         >
-                          {renderMedia(item)}
+                          {renderMedia(item, mediaLayout.slice(0, blockIndex).filter((layoutBlock) => layoutBlock.type === 'text').length + index)}
                         </div>
                       );
                     })}

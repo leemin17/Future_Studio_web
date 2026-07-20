@@ -1,9 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import type { NewsItem, ProductCategory } from '@shared/types';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
+import type { NewsItem } from '@shared/types';
 import { isSupabaseConfigured, supabase } from '../lib/supabase';
 import { createDatabaseProduct, updateDatabaseProduct } from '../services/products';
 import { uploadProductFiles } from '../services/storage';
 import ProjectBlockEditor, { type ProjectEditorBlock } from './ProjectBlockEditor';
+import ConfirmDialog from './ConfirmDialog';
+import { productFormSchema, type ProductFormValues } from '../validation/productSchema';
 
 interface ProductAdminModalProps {
   open: boolean;
@@ -32,8 +36,10 @@ const emptyBlock = (type: ProjectEditorBlock['type'], index: number): ProjectEdi
   files: [],
   url: '',
   content: '',
+  html: '',
   caption: '',
   columns: 1,
+  textStyle: {},
 });
 
 const blocksFromProduct = (product: NewsItem): ProjectEditorBlock[] =>
@@ -41,6 +47,8 @@ const blocksFromProduct = (product: NewsItem): ProjectEditorBlock[] =>
     if (layout.type === 'text') {
       const block = emptyBlock('text', layoutIndex);
       block.content = layout.items.map((item) => item.content ?? '').filter(Boolean).join('\n');
+      block.html = layout.items.find((item) => item.html)?.html ?? '';
+      block.textStyle = layout.items.find((item) => item.textStyle)?.textStyle ?? {};
       return block.content ? [block] : [];
     }
     if (layout.type === 'grid') {
@@ -62,37 +70,56 @@ const blocksFromProduct = (product: NewsItem): ProjectEditorBlock[] =>
     });
   });
 
+const emptyProductForm: ProductFormValues = {
+  title: '',
+  clientInformation: '',
+  category: 'tvc',
+  date: '',
+  describe: '',
+  imageUrl: '',
+  partnerLogoUrl: '',
+};
+
 const ProductAdminModal: React.FC<ProductAdminModalProps> = ({ open, product, onClose, onSaved }) => {
   const [authenticated, setAuthenticated] = useState(false);
   const [checkingSession, setCheckingSession] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [title, setTitle] = useState('');
-  const [clientInformation, setClientInformation] = useState('');
-  const [category, setCategory] = useState<ProductCategory>('tvc');
-  const [date, setDate] = useState('');
-  const [describe, setDescribe] = useState('');
-  const [imageUrl, setImageUrl] = useState('');
   const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
-  const [partnerLogoUrl, setPartnerLogoUrl] = useState('');
   const [partnerLogoFile, setPartnerLogoFile] = useState<File | null>(null);
   const [projectBlocks, setProjectBlocks] = useState<ProjectEditorBlock[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [pendingValues, setPendingValues] = useState<ProductFormValues | null>(null);
+  const {
+    register,
+    reset,
+    watch,
+    handleSubmit: submitForm,
+    formState: { errors },
+  } = useForm<ProductFormValues>({
+    resolver: zodResolver(productFormSchema),
+    defaultValues: emptyProductForm,
+  });
+  const formValues = watch();
+  const { title, clientInformation, category, date, describe, imageUrl, partnerLogoUrl } = formValues;
 
   useEffect(() => {
     if (!open) return;
-    setTitle(product?.title ?? '');
-    setClientInformation(product?.clientInformation ?? '');
-    setCategory(product?.category ?? 'tvc');
-    setDate(product?.date.replaceAll('.', '-') ?? '');
-    setDescribe(product?.describe ?? '');
-    setImageUrl(product?.imageUrl ?? '');
+    reset({
+      title: product?.title ?? '',
+      clientInformation: product?.clientInformation ?? '',
+      category: product?.category ?? 'tvc',
+      date: product?.date.replaceAll('.', '-') ?? '',
+      describe: product?.describe ?? '',
+      imageUrl: product?.imageUrl ?? '',
+      partnerLogoUrl: product?.partnerLogoUrl ?? '',
+    });
     setThumbnailFile(null);
-    setPartnerLogoUrl(product?.partnerLogoUrl ?? '');
     setPartnerLogoFile(null);
     setProjectBlocks(product ? blocksFromProduct(product) : []);
-  }, [open, product]);
+  }, [open, product, reset]);
 
   useEffect(() => {
     if (!open) return;
@@ -146,14 +173,13 @@ const ProductAdminModal: React.FC<ProductAdminModalProps> = ({ open, product, on
     setPassword('');
   };
 
-  const handleSave = async (event: React.FormEvent) => {
-    event.preventDefault();
-    const confirmed = window.confirm(
-      product
-        ? `Save all changes to "${title.trim() || product.title}"? The current product data will be replaced.`
-        : `Create "${title.trim() || 'this project'}" and publish it to the product pages?`,
-    );
-    if (!confirmed) return;
+  const requestSave = (values: ProductFormValues) => {
+    setPendingValues(values);
+    setConfirmOpen(true);
+  };
+
+  const handleSave = async (values: ProductFormValues) => {
+    setConfirmOpen(false);
     setSubmitting(true);
     setErrorMessage('');
     try {
@@ -169,13 +195,13 @@ const ProductAdminModal: React.FC<ProductAdminModalProps> = ({ open, product, on
           uploadedUrls: block.files.length ? await uploadProductFiles(block.files, title) : [],
         }))),
       ]);
-      const rawThumbnailUrl = imageUrl.trim();
+      const rawThumbnailUrl = values.imageUrl.trim();
       const thumbnailYouTubeUrl = getYouTubeThumbnail(rawThumbnailUrl);
       const thumbnailUrl = uploadedThumbnail[0] ?? (thumbnailYouTubeUrl || rawThumbnailUrl);
-      const finalPartnerLogoUrl = uploadedPartnerLogo[0] ?? partnerLogoUrl.trim();
+      const finalPartnerLogoUrl = uploadedPartnerLogo[0] ?? values.partnerLogoUrl.trim();
       const quickViewLayout: NonNullable<NewsItem['quickViewLayout']> = resolvedBlocks.flatMap((block): NonNullable<NewsItem['quickViewLayout']> => {
         if (block.type === 'text') {
-          return block.content.trim() ? [{ type: 'text' as const, items: [{ kind: 'text' as const, content: block.content.trim() }] }] : [];
+          return block.content.trim() ? [{ type: 'text' as const, items: [{ kind: 'text' as const, content: block.content.trim(), html: block.html, textStyle: block.textStyle }] }] : [];
         }
         const urls = [...block.uploadedUrls, ...splitUrls(block.url)];
         if (!urls.length) return [];
@@ -189,13 +215,13 @@ const ProductAdminModal: React.FC<ProductAdminModalProps> = ({ open, product, on
       const videos = quickViewLayout.flatMap((block) => block.items.filter((item) => item.kind === 'video').map((item) => item.url).filter((url): url is string => Boolean(url)));
 
       const productInput = {
-        date: date.replaceAll('-', '.'),
-        title: title.trim(),
-        clientInformation: clientInformation.trim(),
-        describe: describe.trim(),
+        date: values.date.replaceAll('-', '.'),
+        title: values.title.trim(),
+        clientInformation: values.clientInformation.trim(),
+        describe: values.describe.trim(),
         imageUrl: thumbnailUrl,
         partnerLogoUrl: finalPartnerLogoUrl || undefined,
-        category,
+        category: values.category,
         videoUrl: videos[0] ?? (thumbnailYouTubeUrl ? rawThumbnailUrl : undefined),
         modelUrl: quickViewLayout.flatMap((block) => block.items).find((item) => item.kind === 'model')?.url,
         imageGallery: images,
@@ -207,13 +233,8 @@ const ProductAdminModal: React.FC<ProductAdminModalProps> = ({ open, product, on
         : await createDatabaseProduct(productInput);
       onSaved(savedProduct);
       onClose();
-      setTitle('');
-      setClientInformation('');
-      setDate('');
-      setDescribe('');
-      setImageUrl('');
+      reset(emptyProductForm);
       setThumbnailFile(null);
-      setPartnerLogoUrl('');
       setPartnerLogoFile(null);
       setProjectBlocks([]);
     } catch (error) {
@@ -256,31 +277,32 @@ const ProductAdminModal: React.FC<ProductAdminModalProps> = ({ open, product, on
             <button className="product-admin-submit" type="submit" disabled={submitting}>Sign in</button>
           </form>
         ) : (
-          <form className="product-admin-form product-admin-workspace-form" onSubmit={handleSave}>
+          <>
+          <form className="product-admin-form product-admin-workspace-form" onSubmit={submitForm(requestSave)}>
             <main className="product-admin-workspace-canvas">
-              <ProjectBlockEditor blocks={projectBlocks} onChange={setProjectBlocks} title={title} clientInformation={clientInformation} partnerLogoFile={partnerLogoFile} partnerLogoUrl={partnerLogoUrl} />
+              <ProjectBlockEditor blocks={projectBlocks} onChange={setProjectBlocks} title={title} clientInformation={clientInformation} partnerLogoFile={partnerLogoFile} partnerLogoUrl={partnerLogoUrl} onUseFrameAsCover={setThumbnailFile} />
             </main>
 
             <aside className="product-admin-workspace-sidebar">
               <section>
                 <div className="product-admin-sidebar-title"><span>{product ? 'Edit project' : 'Project details'}</span><small>{product ? `ID ${product.id}` : 'Required information'}</small></div>
-                <label>Project title<input value={title} onChange={(event) => setTitle(event.target.value)} required /></label>
-                <label>Client<input value={clientInformation} onChange={(event) => setClientInformation(event.target.value)} required /></label>
-                <label>Category<select id="product-category" value={category} onChange={(event) => setCategory(event.target.value as ProductCategory)}><option value="tvc">TVC</option><option value="cartoon-3d">Cartoon 3D</option><option value="art">Art</option><option value="showreel">Showreel</option></select></label>
-                <label>Project date<input type="date" value={date} onChange={(event) => setDate(event.target.value)} required /></label>
-                <label>Description<textarea id="product-description" rows={4} value={describe} onChange={(event) => setDescribe(event.target.value)} required /></label>
+                <label>Project title<input {...register('title')} />{errors.title && <small className="product-admin-field-error">{errors.title.message}</small>}</label>
+                <label>Client<input {...register('clientInformation')} />{errors.clientInformation && <small className="product-admin-field-error">{errors.clientInformation.message}</small>}</label>
+                <label>Category<select id="product-category" {...register('category')}><option value="tvc">TVC</option><option value="cartoon-3d">Cartoon 3D</option><option value="art">Art</option><option value="showreel">Showreel</option></select></label>
+                <label>Project date<input type="date" {...register('date')} />{errors.date && <small className="product-admin-field-error">{errors.date.message}</small>}</label>
+                <label>Description<textarea id="product-description" rows={4} {...register('describe')} />{errors.describe && <small className="product-admin-field-error">{errors.describe.message}</small>}</label>
               </section>
 
               <section>
                 <div className="product-admin-sidebar-title"><span>Cover image</span><small>Shown on product pages</small></div>
                 <label className="product-admin-file-field">Thumbnail from computer<input id="product-thumbnail-file" type="file" accept="image/*" onChange={(event) => setThumbnailFile(event.target.files?.[0] ?? null)} /><span>{thumbnailFile ? thumbnailFile.name : 'Choose one image'}</span></label>
-                <label>Or thumbnail / YouTube URL<input type="url" value={imageUrl} onChange={(event) => setImageUrl(event.target.value)} placeholder="https://youtube.com/watch?v=..." /></label>
+                <label>Or thumbnail / YouTube URL<input type="url" {...register('imageUrl')} placeholder="https://youtube.com/watch?v=..." />{errors.imageUrl && <small className="product-admin-field-error">{errors.imageUrl.message}</small>}</label>
               </section>
 
               <section>
                 <div className="product-admin-sidebar-title"><span>Partner logo</span><small>Shown in Quick View</small></div>
                 <label className="product-admin-file-field">Logo from computer<input type="file" accept="image/*" onChange={(event) => setPartnerLogoFile(event.target.files?.[0] ?? null)} /><span>{partnerLogoFile ? partnerLogoFile.name : 'Choose partner logo'}</span></label>
-                <label>Or logo URL<input type="url" value={partnerLogoUrl} onChange={(event) => setPartnerLogoUrl(event.target.value)} placeholder="https://..." /></label>
+                <label>Or logo URL<input type="url" {...register('partnerLogoUrl')} placeholder="https://..." />{errors.partnerLogoUrl && <small className="product-admin-field-error">{errors.partnerLogoUrl.message}</small>}</label>
               </section>
 
               <div className="product-admin-sidebar-actions">
@@ -292,7 +314,18 @@ const ProductAdminModal: React.FC<ProductAdminModalProps> = ({ open, product, on
                 <button className="product-admin-submit" type="submit" disabled={submitting}>{submitting ? 'Uploading and saving...' : product ? 'Save changes' : 'Complete project'}</button>
               </div>
             </aside>
+
           </form>
+          <ConfirmDialog
+            open={confirmOpen}
+            onOpenChange={setConfirmOpen}
+            title={product ? 'Save project changes?' : 'Publish this project?'}
+            description={product ? `The current information for "${title || product.title}" will be replaced.` : `"${title || 'This project'}" will appear in the selected product category.`}
+            confirmLabel={product ? 'Save changes' : 'Publish project'}
+            busy={submitting}
+            onConfirm={() => { if (pendingValues) void handleSave(pendingValues); }}
+          />
+          </>
         )}
       </section>
     </div>

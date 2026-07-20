@@ -1,0 +1,1 @@
+{"v":5,"entries":{"future-studio-confirm-dialog--default":{"type":"story","subtype":"story","id":"future-studio-confirm-dialog--default","name":"Default","title":"Future Studio/Confirm Dialog","importPath":"./frontend/src/components/ConfirmDialog.stories.tsx","componentPath":"./frontend/src/components/ConfirmDialog.tsx","tags":["dev","test","manifest"],"exportName":"Default"}}}

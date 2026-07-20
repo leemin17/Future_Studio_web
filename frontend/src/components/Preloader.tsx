@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 
 interface PreloaderProps {
@@ -11,58 +11,47 @@ const Preloader: React.FC<PreloaderProps> = ({ onComplete }) => {
 
     useEffect(() => {
         const previousBodyOverflow = document.body.style.overflow;
-        let completionTimeout: number | undefined;
-        let hasCompleted = false;
-        // Khóa cuộn trang khi đang loading
         document.body.style.overflow = 'hidden';
 
-        const updateProgress = () => {
-            setProgress((prev) => {
-                // Nhảy số ngẫu nhiên từ 1 đến 15 để tạo cảm giác load thật
-                const nextValue = Math.min(100, prev + Math.floor(Math.random() * 15) + 1);
-                
-                if (nextValue === 100 && !hasCompleted) {
-                    hasCompleted = true;
-                    window.clearInterval(interval);
-                    completionTimeout = window.setTimeout(() => {
-                        onComplete(); // Báo cho component cha biết đã load xong
-                        document.body.style.overflow = 'auto'; // Mở lại cuộn trang
-                    }, 400); // Dừng lại 0.4s ở 100% cho người dùng kịp nhìn
-                    return 100;
-                }
-                return nextValue;
+        const interval = window.setInterval(() => {
+            setProgress((currentProgress) => {
+                if (currentProgress >= 100) return 100;
+                const increment = Math.floor(Math.random() * 15) + 1;
+                return Math.min(100, currentProgress + increment);
             });
-        };
-
-        // Tốc độ nhảy số (càng nhỏ càng nhanh)
-        const interval = setInterval(updateProgress, 80);
+        }, 80);
 
         return () => {
             window.clearInterval(interval);
-            if (completionTimeout !== undefined) {
-                window.clearTimeout(completionTimeout);
-            }
             document.body.style.overflow = previousBodyOverflow;
         };
-    }, [onComplete]);
+    }, []);
+
+    useEffect(() => {
+        if (progress !== 100) return;
+
+        const completionTimeout = window.setTimeout(() => {
+            onComplete();
+        }, 600);
+
+        return () => window.clearTimeout(completionTimeout);
+    }, [progress, onComplete]);
 
     return (
-        <motion.div 
+        <motion.div
             className="preloader-overlay"
-            // Hiệu ứng khi Preloader biến mất (trượt lên trên và mờ dần)
             exit={{ y: '-100vh', opacity: 0 }}
-            transition={{ duration: 0.8, ease: [0.76, 0, 0.24, 1] }} // Cubic bezier chuẩn Apple
+            transition={{ duration: 0.8, ease: [0.76, 0, 0.24, 1] }}
         >
             <div className="preloader-content">
                 <span className="preloader-brand">Future Studio</span>
                 <div className="preloader-counter">{safeProgress}%</div>
             </div>
-            
-            {/* Thanh tiến trình chạy ngang dưới đáy màn hình (Tùy chọn) */}
+
             <div className="preloader-bar-bg">
-                <div 
-                    className="preloader-bar-fill" 
-                    style={{ width: `${safeProgress}%` }} 
+                <div
+                    className="preloader-bar-fill"
+                    style={{ width: `${safeProgress}%` }}
                 />
             </div>
         </motion.div>

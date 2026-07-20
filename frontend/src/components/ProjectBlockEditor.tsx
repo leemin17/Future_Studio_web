@@ -1,22 +1,9 @@
 import React, { useMemo, useRef } from 'react';
-import {
-  DndContext,
-  PointerSensor,
-  closestCenter,
-  useSensor,
-  useSensors,
-  type DragEndEvent,
-} from '@dnd-kit/core';
-import {
-  SortableContext,
-  arrayMove,
-  useSortable,
-  verticalListSortingStrategy,
-} from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
-import { Box, Code2, GripVertical, Grid2X2, Image as ImageIcon, Trash2, Type, Video } from 'lucide-react';
-import type { NewsItem } from '@shared/types';
+import { arrayMove } from '@dnd-kit/sortable';
+import { Box, Code2, Grid2X2, Image as ImageIcon, Type, Video } from 'lucide-react';
+import type { NewsItem, QuickViewTextStyle } from '@shared/types';
 import QuickViewModal from './QuickViewModal';
+import VideoFrameCapture from './VideoFrameCapture';
 
 export type ProjectBlockType = 'image' | 'text' | 'grid' | 'video' | 'embed' | 'model';
 
@@ -26,8 +13,10 @@ export interface ProjectEditorBlock {
   files: File[];
   url: string;
   content: string;
+  html: string;
   caption: string;
   columns: 1 | 2 | 3 | 4;
+  textStyle: QuickViewTextStyle;
 }
 
 interface ProjectBlockEditorProps {
@@ -37,6 +26,7 @@ interface ProjectBlockEditorProps {
   clientInformation: string;
   partnerLogoFile?: File | null;
   partnerLogoUrl?: string;
+  onUseFrameAsCover: (file: File) => void;
 }
 
 const blockLabels: Record<ProjectBlockType, string> = {
@@ -64,91 +54,19 @@ const makeBlock = (type: ProjectBlockType, files: File[] = []): ProjectEditorBlo
     files,
     url: '',
     content: '',
+    html: '',
     caption: '',
     columns: type === 'grid' ? automaticColumns : 1,
+    textStyle: {},
   };
 };
 
-const FilePreview: React.FC<{ file: File; type: 'image' | 'video' }> = ({ file, type }) => {
-  const [source, setSource] = React.useState('');
-  React.useEffect(() => {
-    const nextSource = URL.createObjectURL(file);
-    setSource(nextSource);
-    return () => URL.revokeObjectURL(nextSource);
-  }, [file]);
-  if (!source) return null;
-  return type === 'image' ? <img src={source} alt={file.name} /> : <video src={source} muted controls />;
-};
-
-interface SortableBlockProps {
-  block: ProjectEditorBlock;
-  update: (patch: Partial<ProjectEditorBlock>) => void;
-  remove: () => void;
-}
-
-const SortableBlock: React.FC<SortableBlockProps> = ({ block, update, remove }) => {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: block.id });
-  const style = { transform: CSS.Transform.toString(transform), transition };
-  const urls = block.url.split(/\r?\n/).map((url) => url.trim()).filter(Boolean);
-
-  return (
-    <article ref={setNodeRef} style={style} className={`project-editor-block project-editor-block--${block.type} ${isDragging ? 'is-dragging' : ''}`}>
-      <header>
-        <button type="button" className="project-editor-drag" {...attributes} {...listeners} aria-label="Drag to reorder"><GripVertical size={18} /></button>
-        <strong>{blockLabels[block.type]}</strong>
-        <span>{block.files.length ? `${block.files.length} file(s)` : 'Content block'}</span>
-        <button type="button" className="project-editor-delete" onClick={remove} aria-label="Delete block"><Trash2 size={17} /></button>
-      </header>
-
-      {block.type === 'text' ? (
-        <textarea rows={5} value={block.content} onChange={(event) => update({ content: event.target.value })} placeholder="Write a title, paragraph or project story..." />
-      ) : block.type === 'grid' ? (
-        <>
-          <div className={`project-editor-grid project-editor-grid--${block.columns}`}>
-            {block.files.map((file) => <FilePreview key={`${file.name}-${file.lastModified}`} file={file} type="image" />)}
-            {urls.map((url) => <img key={url} src={url} alt="Grid preview" />)}
-          </div>
-          <div className="project-editor-inline">
-            <label>Columns<select value={block.columns} onChange={(event) => update({ columns: Number(event.target.value) as 1 | 2 | 3 | 4 })}><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></label>
-            <label className="project-editor-grow">Image URLs<textarea rows={2} value={block.url} onChange={(event) => update({ url: event.target.value })} placeholder="One URL per line" /></label>
-          </div>
-        </>
-      ) : block.type === 'image' ? (
-        <>
-          <div className="project-editor-media-preview">
-            {block.files[0] ? <FilePreview file={block.files[0]} type="image" /> : block.url ? <img src={block.url} alt="Image preview" /> : <ImageIcon size={34} />}
-          </div>
-          <input type="url" value={block.url} onChange={(event) => update({ url: event.target.value })} placeholder="Or paste an image URL" />
-        </>
-      ) : block.type === 'video' ? (
-        <>
-          <div className="project-editor-media-preview project-editor-media-preview--video">
-            {block.files[0] ? <FilePreview file={block.files[0]} type="video" /> : <Video size={34} />}
-          </div>
-          <input type="url" value={block.url} onChange={(event) => update({ url: event.target.value })} placeholder="Vimeo, YouTube or direct video URL" />
-        </>
-      ) : (
-        <div className="project-editor-url-block">
-          {block.type === 'embed' ? <Code2 size={30} /> : <Box size={30} />}
-          <input type="url" value={block.url} onChange={(event) => update({ url: event.target.value })} placeholder={block.type === 'embed' ? 'Paste an embeddable URL' : 'Paste a Sketchfab or 3D viewer URL'} />
-        </div>
-      )}
-
-      {block.type !== 'text' && (
-        <input className="project-editor-caption" value={block.caption} onChange={(event) => update({ caption: event.target.value })} placeholder="Add a caption (optional)" />
-      )}
-    </article>
-  );
-};
-
-const ProjectBlockEditor: React.FC<ProjectBlockEditorProps> = ({ blocks, onChange, title, clientInformation, partnerLogoFile, partnerLogoUrl = '' }) => {
+const ProjectBlockEditor: React.FC<ProjectBlockEditorProps> = ({ blocks, onChange, title, clientInformation, partnerLogoFile, partnerLogoUrl = '', onUseFrameAsCover }) => {
   const imageInput = useRef<HTMLInputElement>(null);
   const gridInput = useRef<HTMLInputElement>(null);
   const videoInput = useRef<HTMLInputElement>(null);
   const [videoOptionsOpen, setVideoOptionsOpen] = React.useState(false);
   const [videoLink, setVideoLink] = React.useState('');
-  const [manageBlocksOpen, setManageBlocksOpen] = React.useState(false);
-  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }));
   const [previewFileUrls, setPreviewFileUrls] = React.useState<Map<File, string>>(new Map());
 
   React.useEffect(() => {
@@ -165,7 +83,7 @@ const ProjectBlockEditor: React.FC<ProjectBlockEditorProps> = ({ blocks, onChang
       const externalUrls = block.url.split(/\r?\n/).map((url) => url.trim()).filter(Boolean);
       const urls = [...fileUrls, ...externalUrls];
       if (block.type === 'text') {
-        return block.content.trim() ? [{ type: 'text' as const, items: [{ kind: 'text' as const, content: block.content.trim() }] }] : [];
+        return [{ type: 'text' as const, items: [{ kind: 'text' as const, content: block.content, html: block.html, textStyle: block.textStyle }] }];
       }
       if (!urls.length) return [];
       if (block.type === 'grid') {
@@ -186,19 +104,17 @@ const ProjectBlockEditor: React.FC<ProjectBlockEditorProps> = ({ blocks, onChang
     };
     return product;
   }, [blocks, clientInformation, partnerLogoFile, partnerLogoUrl, previewFileUrls, title]);
+  const visibleBlocks = blocks.filter((block) => block.type === 'text' || block.files.length > 0 || block.url.trim());
 
-  const addSimpleBlock = (type: ProjectBlockType) => onChange([...blocks, makeBlock(type)]);
+  const addSimpleBlock = (type: ProjectBlockType) => {
+    onChange([...blocks, makeBlock(type)]);
+  };
   const addFiles = (type: 'image' | 'grid' | 'video', files: File[]) => {
     if (!files.length) return;
     if (type === 'grid') onChange([...blocks, makeBlock(type, files)]);
     else onChange([...blocks, ...files.map((file) => makeBlock(type, [file]))]);
   };
-  const handleDragEnd = ({ active, over }: DragEndEvent) => {
-    if (!over || active.id === over.id) return;
-    const oldIndex = blocks.findIndex((block) => block.id === active.id);
-    const newIndex = blocks.findIndex((block) => block.id === over.id);
-    onChange(arrayMove(blocks, oldIndex, newIndex));
-  };
+
 
   const tools: { type: ProjectBlockType; icon: React.ReactNode; action: () => void }[] = [
     { type: 'image', icon: <ImageIcon size={20} />, action: () => imageInput.current?.click() },
@@ -214,7 +130,40 @@ const ProjectBlockEditor: React.FC<ProjectBlockEditorProps> = ({ blocks, onChang
       <div className="project-editor-canvas">
         <div className="project-editor-live-preview">
           {previewData.quickViewLayout?.length ? (
-            <QuickViewModal product={previewData} onClose={() => undefined} embedded />
+            <QuickViewModal
+              product={previewData}
+              onClose={() => undefined}
+              embedded
+              onEmbeddedTextChange={(textIndex, value, html) => {
+                const textBlock = blocks.filter((block) => block.type === 'text')[textIndex];
+                if (textBlock) onChange(blocks.map((block) => block.id === textBlock.id ? { ...block, content: value, html } : block));
+              }}
+              onEmbeddedTextRemove={(textIndex) => {
+                const textBlock = blocks.filter((block) => block.type === 'text')[textIndex];
+                if (textBlock) onChange(blocks.filter((block) => block.id !== textBlock.id));
+              }}
+              onEmbeddedTextStyleChange={(textIndex, textStyle) => {
+                const textBlock = blocks.filter((block) => block.type === 'text')[textIndex];
+                if (textBlock) onChange(blocks.map((block) => block.id === textBlock.id ? { ...block, textStyle } : block));
+              }}
+              onEmbeddedBlockRemove={(blockIndex) => {
+                const target = visibleBlocks[blockIndex];
+                if (target) onChange(blocks.filter((block) => block.id !== target.id));
+              }}
+              onEmbeddedBlockMove={(blockIndex, direction) => {
+                const target = visibleBlocks[blockIndex];
+                if (!target) return;
+                const currentIndex = blocks.findIndex((block) => block.id === target.id);
+                const adjacentVisible = visibleBlocks[blockIndex + direction];
+                if (!adjacentVisible) return;
+                const nextIndex = blocks.findIndex((block) => block.id === adjacentVisible.id);
+                onChange(arrayMove(blocks, currentIndex, nextIndex));
+              }}
+              onEmbeddedGridColumnsChange={(blockIndex, columns) => {
+                const target = visibleBlocks[blockIndex];
+                if (target) onChange(blocks.map((block) => block.id === target.id ? { ...block, columns } : block));
+              }}
+            />
           ) : (
             <div className="project-editor-preview-placeholder"><ImageIcon size={28} /><span>Your Quick View preview will appear here</span></div>
           )}
@@ -225,12 +174,16 @@ const ProjectBlockEditor: React.FC<ProjectBlockEditorProps> = ({ blocks, onChang
         <div>
           {tools.map((tool) => <button key={tool.type} type="button" onClick={tool.action}>{tool.icon}<strong>{blockLabels[tool.type]}</strong></button>)}
         </div>
-        {blocks.length > 0 && (
-          <button className="project-editor-manage-toggle" type="button" onClick={() => setManageBlocksOpen((open) => !open)}>
-            <span>Manage {blocks.length} block(s)</span>
-            <strong>{manageBlocksOpen ? 'Close' : 'Open'}</strong>
-          </button>
-        )}
+        <div className="project-editor-frame-tool">
+          <div className="project-editor-frame-tool-title">
+            <strong>Cut image from video</strong>
+            <small>New</small>
+          </div>
+          <VideoFrameCapture
+            onUseAsCover={onUseFrameAsCover}
+            onAddToQuickView={(file) => addFiles('image', [file])}
+          />
+        </div>
         {videoOptionsOpen && (
           <div className="project-editor-video-options">
             <strong>Add video or audio</strong>
@@ -250,23 +203,6 @@ const ProjectBlockEditor: React.FC<ProjectBlockEditorProps> = ({ blocks, onChang
               }}
             >Add link</button>
           </div>
-        )}
-        {blocks.length > 0 && manageBlocksOpen && (
-          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-            <SortableContext items={blocks.map((block) => block.id)} strategy={verticalListSortingStrategy}>
-              <div className="project-editor-blocks project-editor-blocks--controls">
-                <span className="project-editor-controls-title">Arrange content</span>
-                {blocks.map((block) => (
-                  <SortableBlock
-                    key={block.id}
-                    block={block}
-                    update={(patch) => onChange(blocks.map((item) => item.id === block.id ? { ...item, ...patch } : item))}
-                    remove={() => onChange(blocks.filter((item) => item.id !== block.id))}
-                  />
-                ))}
-              </div>
-            </SortableContext>
-          </DndContext>
         )}
         <p>Tip: hold the drag handle to change the content order.</p>
       </aside>
