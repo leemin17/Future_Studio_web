@@ -7,6 +7,7 @@ interface PreloaderProps {
 
 const Preloader: React.FC<PreloaderProps> = ({ onComplete }) => {
     const [progress, setProgress] = useState(0);
+    const safeProgress = Math.min(100, Math.max(0, progress));
 
     useEffect(() => {
         const previousBodyOverflow = document.body.style.overflow;
@@ -18,9 +19,9 @@ const Preloader: React.FC<PreloaderProps> = ({ onComplete }) => {
         const updateProgress = () => {
             setProgress((prev) => {
                 // Nhảy số ngẫu nhiên từ 1 đến 15 để tạo cảm giác load thật
-                const nextValue = prev + Math.floor(Math.random() * 15) + 1;
+                const nextValue = Math.min(100, prev + Math.floor(Math.random() * 15) + 1);
                 
-                if (nextValue >= 100 && !hasCompleted) {
+                if (nextValue === 100 && !hasCompleted) {
                     hasCompleted = true;
                     window.clearInterval(interval);
                     completionTimeout = window.setTimeout(() => {
@@ -54,14 +55,14 @@ const Preloader: React.FC<PreloaderProps> = ({ onComplete }) => {
         >
             <div className="preloader-content">
                 <span className="preloader-brand">Future Studio</span>
-                <div className="preloader-counter">{progress}%</div>
+                <div className="preloader-counter">{safeProgress}%</div>
             </div>
             
             {/* Thanh tiến trình chạy ngang dưới đáy màn hình (Tùy chọn) */}
             <div className="preloader-bar-bg">
                 <div 
                     className="preloader-bar-fill" 
-                    style={{ width: `${progress}%` }} 
+                    style={{ width: `${safeProgress}%` }} 
                 />
             </div>
         </motion.div>
