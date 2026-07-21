@@ -55,11 +55,58 @@ const getYouTubeId = (url: string): string => {
 const isYouTubeUrl = (url: string): boolean => /(?:youtube\.com|youtu\.be)/i.test(url);
 const isAudioUrl = (url: string): boolean => /\.(mp3|wav|ogg|m4a|aac|flac)(?:[?#].*)?$/i.test(url);
 const isDirectVideoUrl = (url: string): boolean => /\.(mp4|webm|mov|m4v|ogv)(?:[?#].*)?$/i.test(url) || /^(blob:|data:video)/i.test(url);
+const isDefaultProjectThumbnail = (url: string): boolean => !url || /(?:^|\/)(?:logo|logo_text)\.(?:jpe?g|png|webp)(?:[?#].*)?$/i.test(url);
 const getGenericEmbedUrl = (url: string): string => {
   if (/drive\.google\.com/i.test(url)) {
     return url.replace(/\/view(?:\?.*)?$/i, '/preview').replace(/\/edit(?:\?.*)?$/i, '/preview');
   }
   return url;
+};
+
+const QuickViewNextThumbnail: React.FC<{ product: NewsItem }> = ({ product }) => {
+  const videoUrl = product.videoUrl?.trim() ?? '';
+  const youtubeId = getYouTubeId(videoUrl);
+  const [thumbnail, setThumbnail] = useState(() => (
+    isDefaultProjectThumbnail(product.imageUrl) && youtubeId
+      ? `https://img.youtube.com/vi/${youtubeId}/maxresdefault.jpg`
+      : product.imageUrl
+  ));
+
+  useEffect(() => {
+    if (!isDefaultProjectThumbnail(product.imageUrl)) {
+      setThumbnail(product.imageUrl);
+      return;
+    }
+
+    if (youtubeId) {
+      setThumbnail(`https://img.youtube.com/vi/${youtubeId}/maxresdefault.jpg`);
+      return;
+    }
+
+    if (videoUrl.includes('vimeo')) {
+      fetch(`https://vimeo.com/api/oembed.json?url=${encodeURIComponent(videoUrl)}&width=1280`)
+        .then((response) => response.json())
+        .then((data: { thumbnail_url?: string }) => {
+          if (data.thumbnail_url) setThumbnail(data.thumbnail_url);
+        })
+        .catch(() => setThumbnail(product.imageUrl));
+      return;
+    }
+
+    setThumbnail(product.imageUrl);
+  }, [product.imageUrl, videoUrl, youtubeId]);
+
+  return (
+    <img
+      src={resolveMediaUrl(thumbnail)}
+      alt={`${product.title} preview`}
+      onError={() => {
+        if (youtubeId && thumbnail.includes('maxresdefault')) {
+          setThumbnail(`https://img.youtube.com/vi/${youtubeId}/hqdefault.jpg`);
+        }
+      }}
+    />
+  );
 };
 
 type MediaType = 'image' | 'video' | 'text' | 'embed' | 'model';
@@ -417,7 +464,7 @@ const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, onClose, embed
                       {nextProducts.map((nextProduct) => (
                         <button key={nextProduct.id} type="button" className="quick-view-next-project" onClick={() => openNextProject(nextProduct)}>
                           <span className="quick-view-next-media">
-                            <img src={resolveMediaUrl(nextProduct.imageUrl)} alt={`${nextProduct.title} preview`} />
+                            <QuickViewNextThumbnail product={nextProduct} />
                           </span>
                           <span className="quick-view-next-copy">
                             <small>Next project</small>
