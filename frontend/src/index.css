@@ -4774,6 +4774,46 @@ iframe {
   border: 1px solid rgba(255, 255, 255, .14);
 }
 
+.product-admin-password-field {
+  position: relative;
+  display: block;
+}
+
+.product-admin-password-field input {
+  width: 100%;
+  padding-right: 48px !important;
+  box-sizing: border-box;
+}
+
+.product-admin-password-field button {
+  position: absolute;
+  top: 50%;
+  right: 7px;
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  transform: translateY(-50%);
+  border: 0;
+  border-radius: 0;
+  background: transparent !important;
+  color: rgba(255, 255, 255, .62);
+  cursor: pointer;
+  transition: none !important;
+  box-shadow: none !important;
+  transform: translateY(-50%) !important;
+}
+
+.product-admin-password-field button:hover,
+.product-admin-password-field button:focus-visible {
+  background: transparent !important;
+  color: rgba(255, 255, 255, .62);
+  box-shadow: none;
+  transform: translateY(-50%) !important;
+  outline: none;
+}
+
 .product-admin-modal--login .product-admin-submit {
   min-height: 46px;
   color: #111;
