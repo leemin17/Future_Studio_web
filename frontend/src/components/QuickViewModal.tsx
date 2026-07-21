@@ -1,10 +1,15 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { motion, AnimatePresence, type Variants } from 'framer-motion';
-import type { NewsItem, QuickViewTextStyle } from '@shared/types';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { contactLinks as fallbackContactLinks } from '@shared/fallbackData';
+import type { ContactLink, NewsItem, QuickViewTextStyle } from '@shared/types';
 import DOMPurify from 'dompurify';
 import { IoRefresh } from 'react-icons/io5';
 import Player from '@vimeo/player';
 import { getAssetUrl, resolveMediaUrl } from '../utils/media';
+import { useSiteContent } from '../hooks/useSiteContent';
+import { useSupabaseProducts } from '../hooks/useSupabaseProducts';
+import { getProjectPath } from '../utils/projectRoutes';
 import RichTextBlockEditor from './RichTextBlockEditor';
 
 interface QuickViewModalProps {
@@ -267,10 +272,30 @@ const QuickViewVideo: React.FC<QuickViewVideoProps> = ({ item, product }) => {
 };
 
 const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, onClose, embedded = false, onEmbeddedTextChange, onEmbeddedTextRemove, onEmbeddedTextStyleChange, onEmbeddedBlockMove, onEmbeddedBlockRemove, onEmbeddedGridColumnsChange }) => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const backdropRef = useRef<HTMLDivElement>(null);
+  const products = useSupabaseProducts();
+  const contactLinks = useSiteContent<ContactLink[]>('contact_links', fallbackContactLinks);
   const mediaItems = useMemo(() => buildQuickMedia(product), [product]);
   const mediaLayout = useMemo(() => buildQuickLayout(product, mediaItems, embedded), [embedded, product, mediaItems]);
   const hasCustomLayout = Boolean(product?.quickViewLayout?.length);
   const hasVideo = mediaLayout.some((block) => block.items.some((item) => item.kind === 'video'));
+  const nextProduct = useMemo(() => {
+    if (!product || products.length < 2) return null;
+    const currentIndex = products.findIndex((item) => item.id === product.id);
+    return products[(currentIndex >= 0 ? currentIndex + 1 : 0) % products.length] ?? null;
+  }, [product, products]);
+  const footerLinks = useMemo(
+    () => contactLinks.filter((item) => ['instagram', 'facebook', 'gmail'].includes(item.icon)),
+    [contactLinks],
+  );
+
+  const openNextProject = () => {
+    if (!nextProduct) return;
+    navigate(getProjectPath(nextProduct), { replace: true, state: location.state });
+    backdropRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   const renderMedia = (item: MediaItem | undefined, textIndex = 0) => {
     if (!item) return null;
@@ -324,6 +349,7 @@ const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, onClose, embed
     <AnimatePresence>
       {product && (
         <motion.div
+          ref={backdropRef}
           className={`quick-view-backdrop ${embedded ? 'quick-view-backdrop--embedded' : ''}`}
           variants={backdropVariants}
           initial="hidden"
@@ -379,6 +405,39 @@ const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, onClose, embed
                   </div>
                 ))}
               </div>
+
+              {!embedded && (
+                <footer className="quick-view-footer">
+                  {nextProduct && (
+                    <button type="button" className="quick-view-next-project" onClick={openNextProject}>
+                      <span className="quick-view-next-media">
+                        <img src={resolveMediaUrl(nextProduct.imageUrl)} alt={`${nextProduct.title} preview`} />
+                      </span>
+                      <span className="quick-view-next-copy">
+                        <small>Next project</small>
+                        <strong>{nextProduct.title}</strong>
+                        <span>{nextProduct.clientInformation} <i aria-hidden="true">&#8599;</i></span>
+                      </span>
+                    </button>
+                  )}
+
+                  <div className="quick-view-footer-cta">
+                    <p>Have a project in mind?</p>
+                    <h2>Let's create something<br />worth remembering.</h2>
+                    <button type="button" onClick={() => navigate('/contact')}>Contact us <span aria-hidden="true">&#8599;</span></button>
+                  </div>
+
+                  <div className="quick-view-footer-bottom">
+                    <span>&copy; {new Date().getFullYear()} Future Studio</span>
+                    <nav aria-label="Future Studio social links">
+                      {footerLinks.map((item) => (
+                        <a key={item.label} href={item.href} target={item.href.startsWith('http') ? '_blank' : undefined} rel="noreferrer">{item.label}</a>
+                      ))}
+                    </nav>
+                    <button type="button" onClick={() => backdropRef.current?.scrollTo({ top: 0, behavior: 'smooth' })}>Back to top <span aria-hidden="true">&#8593;</span></button>
+                  </div>
+                </footer>
+              )}
 
               {/* <div className="quick-view-detail">
                 <p className="quick-view-date">{product.date}</p>
