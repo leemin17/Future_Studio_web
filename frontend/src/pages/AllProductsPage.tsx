@@ -274,15 +274,22 @@ const AllProductsPage: React.FC<AllProductsPageProps> = ({ category }) => {
   };
 
   const handleProductClick = (item: NewsItem) => {
-    setSelectedProduct(item);
-    navigate(getProjectPath(item), { state: { quickViewFrom: location.pathname } });
+    navigate(getProjectPath(item), {
+      state: {
+        quickViewFrom: location.pathname,
+        backgroundLocation: location,
+      },
+    });
   };
 
   const handleCloseQuickView = () => {
     setSelectedProduct(null);
     if (projectSlug) {
       const state = location.state as { quickViewFrom?: string } | null;
-      navigate(state?.quickViewFrom || '/all-products', { replace: true });
+      navigate(state?.quickViewFrom || '/all-products', {
+        replace: true,
+        state: { skipPreloader: true },
+      });
     }
   };
 

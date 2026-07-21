@@ -1,5 +1,6 @@
 import React, { Suspense } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
+import type { Location } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
 
 import PageTransition from '../components/PageTransition';
@@ -10,6 +11,7 @@ const AllProductsPage = React.lazy(() => import('./AllProductsPage'));
 const TeamPage = React.lazy(() => import('./TeamPage'));
 const ContactPage = React.lazy(() => import('./ContactPage'));
 const AdminPage = React.lazy(() => import('./AdminPage'));
+const ProjectQuickViewRoute = React.lazy(() => import('./ProjectQuickViewRoute'));
 
 // Component hiển thị trong lúc chờ tải trang
 const LoadingFallback = () => (
@@ -19,11 +21,13 @@ const LoadingFallback = () => (
 
 const AppRoutes: React.FC = () => {
     const location = useLocation();
+    const backgroundLocation = (location.state as { backgroundLocation?: Location } | null)?.backgroundLocation;
+    const pageLocation = backgroundLocation ?? location;
 
     return (
         <Suspense fallback={<LoadingFallback />}>
             <AnimatePresence mode="wait">
-                <Routes location={location} key={location.pathname}>
+                <Routes location={pageLocation} key={pageLocation.pathname}>
                     <Route path="/" element={<PageTransition><HomePage /></PageTransition>} />
                     <Route path="/all-products" element={<PageTransition><AllProductsPage /></PageTransition>} />
                     <Route path="/cartoon-3d" element={<PageTransition><AllProductsPage category="cartoon-3d" /></PageTransition>} />
@@ -36,6 +40,11 @@ const AppRoutes: React.FC = () => {
                     <Route path="/admin" element={<AdminPage />} />
                 </Routes>
             </AnimatePresence>
+            {backgroundLocation && (
+                <Routes>
+                    <Route path="/projects/:projectSlug" element={<ProjectQuickViewRoute />} />
+                </Routes>
+            )}
         </Suspense>
     );
 }

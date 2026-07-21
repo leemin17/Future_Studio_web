@@ -11,14 +11,16 @@ import { useAppNavigation } from './hooks/useAppNavigation';
 const App: React.FC = () => {
   const location = useLocation();
   const { goHome } = useAppNavigation();
+  const isQuickViewRoute = location.pathname.startsWith('/projects/');
+  const skipPreloader = Boolean((location.state as { skipPreloader?: boolean } | null)?.skipPreloader);
 
   // 1. Quản lý trạng thái loading
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(() => !isQuickViewRoute && !skipPreloader);
 
   // 2. Mỗi khi location.pathname thay đổi, reset lại trạng thái loading
   useEffect(() => {
-    setIsLoading(true); // Kích hoạt Preloader
-  }, [location.pathname]); // Lắng nghe sự thay đổi URL
+    setIsLoading(!isQuickViewRoute && !skipPreloader);
+  }, [isQuickViewRoute, location.pathname, skipPreloader]);
 
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
