@@ -183,14 +183,14 @@ const ProjectBlockEditor: React.FC<ProjectBlockEditorProps> = ({ blocks, onChang
           </div>
           <VideoFrameCapture
             onUseAsCover={onUseFrameAsCover}
-            onAddToQuickView={(file) => new Promise<void>((resolve, reject) => {
+            onAddToQuickView={(files) => new Promise<void>((resolve, reject) => {
               requestAnimationFrame(() => {
                 try {
-                  const imageBlock = makeBlock('image', [file]);
-                  startPreviewTransition(() => onChange([...blocks, imageBlock]));
+                  const imageBlocks = files.map((file) => makeBlock('image', [file]));
+                  startPreviewTransition(() => onChange([...blocks, ...imageBlocks]));
                   requestAnimationFrame(() => resolve());
                 } catch (error) {
-                  reject(error instanceof Error ? error : new Error('Quick View could not add this image block.'));
+                  reject(error instanceof Error ? error : new Error('Quick View could not add these image blocks.'));
                 }
               });
             })}
