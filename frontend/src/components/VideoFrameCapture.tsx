@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { Camera, Check, ImagePlus, Maximize2, Pause, Play, Trash2, Upload, X } from 'lucide-react';
+import { Camera, Check, ImagePlus, Maximize2, Pause, Play, Sparkles, Trash2, Upload, X } from 'lucide-react';
 
 interface VideoFrameCaptureProps {
   onUseAsCover: (file: File) => void;
@@ -36,10 +36,91 @@ const parseTime = (value: string) => {
   return null;
 };
 
+interface FrameSample {
+  time: number;
+  signature: Uint8Array;
+  brightness: number;
+  contrast: number;
+  sharpness: number;
+  score: number;
+}
+
+const waitForMetadata = (video: HTMLVideoElement) => new Promise<void>((resolve, reject) => {
+  if (video.readyState >= 1 && Number.isFinite(video.duration)) {
+    resolve();
+    return;
+  }
+  const handleLoaded = () => { cleanup(); resolve(); };
+  const handleError = () => { cleanup(); reject(new Error('The selected video could not be analyzed.')); };
+  const cleanup = () => {
+    video.removeEventListener('loadedmetadata', handleLoaded);
+    video.removeEventListener('error', handleError);
+  };
+  video.addEventListener('loadedmetadata', handleLoaded);
+  video.addEventListener('error', handleError);
+  video.load();
+});
+
+const seekVideo = (video: HTMLVideoElement, time: number) => new Promise<void>((resolve, reject) => {
+  const safeTime = Math.min(Math.max(time, 0), Math.max(0, video.duration - 0.001));
+  if (Math.abs(video.currentTime - safeTime) < 0.002 && video.readyState >= 2) {
+    resolve();
+    return;
+  }
+  const timeout = window.setTimeout(() => {
+    cleanup();
+    reject(new Error('Video seeking took too long. Please try another file format.'));
+  }, 8000);
+  const handleSeeked = () => { cleanup(); resolve(); };
+  const handleError = () => { cleanup(); reject(new Error('Unable to read this position in the video.')); };
+  const cleanup = () => {
+    window.clearTimeout(timeout);
+    video.removeEventListener('seeked', handleSeeked);
+    video.removeEventListener('error', handleError);
+  };
+  video.addEventListener('seeked', handleSeeked);
+  video.addEventListener('error', handleError);
+  video.currentTime = safeTime;
+});
+
+const inspectFrame = (video: HTMLVideoElement, canvas: HTMLCanvasElement, context: CanvasRenderingContext2D): FrameSample => {
+  context.drawImage(video, 0, 0, canvas.width, canvas.height);
+  const pixels = context.getImageData(0, 0, canvas.width, canvas.height).data;
+  const signature = new Uint8Array(canvas.width * canvas.height);
+  let sum = 0;
+  let sumSquared = 0;
+  let edgeSum = 0;
+
+  for (let pixelIndex = 0, sampleIndex = 0; pixelIndex < pixels.length; pixelIndex += 4, sampleIndex += 1) {
+    const luminance = Math.round(pixels[pixelIndex] * 0.2126 + pixels[pixelIndex + 1] * 0.7152 + pixels[pixelIndex + 2] * 0.0722);
+    signature[sampleIndex] = luminance;
+    sum += luminance;
+    sumSquared += luminance * luminance;
+    const x = sampleIndex % canvas.width;
+    const y = Math.floor(sampleIndex / canvas.width);
+    if (x > 0) edgeSum += Math.abs(luminance - signature[sampleIndex - 1]);
+    if (y > 0) edgeSum += Math.abs(luminance - signature[sampleIndex - canvas.width]);
+  }
+
+  const count = signature.length;
+  const brightness = sum / count;
+  const contrast = Math.sqrt(Math.max(0, sumSquared / count - brightness * brightness));
+  const sharpness = edgeSum / Math.max(1, count * 2 - canvas.width - canvas.height);
+  const exposurePenalty = Math.abs(brightness - 128) * 0.22;
+  return { time: video.currentTime, signature, brightness, contrast, sharpness, score: sharpness * 1.8 + contrast - exposurePenalty };
+};
+
+const signatureDifference = (first: Uint8Array, second: Uint8Array) => {
+  let difference = 0;
+  for (let index = 0; index < first.length; index += 1) difference += Math.abs(first[index] - second[index]);
+  return difference / Math.max(1, first.length);
+};
+
 const VideoFrameCapture: React.FC<VideoFrameCaptureProps> = ({ onUseAsCover, onAddToQuickView }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const frameUrlsRef = useRef<Set<string>>(new Set());
+  const analysisRunRef = useRef(0);
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [videoUrl, setVideoUrl] = useState('');
   const [duration, setDuration] = useState(0);
@@ -49,6 +130,9 @@ const VideoFrameCapture: React.FC<VideoFrameCaptureProps> = ({ onUseAsCover, onA
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [isExpanded, setIsExpanded] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [autoAnalyzing, setAutoAnalyzing] = useState(false);
+  const [autoProgress, setAutoProgress] = useState(0);
+  const [autoFrameCount, setAutoFrameCount] = useState(8);
   const [errorMessage, setErrorMessage] = useState('');
   const [processing, setProcessing] = useState(false);
   const [addingToQuickView, setAddingToQuickView] = useState(false);
@@ -91,6 +175,11 @@ const VideoFrameCapture: React.FC<VideoFrameCaptureProps> = ({ onUseAsCover, onA
   };
 
   const closeCutter = () => {
+    if (autoAnalyzing && !window.confirm('Automatic frame selection is still running. Stop and close?')) return;
+    if (autoAnalyzing) {
+      analysisRunRef.current += 1;
+      setAutoAnalyzing(false);
+    }
     if (unsavedFrames.length && !window.confirm(`You have ${unsavedFrames.length} unsaved captured image(s). Close anyway?`)) return;
     setIsExpanded(false);
   };
@@ -215,6 +304,129 @@ const VideoFrameCapture: React.FC<VideoFrameCaptureProps> = ({ onUseAsCover, onA
     }
   };
 
+  const autoSelectFrames = async () => {
+    if (!videoUrl || autoAnalyzing) return;
+    const runId = analysisRunRef.current + 1;
+    analysisRunRef.current = runId;
+    setAutoAnalyzing(true);
+    setAutoProgress(1);
+    setErrorMessage('');
+    setActionMessage('Scanning video scenes...');
+
+    const analysisVideo = document.createElement('video');
+    analysisVideo.src = videoUrl;
+    analysisVideo.muted = true;
+    analysisVideo.playsInline = true;
+    analysisVideo.preload = 'auto';
+
+    try {
+      await waitForMetadata(analysisVideo);
+      const analysisDuration = analysisVideo.duration;
+      if (!Number.isFinite(analysisDuration) || analysisDuration <= 0) throw new Error('The video duration is unavailable.');
+
+      const sampleCanvas = document.createElement('canvas');
+      sampleCanvas.width = 96;
+      sampleCanvas.height = Math.max(54, Math.round(96 * (analysisVideo.videoHeight / Math.max(1, analysisVideo.videoWidth))));
+      const sampleContext = sampleCanvas.getContext('2d', { alpha: false, willReadFrequently: true });
+      if (!sampleContext) throw new Error('The browser could not prepare automatic frame analysis.');
+
+      const sampleInterval = Math.max(0.45, Math.min(1.5, analysisDuration / 110));
+      const sampleTimes: number[] = [];
+      for (let time = Math.min(0.15, analysisDuration / 2); time < analysisDuration - 0.02; time += sampleInterval) sampleTimes.push(time);
+      if (!sampleTimes.length) sampleTimes.push(0);
+
+      const samples: FrameSample[] = [];
+      const sceneCuts = [0];
+      let previousSample: FrameSample | null = null;
+      let lastCut = 0;
+
+      for (let index = 0; index < sampleTimes.length; index += 1) {
+        if (analysisRunRef.current !== runId) return;
+        await seekVideo(analysisVideo, sampleTimes[index]);
+        const sample = inspectFrame(analysisVideo, sampleCanvas, sampleContext);
+        samples.push(sample);
+        if (previousSample && sample.time - lastCut >= 0.8 && signatureDifference(previousSample.signature, sample.signature) >= 28) {
+          sceneCuts.push((previousSample.time + sample.time) / 2);
+          lastCut = sample.time;
+        }
+        previousSample = sample;
+        setAutoProgress(Math.max(2, Math.round(((index + 1) / sampleTimes.length) * 70)));
+      }
+      sceneCuts.push(analysisDuration);
+
+      const candidates: FrameSample[] = [];
+      for (let sceneIndex = 0; sceneIndex < sceneCuts.length - 1; sceneIndex += 1) {
+        const sceneStart = sceneCuts[sceneIndex];
+        const sceneEnd = sceneCuts[sceneIndex + 1];
+        const margin = Math.min(0.2, Math.max(0, (sceneEnd - sceneStart) * 0.12));
+        const sceneSamples = samples.filter((sample) => sample.time >= sceneStart + margin && sample.time <= sceneEnd - margin && sample.brightness >= 18 && sample.brightness <= 240 && sample.contrast >= 7);
+        const bestSample = sceneSamples.sort((first, second) => second.score - first.score)[0];
+        if (bestSample) candidates.push(bestSample);
+      }
+
+      if (candidates.length < autoFrameCount) {
+        const existingTimes = new Set(candidates.map((candidate) => candidate.time));
+        const extraSamples = samples
+          .filter((sample) => !existingTimes.has(sample.time) && sample.brightness >= 18 && sample.brightness <= 240 && sample.contrast >= 7)
+          .sort((first, second) => second.score - first.score);
+        for (const sample of extraSamples) {
+          if (candidates.length >= autoFrameCount) break;
+          if (candidates.every((candidate) => Math.abs(candidate.time - sample.time) >= 0.65)) candidates.push(sample);
+        }
+      }
+
+      const selectedCandidates = candidates
+        .sort((first, second) => second.score - first.score)
+        .slice(0, autoFrameCount)
+        .sort((first, second) => first.time - second.time);
+      if (!selectedCandidates.length) throw new Error('No usable frames were found. Try manual capture for this video.');
+
+      setActionMessage(`Extracting ${selectedCandidates.length} recommended frame(s)...`);
+      const generatedFrames: CapturedFrame[] = [];
+      for (let index = 0; index < selectedCandidates.length; index += 1) {
+        if (analysisRunRef.current !== runId) return;
+        const candidate = selectedCandidates[index];
+        await seekVideo(analysisVideo, candidate.time);
+        const maxDimension = 1920;
+        const scale = Math.min(1, maxDimension / Math.max(analysisVideo.videoWidth, analysisVideo.videoHeight));
+        const outputCanvas = document.createElement('canvas');
+        outputCanvas.width = Math.max(1, Math.round(analysisVideo.videoWidth * scale));
+        outputCanvas.height = Math.max(1, Math.round(analysisVideo.videoHeight * scale));
+        const outputContext = outputCanvas.getContext('2d', { alpha: false });
+        if (!outputContext) throw new Error('A recommended frame could not be prepared.');
+        outputContext.imageSmoothingEnabled = true;
+        outputContext.imageSmoothingQuality = 'high';
+        outputContext.drawImage(analysisVideo, 0, 0, outputCanvas.width, outputCanvas.height);
+        const blob = await new Promise<Blob | null>((resolve) => outputCanvas.toBlob(resolve, 'image/jpeg', 0.9));
+        outputCanvas.width = 1;
+        outputCanvas.height = 1;
+        if (!blob) continue;
+        const baseName = videoFile?.name.replace(/\.[^.]+$/, '') || 'video';
+        const file = new File([blob], `${baseName}-auto-${candidate.time.toFixed(3).replace('.', '-')}.jpg`, { type: 'image/jpeg', lastModified: Date.now() });
+        const id = `auto-frame-${Date.now()}-${index}-${Math.random().toString(36).slice(2, 6)}`;
+        const url = URL.createObjectURL(file);
+        frameUrlsRef.current.add(url);
+        generatedFrames.push({ id, file, url, time: candidate.time, saved: false });
+        setAutoProgress(70 + Math.round(((index + 1) / selectedCandidates.length) * 30));
+      }
+
+      setFrames((current) => [...current, ...generatedFrames]);
+      setSelectedIds((current) => new Set([...current, ...generatedFrames.map((frame) => frame.id)]));
+      setAutoProgress(100);
+      setActionMessage(`Auto selected ${generatedFrames.length} frame(s). Review them before adding to Quick View.`);
+    } catch (error) {
+      if (analysisRunRef.current === runId) {
+        setAutoProgress(0);
+        setErrorMessage(error instanceof Error ? error.message : 'Automatic frame selection failed.');
+        setActionMessage('');
+      }
+    } finally {
+      analysisVideo.removeAttribute('src');
+      analysisVideo.load();
+      if (analysisRunRef.current === runId) setAutoAnalyzing(false);
+    }
+  };
+
   useEffect(() => {
     if (!isExpanded) return;
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -320,6 +532,25 @@ const VideoFrameCapture: React.FC<VideoFrameCaptureProps> = ({ onUseAsCover, onA
             </form>
           </div>
           <p className="video-frame-cutter-shortcuts">Space: play/pause · Arrow keys: 1 frame · Shift + arrow: 1 second · C: capture</p>
+          <div className="video-frame-auto-controls">
+            <div>
+              <Sparkles size={16} />
+              <span><strong>Auto select frames</strong><small>Detect scenes and reject dark or low-quality frames.</small></span>
+            </div>
+            <label>
+              Images
+              <select value={autoFrameCount} onChange={(event) => setAutoFrameCount(Number(event.target.value))} disabled={autoAnalyzing}>
+                <option value={4}>4</option>
+                <option value={6}>6</option>
+                <option value={8}>8</option>
+                <option value={12}>12</option>
+              </select>
+            </label>
+            <button type="button" disabled={autoAnalyzing || processing} onClick={() => void autoSelectFrames()}>
+              <Sparkles size={15} /> {autoAnalyzing ? `Analyzing ${autoProgress}%` : 'Start auto select'}
+            </button>
+          </div>
+          {autoAnalyzing && <div className="video-frame-auto-progress" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={autoProgress}><i style={{ width: `${autoProgress}%` }} /></div>}
         </div>
 
         <div className="video-frame-cutter-tray">

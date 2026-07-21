@@ -6848,6 +6848,95 @@ iframe {
   margin: 0;
 }
 
+.video-frame-auto-controls {
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) auto auto;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid rgba(244, 223, 86, .22);
+  border-radius: 9px;
+  background: linear-gradient(110deg, rgba(244, 223, 86, .08), rgba(255, 255, 255, .025));
+}
+
+.video-frame-auto-controls > div,
+.video-frame-auto-controls > div span {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.video-frame-auto-controls > div span {
+  display: grid;
+  gap: 2px;
+}
+
+.video-frame-auto-controls strong {
+  font-size: 10px;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+
+.video-frame-auto-controls small {
+  color: rgba(255, 255, 255, .48);
+  font-size: 9px;
+}
+
+.video-frame-auto-controls label {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: rgba(255, 255, 255, .58);
+  font-size: 9px;
+  font-weight: 750;
+  text-transform: uppercase;
+}
+
+.video-frame-auto-controls select,
+.video-frame-auto-controls > button {
+  min-height: 34px;
+  border: 1px solid rgba(255, 255, 255, .14);
+  border-radius: 7px;
+  background: #090a0b;
+  color: #fff;
+  font-size: 9px;
+  font-weight: 800;
+}
+
+.video-frame-auto-controls select {
+  padding: 0 28px 0 10px;
+}
+
+.video-frame-auto-controls > button {
+  min-width: 150px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 0 14px;
+  border-color: #f4df56;
+  background: #f4df56;
+  color: #111315;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.video-frame-auto-progress {
+  height: 4px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .1);
+}
+
+.video-frame-auto-progress i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #aa9100, #f4df56);
+  transition: width .15s linear;
+}
+
 .video-frame-cutter-tray {
   min-height: 0;
   overflow: hidden;
@@ -6988,6 +7077,9 @@ iframe {
   .video-frame-cutter-tray-header > div:last-child { display: grid; grid-template-columns: 1fr 1fr; }
   .video-frame-cutter-filmstrip { grid-auto-columns: minmax(160px, 72vw); }
   .video-frame-cutter-shortcuts { display: none; }
+  .video-frame-auto-controls { grid-template-columns: 1fr auto; }
+  .video-frame-auto-controls > div { grid-column: 1 / -1; }
+  .video-frame-auto-controls > button { min-width: 0; }
 }
 
 .project-editor-toolbar>p {
