@@ -9076,11 +9076,15 @@ body .product-admin-backdrop .product-admin-session-actions .product-admin-close
 
 .quick-view-next-project {
   position: relative;
-  width: 100%;
-  min-height: clamp(340px, 54vw, 720px);
+  display: block;
+  width: min(1120px, calc(100% - clamp(28px, 8vw, 120px)));
+  min-height: 0;
+  aspect-ratio: 16 / 9;
+  margin: clamp(38px, 6vw, 84px) auto;
   padding: 0;
-  border: 0;
-  background: #111;
+  border: 1px solid rgba(255, 255, 255, .12);
+  border-radius: 9px;
+  background: #0d0e0f;
   color: #fff;
   text-align: left;
   cursor: pointer;
@@ -9102,7 +9106,8 @@ body .product-admin-backdrop .product-admin-session-actions .product-admin-close
 
 .quick-view-next-media::after {
   content: '';
-  background: linear-gradient(90deg, rgba(5, 7, 8, .82) 0%, rgba(5, 7, 8, .28) 58%, rgba(5, 7, 8, .08) 100%);
+  inset: 0;
+  background: linear-gradient(0deg, rgba(5, 7, 8, .82) 0%, rgba(5, 7, 8, .16) 28%, transparent 52%);
 }
 
 .quick-view-next-project:hover .quick-view-next-media img {
@@ -9112,15 +9117,18 @@ body .product-admin-backdrop .product-admin-session-actions .product-admin-close
 .quick-view-next-copy {
   position: absolute;
   z-index: 1;
-  left: clamp(22px, 6vw, 88px);
-  bottom: clamp(26px, 7vw, 96px);
+  left: clamp(18px, 3vw, 38px);
+  right: clamp(18px, 3vw, 38px);
+  top: auto;
+  bottom: clamp(17px, 2.5vw, 32px);
+  transform: none;
   display: grid;
-  max-width: min(760px, 78%);
-  gap: 10px;
+  width: auto;
+  max-width: none;
+  gap: 5px;
 }
 
 .quick-view-next-copy small,
-.quick-view-footer-cta p,
 .quick-view-footer-bottom {
   font-size: 11px;
   font-weight: 800;
@@ -9128,16 +9136,22 @@ body .product-admin-backdrop .product-admin-session-actions .product-admin-close
   text-transform: uppercase;
 }
 
+.quick-view-next-copy small {
+  color: rgba(255, 255, 255, .65);
+  font-size: 9px;
+}
+
 .quick-view-next-copy strong {
-  font-size: clamp(38px, 7vw, 104px);
-  line-height: .92;
-  letter-spacing: -.055em;
-  text-transform: uppercase;
+  font-size: clamp(16px, 2vw, 26px);
+  line-height: 1.12;
+  letter-spacing: -.018em;
+  text-transform: none;
 }
 
 .quick-view-next-copy > span {
-  font-size: clamp(13px, 1.4vw, 18px);
+  font-size: 11px;
   font-weight: 700;
+  color: rgba(255, 255, 255, .68);
 }
 
 .quick-view-next-copy i {
@@ -9149,46 +9163,6 @@ body .product-admin-backdrop .product-admin-session-actions .product-admin-close
 
 .quick-view-next-project:hover .quick-view-next-copy i {
   transform: translate(4px, -4px);
-}
-
-.quick-view-footer-cta {
-  display: grid;
-  justify-items: start;
-  padding: clamp(56px, 9vw, 132px) clamp(22px, 7vw, 104px);
-}
-
-.quick-view-footer-cta p {
-  margin: 0 0 20px;
-  color: #686b6c;
-}
-
-.quick-view-footer-cta h2 {
-  max-width: 1050px;
-  margin: 0;
-  font-size: clamp(42px, 7.2vw, 108px);
-  line-height: .94;
-  letter-spacing: -.06em;
-}
-
-.quick-view-footer-cta button {
-  margin-top: clamp(32px, 5vw, 64px);
-  padding: 15px 22px;
-  border: 1px solid #101112;
-  border-radius: 999px;
-  background: #101112;
-  color: #fff;
-  font: inherit;
-  font-size: 12px;
-  font-weight: 800;
-  letter-spacing: .08em;
-  text-transform: uppercase;
-  cursor: pointer;
-  transition: background-color 220ms ease, color 220ms ease;
-}
-
-.quick-view-footer-cta button:hover {
-  background: transparent;
-  color: #101112;
 }
 
 .quick-view-footer-bottom {
@@ -9231,21 +9205,36 @@ body .product-admin-backdrop .product-admin-session-actions .product-admin-close
   }
 
   .quick-view-next-project {
-    min-height: 420px;
+    display: block;
+    width: calc(100% - 24px);
+    min-height: 0;
+    aspect-ratio: 4 / 3;
+    margin: 28px auto;
+  }
+
+  .quick-view-next-media {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
   }
 
   .quick-view-next-media::after {
-    background: linear-gradient(0deg, rgba(5, 7, 8, .88), rgba(5, 7, 8, .05) 75%);
+    inset: 0;
+    background: linear-gradient(0deg, rgba(5, 7, 8, .28), transparent 55%);
   }
 
   .quick-view-next-copy {
-    left: 20px;
-    bottom: 26px;
-    max-width: calc(100% - 40px);
+    position: absolute;
+    inset: auto 16px 16px;
+    width: auto;
+    max-width: none;
+    padding: 0;
+    transform: none;
   }
 
-  .quick-view-footer-cta h2 {
-    font-size: clamp(39px, 12vw, 62px);
+  .quick-view-next-copy strong {
+    font-size: clamp(16px, 5vw, 22px);
   }
 
   .quick-view-footer-bottom {

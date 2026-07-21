@@ -423,12 +423,6 @@ const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, onClose, embed
                     </button>
                   )}
 
-                  <div className="quick-view-footer-cta">
-                    <p>Have a project in mind?</p>
-                    <h2>Let's create something<br />worth remembering.</h2>
-                    <button type="button" onClick={() => navigate('/contact')}>Contact us <span aria-hidden="true">&#8599;</span></button>
-                  </div>
-
                   <div className="quick-view-footer-bottom">
                     <span>&copy; {new Date().getFullYear()} Future Studio</span>
                     <nav aria-label="Future Studio social links">
