@@ -1,6 +1,38 @@
 {
   "rewrites": [
     {
+      "source": "/all-products",
+      "destination": "/all-products/index.html"
+    },
+    {
+      "source": "/tvc",
+      "destination": "/tvc/index.html"
+    },
+    {
+      "source": "/cartoon-3d",
+      "destination": "/cartoon-3d/index.html"
+    },
+    {
+      "source": "/art",
+      "destination": "/art/index.html"
+    },
+    {
+      "source": "/showreel",
+      "destination": "/showreel/index.html"
+    },
+    {
+      "source": "/team",
+      "destination": "/team/index.html"
+    },
+    {
+      "source": "/contact",
+      "destination": "/contact/index.html"
+    },
+    {
+      "source": "/projects/:projectSlug",
+      "destination": "/projects/:projectSlug/index.html"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }
