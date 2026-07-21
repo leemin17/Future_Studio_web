@@ -9060,10 +9060,17 @@ body .product-admin-backdrop .product-admin-session-actions .product-admin-close
 }
 
 /* Quick View project footer */
+.quick-view-project-content {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
 .quick-view-footer {
   margin-top: clamp(28px, 6vw, 92px);
-  background: #f1efea;
-  color: #101112;
+  background: var(--palette-black);
+  color: var(--palette-white);
   overflow: hidden;
 }
 

@@ -359,6 +359,7 @@ const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, onClose, embed
         >
           <motion.div className={`quick-view-modal ${embedded ? 'quick-view-modal--embedded' : ''}`} variants={modalVariants} onClick={(e) => e.stopPropagation()}>
             <div className="quick-view-main">
+              <div className="quick-view-project-content">
               <div className="quick-view-header">
                 <div className="quick-view-header-brand">
                   <img
@@ -404,6 +405,7 @@ const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, onClose, embed
                     })}
                   </div>
                 ))}
+              </div>
               </div>
 
               {!embedded && (
