@@ -324,18 +324,25 @@ const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, onClose, embed
   const backdropRef = useRef<HTMLDivElement>(null);
   const products = useSupabaseProducts();
   const contactLinks = useSiteContent<ContactLink[]>('contact_links', fallbackContactLinks);
+  const [recommendationOffset, setRecommendationOffset] = useState(0);
   const mediaItems = useMemo(() => buildQuickMedia(product), [product]);
   const mediaLayout = useMemo(() => buildQuickLayout(product, mediaItems, embedded), [embedded, product, mediaItems]);
   const hasCustomLayout = Boolean(product?.quickViewLayout?.length);
   const hasVideo = mediaLayout.some((block) => block.items.some((item) => item.kind === 'video'));
-  const nextProducts = useMemo(() => {
+  const recommendedProducts = useMemo(() => {
     if (!product || products.length < 2) return [];
     const currentIndex = products.findIndex((item) => item.id === product.id);
     const startIndex = currentIndex >= 0 ? currentIndex : products.length - 1;
-    return Array.from({ length: Math.min(3, products.length - 1) }, (_, offset) => (
+    return Array.from({ length: products.length - 1 }, (_, offset) => (
       products[(startIndex + offset + 1) % products.length]
-    )).filter((item): item is NewsItem => Boolean(item));
+    )).filter((item): item is NewsItem => Boolean(item) && item.id !== product.id);
   }, [product, products]);
+  const nextProducts = useMemo(() => {
+    if (!recommendedProducts.length) return [];
+    return Array.from({ length: Math.min(3, recommendedProducts.length) }, (_, index) => (
+      recommendedProducts[(recommendationOffset + index) % recommendedProducts.length]
+    ));
+  }, [recommendationOffset, recommendedProducts]);
   const footerLinks = useMemo(
     () => contactLinks.filter((item) => ['instagram', 'facebook', 'gmail'].includes(item.icon)),
     [contactLinks],
@@ -344,6 +351,17 @@ const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, onClose, embed
   const openNextProject = (nextProduct: NewsItem) => {
     navigate(getProjectPath(nextProduct), { replace: true, state: location.state });
     backdropRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  useEffect(() => {
+    setRecommendationOffset(0);
+  }, [product?.id]);
+
+  const moveRecommendations = (direction: -1 | 1) => {
+    setRecommendationOffset((current) => {
+      const count = recommendedProducts.length;
+      return count ? (current + direction + count) % count : 0;
+    });
   };
 
   const renderMedia = (item: MediaItem | undefined, textIndex = 0) => {
@@ -460,19 +478,23 @@ const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, onClose, embed
               {!embedded && (
                 <footer className="quick-view-footer">
                   {nextProducts.length > 0 && (
-                    <div className="quick-view-next-grid">
-                      {nextProducts.map((nextProduct) => (
-                        <button key={nextProduct.id} type="button" className="quick-view-next-project" onClick={() => openNextProject(nextProduct)}>
-                          <span className="quick-view-next-media">
-                            <QuickViewNextThumbnail product={nextProduct} />
-                          </span>
-                          <span className="quick-view-next-copy">
-                            <small>Next project</small>
-                            <strong>{nextProduct.title}</strong>
-                            <span>{nextProduct.clientInformation} <i aria-hidden="true">&#8599;</i></span>
-                          </span>
-                        </button>
-                      ))}
+                    <div className="quick-view-next-section">
+                      {recommendedProducts.length > 3 && <button type="button" className="quick-view-next-arrow quick-view-next-arrow--left" onClick={() => moveRecommendations(-1)} aria-label="Previous projects"><img src={getAssetUrl('icon/arrow.png')} alt="" aria-hidden="true" /></button>}
+                      <div className="quick-view-next-grid">
+                        {nextProducts.map((nextProduct) => (
+                          <button key={nextProduct.id} type="button" className="quick-view-next-project" onClick={() => openNextProject(nextProduct)}>
+                            <span className="quick-view-next-media">
+                              <QuickViewNextThumbnail product={nextProduct} />
+                            </span>
+                            <span className="quick-view-next-copy">
+                              <small>Next project</small>
+                              <strong>{nextProduct.title}</strong>
+                              <span>{nextProduct.clientInformation} <i aria-hidden="true">&#8599;</i></span>
+                            </span>
+                          </button>
+                        ))}
+                      </div>
+                      {recommendedProducts.length > 3 && <button type="button" className="quick-view-next-arrow quick-view-next-arrow--right" onClick={() => moveRecommendations(1)} aria-label="Next projects"><img src={getAssetUrl('icon/next.png')} alt="" aria-hidden="true" /></button>}
                     </div>
                   )}
 

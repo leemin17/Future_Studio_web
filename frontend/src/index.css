@@ -1,4 +1,4 @@
-﻿/* =====================================================================
+/* =====================================================================
    1. CORE & GLOBAL STYLES
    ===================================================================== */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=Montserrat:wght@400;500;600;800&family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Titan+One&display=swap');
@@ -261,7 +261,7 @@ a {
 }
 
 .floating-animate {
-  animation: floatEffect 4s ease-in-out infinite;
+  animation: none;
   will-change: transform;
 }
 
@@ -280,7 +280,6 @@ button,
 /* Hiệu ứng "tỏa sáng" khi hover */
 /* Áp dụng hiệu ứng cho các phần tử có thể click, NGOẠI TRỪ các mục menu chính */
 a:not(.header-nav-link):hover,
-button:not(.header-nav-link):hover,
 .search-bar:hover,
 .cart-status:hover,
 .menu-burger:hover,
@@ -347,10 +346,6 @@ button:not(.header-nav-link):hover,
   background-color: var(--palette-gray-300);
 }
 
-.btn-black-small:active {
-  transform: scale(0.95);
-}
-
 .btn-primary-black {
   background-color: var(--text-primary);
   color: var(--background-primary);
@@ -365,11 +360,6 @@ button:not(.header-nav-link):hover,
 
 .btn-primary-black:hover {
   background-color: var(--palette-gray-300);
-}
-
-.btn-primary-black:active {
-  transform: translateY(0) scale(0.95);
-  transform: translateY(-2px);
 }
 
 /* =====================================================================
@@ -1421,7 +1411,7 @@ button:not(.header-nav-link):hover,
 }
 
 .search-overlay-close:hover {
-  transform: scale(1.1) rotate(90deg);
+  transform: none;
 }
 
 .search-overlay-content {
@@ -3216,7 +3206,7 @@ button:not(.header-nav-link):hover,
 }
 
 .modal-close-btn:hover {
-  transform: rotate(90deg) scale(1.1);
+  transform: none;
 }
 
 /* Bố cục chia đôi: Trái ảnh, Phải thông tin */
@@ -4642,9 +4632,6 @@ iframe {
     scroll-snap-align: start;
   }
 
-  .team-showcase-thumb:active {
-    opacity: 1;
-  }
 }
 
 /* Team page: lock background pattern so it never moves or zooms */
@@ -4951,7 +4938,7 @@ iframe {
 .project-builder-action:hover>span {
   color: #111111;
   background: #ffffff;
-  transform: translateY(-5px);
+  transform: none;
 }
 
 .project-builder-sidebar {
@@ -4990,7 +4977,7 @@ iframe {
 .project-builder-action--compact:hover>span {
   color: #ffffff;
   background: transparent;
-  transform: scale(1.12);
+  transform: none;
 }
 
 .project-builder-edit-tools {
@@ -5653,17 +5640,17 @@ iframe {
 
 .product-end-cta:hover::before {
   opacity: 1;
-  transform: scale(1);
+  transform: none;
 }
 
 .product-end-cta:hover .product-end-cta-plus {
-  transform: rotate(90deg) scale(1.06);
+  transform: none;
   background: rgba(255, 255, 255, 0.14);
 }
 
 .product-end-cta:hover .product-end-cta-label {
   opacity: 1;
-  transform: translateY(0);
+  transform: none;
 }
 
 .product-end-cta:focus-visible {
@@ -5878,7 +5865,7 @@ iframe {
 }
 
 .contact-submit-btn:hover {
-  transform: translateY(-2px);
+  transform: none;
   background: var(--accent-primary);
 }
 
@@ -8294,7 +8281,7 @@ iframe {
 
 .product-admin-sidebar-actions .product-admin-submit:hover:not(:disabled) {
   background: #0969ff;
-  transform: translateY(-1px);
+  transform: none;
 }
 
 .product-admin-workspace-canvas {
@@ -8353,7 +8340,7 @@ iframe {
 .project-editor-toolbar button:hover {
   color: #0969ff;
   background: #edf3ff;
-  transform: translateY(-1px);
+  transform: none;
 }
 
 .project-editor-toolbar button strong {
@@ -9082,6 +9069,58 @@ body .product-admin-backdrop .product-admin-session-actions .product-admin-close
   margin: clamp(38px, 6vw, 84px) auto;
 }
 
+.quick-view-next-section {
+  position: relative;
+}
+
+.quick-view-next-arrow {
+  position: absolute;
+  top: 50%;
+  z-index: 3;
+  width: 42px;
+  height: 42px;
+  border: 1px solid rgba(255, 255, 255, .24);
+  border-radius: 50%;
+  background: rgba(10, 11, 12, .82);
+  color: #fff;
+  padding: 0;
+  cursor: pointer;
+  transform: translateY(-50%);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.quick-view-next-arrow img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: inherit;
+}
+
+.quick-view-next-arrow--left img {
+  filter: invert(1);
+  transform: rotate(180deg);
+}
+
+.quick-view-next-arrow--left {
+  left: clamp(5px, 1.2vw, 18px);
+}
+
+.quick-view-next-arrow--right {
+  right: clamp(5px, 1.2vw, 18px);
+  background: #fff;
+}
+
+.quick-view-next-arrow:hover {
+  background: #fff;
+  color: #0c0d0e;
+}
+
+.quick-view-next-arrow:active {
+  transform: translateY(-50%);
+}
+
 .quick-view-next-project {
   position: relative;
   display: block;
@@ -9117,21 +9156,24 @@ body .product-admin-backdrop .product-admin-session-actions .product-admin-close
 }
 
 .quick-view-next-project:hover .quick-view-next-media img {
-  transform: scale(1.035);
+  transform: none;
 }
 
 .quick-view-next-copy {
   position: absolute;
   z-index: 1;
-  left: clamp(18px, 3vw, 38px);
-  right: clamp(18px, 3vw, 38px);
+  left: clamp(9px, 1.2vw, 16px);
+  right: auto;
   top: auto;
-  bottom: clamp(17px, 2.5vw, 32px);
+  bottom: clamp(9px, 1.2vw, 16px);
   transform: none;
   display: grid;
-  width: auto;
-  max-width: none;
-  gap: 5px;
+  width: fit-content;
+  max-width: calc(100% - 24px);
+  gap: 2px;
+  padding: 7px 10px 8px;
+  border-radius: 5px;
+  background: rgba(5, 6, 7, .68);
 }
 
 .quick-view-next-copy small,
@@ -9144,18 +9186,18 @@ body .product-admin-backdrop .product-admin-session-actions .product-admin-close
 
 .quick-view-next-copy small {
   color: rgba(255, 255, 255, .65);
-  font-size: 9px;
+  font-size: 7px;
 }
 
 .quick-view-next-copy strong {
-  font-size: clamp(14px, 1.45vw, 21px);
+  font-size: clamp(11px, 1vw, 15px);
   line-height: 1.12;
   letter-spacing: -.018em;
   text-transform: none;
 }
 
 .quick-view-next-copy > span {
-  font-size: 11px;
+  font-size: 8px;
   font-weight: 700;
   color: rgba(255, 255, 255, .68);
 }
@@ -9168,7 +9210,7 @@ body .product-admin-backdrop .product-admin-session-actions .product-admin-close
 }
 
 .quick-view-next-project:hover .quick-view-next-copy i {
-  transform: translate(4px, -4px);
+  transform: none;
 }
 
 .quick-view-footer-bottom {
@@ -9217,6 +9259,29 @@ body .product-admin-backdrop .product-admin-session-actions .product-admin-close
     margin: 28px auto;
   }
 
+  .quick-view-next-arrow {
+    position: relative;
+    top: auto;
+    width: 38px;
+    height: 38px;
+    margin-bottom: 14px;
+    transform: none;
+  }
+
+  .quick-view-next-arrow:active {
+    transform: none;
+  }
+
+  .quick-view-next-arrow--left {
+    left: 12px;
+  }
+
+  .quick-view-next-arrow--right {
+    position: absolute;
+    top: 0;
+    right: 12px;
+  }
+
   .quick-view-next-project {
     display: block;
     width: 100%;
@@ -9234,15 +9299,15 @@ body .product-admin-backdrop .product-admin-session-actions .product-admin-close
 
   .quick-view-next-copy {
     position: absolute;
-    inset: auto 16px 16px;
-    width: auto;
-    max-width: none;
-    padding: 0;
+    inset: auto auto 10px 10px;
+    width: fit-content;
+    max-width: calc(100% - 20px);
+    padding: 7px 9px;
     transform: none;
   }
 
   .quick-view-next-copy strong {
-    font-size: clamp(16px, 5vw, 22px);
+    font-size: clamp(11px, 3.5vw, 14px);
   }
 
   .quick-view-footer-bottom {

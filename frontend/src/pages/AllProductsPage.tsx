@@ -360,7 +360,6 @@ const AllProductsPage: React.FC<AllProductsPageProps> = ({ category }) => {
               className="product-end-cta"
               layout
               aria-label="Create a product"
-              whileTap={{ scale: 0.985 }}
             >
               <span className="product-end-cta-plus" aria-hidden="true">
                 <span />
