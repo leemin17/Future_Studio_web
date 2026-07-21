@@ -16,6 +16,11 @@ interface CapturedFrame {
 }
 
 const FRAME_STEP = 1 / 30;
+const selectionModeDescriptions = {
+  balanced: 'Balances sharpness, exposure, color and composition. Recommended for most projects.',
+  sharp: 'Prioritizes crisp details and rejects frames affected by motion blur.',
+  color: 'Prioritizes vivid color, stronger contrast and visually energetic frames.',
+} as const;
 
 const formatTime = (seconds: number) => {
   if (!Number.isFinite(seconds)) return '00:00.000';
@@ -42,6 +47,9 @@ interface FrameSample {
   brightness: number;
   contrast: number;
   sharpness: number;
+  colorfulness: number;
+  extremePixelRatio: number;
+  changeFromPrevious: number;
   score: number;
 }
 
@@ -90,12 +98,19 @@ const inspectFrame = (video: HTMLVideoElement, canvas: HTMLCanvasElement, contex
   let sum = 0;
   let sumSquared = 0;
   let edgeSum = 0;
+  let colorDifferenceSum = 0;
+  let extremePixelCount = 0;
 
   for (let pixelIndex = 0, sampleIndex = 0; pixelIndex < pixels.length; pixelIndex += 4, sampleIndex += 1) {
-    const luminance = Math.round(pixels[pixelIndex] * 0.2126 + pixels[pixelIndex + 1] * 0.7152 + pixels[pixelIndex + 2] * 0.0722);
+    const red = pixels[pixelIndex];
+    const green = pixels[pixelIndex + 1];
+    const blue = pixels[pixelIndex + 2];
+    const luminance = Math.round(red * 0.2126 + green * 0.7152 + blue * 0.0722);
     signature[sampleIndex] = luminance;
     sum += luminance;
     sumSquared += luminance * luminance;
+    colorDifferenceSum += Math.max(red, green, blue) - Math.min(red, green, blue);
+    if (luminance <= 12 || luminance >= 246) extremePixelCount += 1;
     const x = sampleIndex % canvas.width;
     const y = Math.floor(sampleIndex / canvas.width);
     if (x > 0) edgeSum += Math.abs(luminance - signature[sampleIndex - 1]);
@@ -106,8 +121,12 @@ const inspectFrame = (video: HTMLVideoElement, canvas: HTMLCanvasElement, contex
   const brightness = sum / count;
   const contrast = Math.sqrt(Math.max(0, sumSquared / count - brightness * brightness));
   const sharpness = edgeSum / Math.max(1, count * 2 - canvas.width - canvas.height);
+  const colorfulness = colorDifferenceSum / count;
+  const extremePixelRatio = extremePixelCount / count;
   const exposurePenalty = Math.abs(brightness - 128) * 0.22;
-  return { time: video.currentTime, signature, brightness, contrast, sharpness, score: sharpness * 1.8 + contrast - exposurePenalty };
+  const extremePenalty = extremePixelRatio * 75;
+  const score = sharpness * 2.15 + contrast * 0.72 + colorfulness * 0.18 - exposurePenalty - extremePenalty;
+  return { time: video.currentTime, signature, brightness, contrast, sharpness, colorfulness, extremePixelRatio, changeFromPrevious: 0, score };
 };
 
 const signatureDifference = (first: Uint8Array, second: Uint8Array) => {
@@ -133,6 +152,7 @@ const VideoFrameCapture: React.FC<VideoFrameCaptureProps> = ({ onUseAsCover, onA
   const [autoAnalyzing, setAutoAnalyzing] = useState(false);
   const [autoProgress, setAutoProgress] = useState(0);
   const [autoFrameCount, setAutoFrameCount] = useState(8);
+  const [autoSelectionMode, setAutoSelectionMode] = useState<'balanced' | 'sharp' | 'color'>('balanced');
   const [errorMessage, setErrorMessage] = useState('');
   const [processing, setProcessing] = useState(false);
   const [addingToQuickView, setAddingToQuickView] = useState(false);
@@ -330,36 +350,71 @@ const VideoFrameCapture: React.FC<VideoFrameCaptureProps> = ({ onUseAsCover, onA
       const sampleContext = sampleCanvas.getContext('2d', { alpha: false, willReadFrequently: true });
       if (!sampleContext) throw new Error('The browser could not prepare automatic frame analysis.');
 
-      const sampleInterval = Math.max(0.45, Math.min(1.5, analysisDuration / 110));
+      const sampleInterval = Math.max(0.35, Math.min(1.25, analysisDuration / 130));
+      const videoEdgeInset = Math.min(0.75, Math.max(0.12, analysisDuration * 0.035));
       const sampleTimes: number[] = [];
-      for (let time = Math.min(0.15, analysisDuration / 2); time < analysisDuration - 0.02; time += sampleInterval) sampleTimes.push(time);
-      if (!sampleTimes.length) sampleTimes.push(0);
+      for (let time = videoEdgeInset; time < analysisDuration - videoEdgeInset; time += sampleInterval) sampleTimes.push(time);
+      if (!sampleTimes.length) sampleTimes.push(Math.max(0, analysisDuration / 2));
 
       const samples: FrameSample[] = [];
-      const sceneCuts = [0];
       let previousSample: FrameSample | null = null;
-      let lastCut = 0;
 
       for (let index = 0; index < sampleTimes.length; index += 1) {
         if (analysisRunRef.current !== runId) return;
         await seekVideo(analysisVideo, sampleTimes[index]);
         const sample = inspectFrame(analysisVideo, sampleCanvas, sampleContext);
+        if (previousSample) sample.changeFromPrevious = signatureDifference(previousSample.signature, sample.signature);
         samples.push(sample);
-        if (previousSample && sample.time - lastCut >= 0.8 && signatureDifference(previousSample.signature, sample.signature) >= 28) {
-          sceneCuts.push((previousSample.time + sample.time) / 2);
-          lastCut = sample.time;
-        }
         previousSample = sample;
         setAutoProgress(Math.max(2, Math.round(((index + 1) / sampleTimes.length) * 70)));
       }
+
+      const sortedChanges = samples.slice(1).map((sample) => sample.changeFromPrevious).sort((first, second) => first - second);
+      const medianChange = sortedChanges[Math.floor(sortedChanges.length / 2)] ?? 0;
+      const deviations = sortedChanges.map((value) => Math.abs(value - medianChange)).sort((first, second) => first - second);
+      const medianDeviation = deviations[Math.floor(deviations.length / 2)] ?? 0;
+      const adaptiveSceneThreshold = Math.max(17, Math.min(46, medianChange + Math.max(6, medianDeviation * 2.8)));
+      const sceneCuts = [0];
+      let lastCutTime = 0;
+      for (let index = 1; index < samples.length; index += 1) {
+        const sample = samples[index];
+        if (sample.changeFromPrevious >= adaptiveSceneThreshold && sample.time - lastCutTime >= 0.9) {
+          sceneCuts.push((samples[index - 1].time + sample.time) / 2);
+          lastCutTime = sample.time;
+        }
+      }
       sceneCuts.push(analysisDuration);
+
+      const modeScore = (sample: FrameSample) => {
+        if (autoSelectionMode === 'sharp') return sample.score + sample.sharpness * 1.35 - sample.extremePixelRatio * 20;
+        if (autoSelectionMode === 'color') return sample.score + sample.colorfulness * 0.65 + sample.contrast * 0.18;
+        return sample.score;
+      };
+
+      const isUsableSample = (sample: FrameSample) => (
+        sample.brightness >= 20
+        && sample.brightness <= 236
+        && sample.contrast >= 8
+        && sample.sharpness >= 2.2
+        && sample.extremePixelRatio <= 0.68
+      );
 
       const candidates: FrameSample[] = [];
       for (let sceneIndex = 0; sceneIndex < sceneCuts.length - 1; sceneIndex += 1) {
         const sceneStart = sceneCuts[sceneIndex];
         const sceneEnd = sceneCuts[sceneIndex + 1];
-        const margin = Math.min(0.2, Math.max(0, (sceneEnd - sceneStart) * 0.12));
-        const sceneSamples = samples.filter((sample) => sample.time >= sceneStart + margin && sample.time <= sceneEnd - margin && sample.brightness >= 18 && sample.brightness <= 240 && sample.contrast >= 7);
+        const sceneLength = sceneEnd - sceneStart;
+        const margin = Math.min(0.65, Math.max(0.12, sceneLength * 0.18));
+        const sceneSamples = samples
+          .filter((sample) => sample.time >= sceneStart + margin && sample.time <= sceneEnd - margin && isUsableSample(sample))
+          .map((sample) => {
+            const scenePosition = sceneLength > 0 ? (sample.time - sceneStart) / sceneLength : 0.5;
+            const centerBonus = Math.max(0, 1 - Math.abs(scenePosition - 0.5) * 2) * 9;
+            const sampleIndex = samples.indexOf(sample);
+            const nextChange = samples[sampleIndex + 1]?.changeFromPrevious ?? 0;
+            const transitionPenalty = Math.max(sample.changeFromPrevious, nextChange) * 0.28;
+            return { ...sample, score: modeScore(sample) + centerBonus - transitionPenalty };
+          });
         const bestSample = sceneSamples.sort((first, second) => second.score - first.score)[0];
         if (bestSample) candidates.push(bestSample);
       }
@@ -367,18 +422,25 @@ const VideoFrameCapture: React.FC<VideoFrameCaptureProps> = ({ onUseAsCover, onA
       if (candidates.length < autoFrameCount) {
         const existingTimes = new Set(candidates.map((candidate) => candidate.time));
         const extraSamples = samples
-          .filter((sample) => !existingTimes.has(sample.time) && sample.brightness >= 18 && sample.brightness <= 240 && sample.contrast >= 7)
+          .filter((sample) => !existingTimes.has(sample.time) && isUsableSample(sample))
+          .map((sample) => ({ ...sample, score: modeScore(sample) - sample.changeFromPrevious * 0.18 }))
           .sort((first, second) => second.score - first.score);
         for (const sample of extraSamples) {
           if (candidates.length >= autoFrameCount) break;
-          if (candidates.every((candidate) => Math.abs(candidate.time - sample.time) >= 0.65)) candidates.push(sample);
+          if (candidates.every((candidate) => Math.abs(candidate.time - sample.time) >= Math.max(0.75, sampleInterval * 1.5) && signatureDifference(candidate.signature, sample.signature) >= 7.5)) candidates.push(sample);
         }
       }
 
-      const selectedCandidates = candidates
-        .sort((first, second) => second.score - first.score)
-        .slice(0, autoFrameCount)
-        .sort((first, second) => first.time - second.time);
+      const selectedByQuality: FrameSample[] = [];
+      for (const candidate of candidates.sort((first, second) => second.score - first.score)) {
+        if (selectedByQuality.length >= autoFrameCount) break;
+        const sufficientlyDifferent = selectedByQuality.every((selected) => (
+          Math.abs(selected.time - candidate.time) >= Math.max(0.75, sampleInterval * 1.5)
+          && signatureDifference(selected.signature, candidate.signature) >= 7.5
+        ));
+        if (sufficientlyDifferent) selectedByQuality.push(candidate);
+      }
+      const selectedCandidates = selectedByQuality.sort((first, second) => first.time - second.time);
       if (!selectedCandidates.length) throw new Error('No usable frames were found. Try manual capture for this video.');
 
       setActionMessage(`Extracting ${selectedCandidates.length} recommended frame(s)...`);
@@ -545,6 +607,15 @@ const VideoFrameCapture: React.FC<VideoFrameCaptureProps> = ({ onUseAsCover, onA
                 <option value={8}>8</option>
                 <option value={12}>12</option>
               </select>
+            </label>
+            <label className="video-frame-auto-priority">
+              Priority
+              <select value={autoSelectionMode} onChange={(event) => setAutoSelectionMode(event.target.value as 'balanced' | 'sharp' | 'color')} disabled={autoAnalyzing}>
+                <option value="balanced">Balanced</option>
+                <option value="sharp">Sharpest</option>
+                <option value="color">Color rich</option>
+              </select>
+              <span className="video-frame-auto-tooltip" role="tooltip">{selectionModeDescriptions[autoSelectionMode]}</span>
             </label>
             <button type="button" disabled={autoAnalyzing || processing} onClick={() => void autoSelectFrames()}>
               <Sparkles size={15} /> {autoAnalyzing ? `Analyzing ${autoProgress}%` : 'Start auto select'}
