@@ -281,18 +281,20 @@ const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, onClose, embed
   const mediaLayout = useMemo(() => buildQuickLayout(product, mediaItems, embedded), [embedded, product, mediaItems]);
   const hasCustomLayout = Boolean(product?.quickViewLayout?.length);
   const hasVideo = mediaLayout.some((block) => block.items.some((item) => item.kind === 'video'));
-  const nextProduct = useMemo(() => {
-    if (!product || products.length < 2) return null;
+  const nextProducts = useMemo(() => {
+    if (!product || products.length < 2) return [];
     const currentIndex = products.findIndex((item) => item.id === product.id);
-    return products[(currentIndex >= 0 ? currentIndex + 1 : 0) % products.length] ?? null;
+    const startIndex = currentIndex >= 0 ? currentIndex : products.length - 1;
+    return Array.from({ length: Math.min(3, products.length - 1) }, (_, offset) => (
+      products[(startIndex + offset + 1) % products.length]
+    )).filter((item): item is NewsItem => Boolean(item));
   }, [product, products]);
   const footerLinks = useMemo(
     () => contactLinks.filter((item) => ['instagram', 'facebook', 'gmail'].includes(item.icon)),
     [contactLinks],
   );
 
-  const openNextProject = () => {
-    if (!nextProduct) return;
+  const openNextProject = (nextProduct: NewsItem) => {
     navigate(getProjectPath(nextProduct), { replace: true, state: location.state });
     backdropRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -410,17 +412,21 @@ const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, onClose, embed
 
               {!embedded && (
                 <footer className="quick-view-footer">
-                  {nextProduct && (
-                    <button type="button" className="quick-view-next-project" onClick={openNextProject}>
-                      <span className="quick-view-next-media">
-                        <img src={resolveMediaUrl(nextProduct.imageUrl)} alt={`${nextProduct.title} preview`} />
-                      </span>
-                      <span className="quick-view-next-copy">
-                        <small>Next project</small>
-                        <strong>{nextProduct.title}</strong>
-                        <span>{nextProduct.clientInformation} <i aria-hidden="true">&#8599;</i></span>
-                      </span>
-                    </button>
+                  {nextProducts.length > 0 && (
+                    <div className="quick-view-next-grid">
+                      {nextProducts.map((nextProduct) => (
+                        <button key={nextProduct.id} type="button" className="quick-view-next-project" onClick={() => openNextProject(nextProduct)}>
+                          <span className="quick-view-next-media">
+                            <img src={resolveMediaUrl(nextProduct.imageUrl)} alt={`${nextProduct.title} preview`} />
+                          </span>
+                          <span className="quick-view-next-copy">
+                            <small>Next project</small>
+                            <strong>{nextProduct.title}</strong>
+                            <span>{nextProduct.clientInformation} <i aria-hidden="true">&#8599;</i></span>
+                          </span>
+                        </button>
+                      ))}
+                    </div>
                   )}
 
                   <div className="quick-view-footer-bottom">
