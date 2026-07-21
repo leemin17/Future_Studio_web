@@ -8226,6 +8226,35 @@ iframe {
   transform: translateY(-1px);
 }
 
+.product-admin-workspace-sidebar .product-admin-file-field--processing {
+  cursor: wait;
+  pointer-events: none;
+}
+
+.product-admin-workspace-sidebar .product-admin-file-field--processing span {
+  position: relative;
+  overflow: hidden;
+  color: rgba(255, 255, 255, .72);
+  background: #25282d;
+  transform: none;
+}
+
+.product-admin-workspace-sidebar .product-admin-file-field--processing span::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #f4df56, transparent);
+  animation: product-thumbnail-processing 1s linear infinite;
+}
+
+@keyframes product-thumbnail-processing {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(100%); }
+}
+
 .product-admin-sidebar-actions {
   padding: 10px;
 }

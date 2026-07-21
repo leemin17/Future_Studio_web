@@ -110,6 +110,42 @@ const withSaveTimeout = async <T,>(operation: Promise<T>, timeoutMs: number, mes
   }
 };
 
+const prepareThumbnailImage = async (file: File): Promise<File> => {
+  if (!file.type.startsWith('image/')) throw new Error('Thumbnail must be an image file.');
+  if (file.size > 25 * 1024 * 1024) throw new Error('Thumbnail is larger than 25 MB. Choose a smaller image.');
+  if (file.type === 'image/svg+xml') return file;
+
+  let bitmap: ImageBitmap | null = null;
+  try {
+    bitmap = await createImageBitmap(file, { imageOrientation: 'from-image' });
+    const maxDimension = 1920;
+    const largestDimension = Math.max(bitmap.width, bitmap.height);
+    if (largestDimension <= maxDimension && file.size <= 4 * 1024 * 1024) return file;
+
+    const scale = Math.min(1, maxDimension / largestDimension);
+    const canvas = document.createElement('canvas');
+    canvas.width = Math.max(1, Math.round(bitmap.width * scale));
+    canvas.height = Math.max(1, Math.round(bitmap.height * scale));
+    const context = canvas.getContext('2d', { alpha: false });
+    if (!context) throw new Error('The browser could not prepare this thumbnail.');
+    context.fillStyle = '#000';
+    context.fillRect(0, 0, canvas.width, canvas.height);
+    context.imageSmoothingEnabled = true;
+    context.imageSmoothingQuality = 'high';
+    context.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+    const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, 'image/jpeg', 0.88));
+    canvas.width = 1;
+    canvas.height = 1;
+    if (!blob) throw new Error('The browser could not optimize this thumbnail.');
+    const baseName = file.name.replace(/\.[^.]+$/, '') || 'thumbnail';
+    return new File([blob], `${baseName}-optimized.jpg`, { type: 'image/jpeg', lastModified: Date.now() });
+  } catch (error) {
+    throw error instanceof Error ? error : new Error('The selected thumbnail could not be read.');
+  } finally {
+    bitmap?.close();
+  }
+};
+
 const emptyBlock = (type: ProjectEditorBlock['type'], index: number): ProjectEditorBlock => ({
   id: `existing-${type}-${index}-${Date.now()}`,
   type,
@@ -167,6 +203,7 @@ const ProductAdminModal: React.FC<ProductAdminModalProps> = ({ open, product, on
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
+  const [processingThumbnail, setProcessingThumbnail] = useState(false);
   const [partnerLogoFile, setPartnerLogoFile] = useState<File | null>(null);
   const [projectBlocks, setProjectBlocks] = useState<ProjectEditorBlock[]>([]);
   const [submitting, setSubmitting] = useState(false);
@@ -262,6 +299,26 @@ const ProductAdminModal: React.FC<ProductAdminModalProps> = ({ open, product, on
   const requestSave = (values: ProductFormValues) => {
     setPendingValues(values);
     setConfirmOpen(true);
+  };
+
+  const handleThumbnailSelection = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const input = event.currentTarget;
+    const file = input.files?.[0] ?? null;
+    input.value = '';
+    if (!file || processingThumbnail) return;
+
+    setProcessingThumbnail(true);
+    setErrorMessage('');
+    try {
+      await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+      const preparedFile = await prepareThumbnailImage(file);
+      React.startTransition(() => setThumbnailFile(preparedFile));
+    } catch (error) {
+      setThumbnailFile(null);
+      setErrorMessage(error instanceof Error ? error.message : 'Unable to prepare this thumbnail.');
+    } finally {
+      setProcessingThumbnail(false);
+    }
   };
 
   const handleSave = async (values: ProductFormValues) => {
@@ -426,7 +483,11 @@ const ProductAdminModal: React.FC<ProductAdminModalProps> = ({ open, product, on
 
               <section>
                 <div className="product-admin-sidebar-title"><span>Cover image</span><small>Shown on product pages</small></div>
-                <label className="product-admin-file-field">Thumbnail from computer<input id="product-thumbnail-file" type="file" accept="image/*" onChange={(event) => setThumbnailFile(event.target.files?.[0] ?? null)} /><span>{thumbnailFile ? thumbnailFile.name : 'Choose one image'}</span></label>
+                <label className={`product-admin-file-field ${processingThumbnail ? 'product-admin-file-field--processing' : ''}`}>
+                  Thumbnail from computer
+                  <input id="product-thumbnail-file" type="file" accept="image/*" disabled={processingThumbnail} onChange={(event) => void handleThumbnailSelection(event)} />
+                  <span>{processingThumbnail ? 'Optimizing thumbnail...' : thumbnailFile ? `${thumbnailFile.name} · ${Math.max(1, Math.round(thumbnailFile.size / 1024))} KB` : 'Choose one image'}</span>
+                </label>
                 <label>Or thumbnail / YouTube URL<input type="url" {...register('imageUrl')} placeholder="https://youtube.com/watch?v=..." />{errors.imageUrl && <small className="product-admin-field-error">{errors.imageUrl.message}</small>}</label>
               </section>
 

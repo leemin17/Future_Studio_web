@@ -225,4 +225,4 @@ const ProjectBlockEditor: React.FC<ProjectBlockEditorProps> = ({ blocks, onChang
   );
 };
 
-export default ProjectBlockEditor;
+export default React.memo(ProjectBlockEditor);
