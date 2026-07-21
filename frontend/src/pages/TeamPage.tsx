@@ -276,21 +276,18 @@ const TeamPage = () => {
                                             }
                                         }}
                                     >
-                                            <motion.img
-                                                key={showcaseMember.id}
-                                                src={showcaseMember.image}
-                                                alt={showcaseMember.name}
-                                                draggable={false}
-                                                initial={{
-                                                    scale: 0.992,
-                                                    opacity: 1
-                                                }}
-                                                animate={{
-                                                    scale: 1,
-                                                    opacity: 1
-                                                }}
-                                                transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-                                            />
+                                            <AnimatePresence initial={false} mode="sync">
+                                                <motion.img
+                                                    key={showcaseMember.id}
+                                                    src={showcaseMember.image}
+                                                    alt={showcaseMember.name}
+                                                    draggable={false}
+                                                    initial={{ opacity: 0 }}
+                                                    animate={{ opacity: 1 }}
+                                                    exit={{ opacity: 0 }}
+                                                    transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+                                                />
+                                            </AnimatePresence>
                                         {isAdmin && hasTeamMembers && (
                                             <div className="team-member-card-admin-actions" aria-label="Quản lý thành viên">
                                             <button

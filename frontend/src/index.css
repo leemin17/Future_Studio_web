@@ -4363,6 +4363,10 @@ iframe {
   grid-row: 1;
   align-self: end;
   max-width: 100%;
+  min-height: clamp(210px, 18vw, 280px);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
 }
 
 .team-showcase-thumbs {
@@ -4388,11 +4392,20 @@ iframe {
   width: 100%;
   min-width: 0;
   scroll-snap-align: start;
+  opacity: 0.76;
+  filter: saturate(0.82) brightness(0.88);
+  outline: 1px solid transparent;
+  outline-offset: 3px;
+  transition: opacity 180ms ease, filter 180ms ease, outline-color 180ms ease;
 }
 
 .team-showcase-thumb:hover,
+.team-showcase-thumb:focus-visible,
 .team-showcase-thumb.active {
   width: 100%;
+  opacity: 1;
+  filter: saturate(1) brightness(1);
+  outline-color: rgba(255, 255, 255, 0.9);
 }
 
 @media (max-width: 900px) {
@@ -6470,6 +6483,11 @@ iframe {
   .confirm-dialog-overlay,
   .confirm-dialog-content {
     animation: none;
+  }
+
+  .team-showcase-info {
+    min-height: 0;
+    display: block;
   }
 }
 
