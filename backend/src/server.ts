@@ -1,18 +1,17 @@
-import cors from 'cors';
-import express from 'express';
-import contentRoutes from './routes/content.ts';
-import productRoutes from './routes/products.ts';
+import { loadEnvFile } from 'node:process';
 
-const app = express();
+try {
+  loadEnvFile();
+} catch {
+  // Production injects environment variables without a local .env file.
+}
+
+// Import the application only after local environment variables are available.
+// Supabase clients are created while the imported modules are evaluated.
+const { createApp } = await import('./app.ts');
+
 const port = Number(process.env.PORT ?? 4000);
-const frontendUrl = process.env.FRONTEND_URL ?? 'http://localhost:3000';
-
-app.use(cors({ origin: frontendUrl }));
-app.use(express.json());
-
-app.get('/api/health', (_request, response) => response.json({ status: 'ok' }));
-app.use('/api/products', productRoutes);
-app.use('/api/content', contentRoutes);
+const app = createApp();
 
 app.listen(port, () => {
   console.log(`Future Studio API running at http://localhost:${port}`);

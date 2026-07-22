@@ -9,6 +9,7 @@ import ProjectBlockEditor, { type ProjectEditorBlock } from './ProjectBlockEdito
 import ConfirmDialog from './ConfirmDialog';
 import { productFormSchema, type ProductFormValues } from '../validation/productSchema';
 import { Eye, EyeOff } from 'lucide-react';
+import { fetchAdminProfile } from '../services/auth';
 
 interface ProductAdminModalProps {
   open: boolean;
@@ -256,9 +257,20 @@ const ProductAdminModal: React.FC<ProductAdminModalProps> = ({ open, product, on
       };
     }
 
-    void supabase.auth.getSession().then(({ data }) => {
-      setAuthenticated(Boolean(data.session));
-      setCheckingSession(false);
+    void supabase.auth.getSession().then(async ({ data }) => {
+      if (!data.session) {
+        setAuthenticated(false);
+        setCheckingSession(false);
+        return;
+      }
+      try {
+        const profile = await fetchAdminProfile(data.session.access_token);
+        setAuthenticated(profile.isAdmin);
+      } catch {
+        setAuthenticated(false);
+      } finally {
+        setCheckingSession(false);
+      }
     });
 
     return () => {
@@ -273,13 +285,25 @@ const ProductAdminModal: React.FC<ProductAdminModalProps> = ({ open, product, on
     if (!supabase) return;
     setSubmitting(true);
     setErrorMessage('');
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    setSubmitting(false);
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) {
+      setSubmitting(false);
       setErrorMessage(error.message);
       return;
     }
-    setAuthenticated(true);
+    try {
+      const profile = await fetchAdminProfile(data.session?.access_token);
+      if (!profile.isAdmin) {
+        await supabase.auth.signOut();
+        setErrorMessage('This account does not have administrator permission.');
+        return;
+      }
+      setAuthenticated(true);
+    } catch (profileError) {
+      setErrorMessage(profileError instanceof Error ? profileError.message : 'Unable to verify administrator permission.');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const handleLogout = async () => {
@@ -400,7 +424,7 @@ const ProductAdminModal: React.FC<ProductAdminModalProps> = ({ open, product, on
       const savedProduct = await withSaveTimeout(
         saveOperation,
         30_000,
-        'Supabase did not respond while saving the project. Check the connection and try again.',
+        'The backend API did not respond while saving the project. Check the connection and try again.',
       );
       onSaved(savedProduct);
       onClose();

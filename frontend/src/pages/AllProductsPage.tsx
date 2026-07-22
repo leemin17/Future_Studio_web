@@ -9,7 +9,7 @@ import { resolveMediaUrl } from '../utils/media';
 import { sortByDateDesc } from '../utils/date';
 import ProductAdminModal from '../components/ProductAdminModal';
 import ConfirmDialog from '../components/ConfirmDialog';
-import { supabase } from '../lib/supabase';
+import { useAdminSession } from '../hooks/useAdminSession';
 import { deleteDatabaseProduct } from '../services/products';
 import { productsQueryKey, useSupabaseProducts } from '../hooks/useSupabaseProducts';
 import { getProjectIdFromSlug, getProjectPath } from '../utils/projectRoutes';
@@ -202,7 +202,7 @@ const AllProductsPage: React.FC<AllProductsPageProps> = ({ category }) => {
   const queryClient = useQueryClient();
   const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<NewsItem | null>(null);
-  const [isAdmin, setIsAdmin] = useState(false);
+  const isAdmin = useAdminSession();
   const [pendingDelete, setPendingDelete] = useState<NewsItem | null>(null);
   const categoryFilter = category;
   const routeProductId = projectSlug ? getProjectIdFromSlug(projectSlug) : null;
@@ -224,16 +224,6 @@ const AllProductsPage: React.FC<AllProductsPageProps> = ({ category }) => {
       if (selectedProduct?.id === deletedId) setSelectedProduct(null);
     },
   });
-
-  useEffect(() => {
-    if (!supabase) return;
-
-    void supabase.auth.getSession().then(({ data }) => setIsAdmin(Boolean(data.session)));
-    const { data } = supabase.auth.onAuthStateChange((_event, session) => {
-      setIsAdmin(Boolean(session));
-    });
-    return () => data.subscription.unsubscribe();
-  }, []);
 
   useEffect(() => {
     if (routeProductId === null) return;

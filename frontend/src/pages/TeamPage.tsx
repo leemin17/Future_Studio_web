@@ -3,14 +3,14 @@ import { motion, useScroll, useTransform, useMotionValueEvent, AnimatePresence, 
 import type { TeamMember } from '@shared/types';
 import ScrollReveal from '../components/ScrollReveal';
 import TeamMemberAdminModal from '../components/TeamMemberAdminModal';
-import { supabase } from '../lib/supabase';
 import { deleteTeamMember, fetchTeamMembers } from '../services/teamMembers';
+import { useAdminSession } from '../hooks/useAdminSession';
 
 const TeamPage = () => {
     const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
     const [membersLoading, setMembersLoading] = useState(true);
     const [membersError, setMembersError] = useState('');
-    const [isAdmin, setIsAdmin] = useState(false);
+    const isAdmin = useAdminSession();
     const [isAddMemberOpen, setIsAddMemberOpen] = useState(false);
     const [editingMember, setEditingMember] = useState<TeamMember | null>(null);
     const [deletingMemberId, setDeletingMemberId] = useState<number | null>(null);
@@ -59,17 +59,12 @@ const TeamPage = () => {
     }, []);
 
     useEffect(() => {
-        if (!supabase) {
-            setMembersError('Supabase chưa được cấu hình.');
-            setMembersLoading(false);
-            return;
-        }
         let active = true;
         void fetchTeamMembers()
             .then((members) => {
                 if (!active) return;
                 setTeamMembers(members);
-                if (!members.length) setMembersError('Chưa có thành viên trong Supabase.');
+                if (!members.length) setMembersError('Chưa có thành viên.');
             })
             .catch((error) => {
                 if (!active) return;
@@ -80,13 +75,6 @@ const TeamPage = () => {
                 if (active) setMembersLoading(false);
             });
         return () => { active = false; };
-    }, []);
-
-    useEffect(() => {
-        if (!supabase) return;
-        void supabase.auth.getSession().then(({ data }) => setIsAdmin(Boolean(data.session)));
-        const { data } = supabase.auth.onAuthStateChange((_event, session) => setIsAdmin(Boolean(session)));
-        return () => data.subscription.unsubscribe();
     }, []);
 
     useEffect(() => {
@@ -313,7 +301,7 @@ const TeamPage = () => {
                                                 aria-label={`Xóa ${showcaseMember.name}`}
                                             >
                                                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3h6l1 2h4v2H4V5h4l1-2Zm-2 6h10l-1 12H8L7 9Zm3 2v8h2v-8h-2Zm4 0v8h2v-8h-2Z" /></svg>
-                                                <span>{deletingMemberId === showcaseMember.id ? 'Đang xóa' : 'delete'}</span>
+                                                <span>{deletingMemberId === showcaseMember.id ? 'Đang đuổi' : 'đuổi việc'}</span>
                                             </button>
                                             </div>
                                         )}

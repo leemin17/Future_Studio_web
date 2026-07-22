@@ -5,7 +5,7 @@ test.beforeEach(async ({ page }) => {
   await mockSupabase(page);
 });
 
-test('all products renders products returned by Supabase', async ({ page }) => {
+test('all products renders products returned by Express API', async ({ page }) => {
   await openApp(page, '/#/all-products');
 
   await expect(page.locator('.news-card')).toHaveCount(3);

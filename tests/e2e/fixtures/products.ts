@@ -61,17 +61,36 @@ export const productRows = [
   },
 ];
 
+const apiProducts = productRows.map((row) => ({
+  id: row.id,
+  date: row.date,
+  title: row.title,
+  clientInformation: row.client_information,
+  describe: row.describe,
+  imageUrl: row.image_url,
+  partnerLogoUrl: row.partner_logo_url ?? undefined,
+  category: row.category,
+  videoUrl: row.video_url ?? undefined,
+  modelUrl: row.model_url ?? undefined,
+  imageGallery: row.image_gallery,
+  videoGallery: row.video_gallery,
+  quickViewLayout: row.quick_view_layout,
+}));
+
 export const mockSupabase = async (page: Page) => {
-  await page.route('**/rest/v1/products*', async (route) => {
+  await page.route('**/api/products*', async (route) => {
     await route.fulfill({
       status: 200,
       contentType: 'application/json',
-      headers: { 'Content-Range': `0-${productRows.length - 1}/${productRows.length}` },
-      body: JSON.stringify(productRows),
+      body: JSON.stringify(apiProducts),
     });
   });
 
-  await page.route('**/rest/v1/site_content*', async (route) => {
+  await page.route('**/api/content/*', async (route) => {
+    await route.fulfill({ status: 200, contentType: 'application/json', body: 'null' });
+  });
+
+  await page.route('**/api/members*', async (route) => {
     await route.fulfill({ status: 200, contentType: 'application/json', body: '[]' });
   });
 };

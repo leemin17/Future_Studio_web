@@ -1,149 +1,26 @@
-import type { NewsItem, ProductCategory } from '@shared/types';
-import { supabase } from '../lib/supabase';
-
-interface ProductRow {
-  id: number;
-  date: string;
-  title: string;
-  client_information: string;
-  describe: string;
-  image_url: string;
-  partner_logo_url: string | null;
-  category: ProductCategory | null;
-  video_url: string | null;
-  model_url: string | null;
-  image_gallery: string[] | null;
-  video_gallery: string[] | null;
-  quick_view_layout: NewsItem['quickViewLayout'] | null;
-}
+import type { NewsItem } from '@shared/types';
+import { apiRequest } from './apiClient';
 
 export type NewProductInput = Omit<NewsItem, 'id'>;
 
-const productToRow = (product: NewProductInput) => ({
-  date: product.date,
-  title: product.title,
-  client_information: product.clientInformation,
-  describe: product.describe,
-  image_url: product.imageUrl,
-  partner_logo_url: product.partnerLogoUrl ?? null,
-  category: product.category ?? null,
-  video_url: product.videoUrl ?? null,
-  model_url: product.modelUrl ?? null,
-  image_gallery: product.imageGallery ?? [],
-  video_gallery: product.videoGallery ?? [],
-  quick_view_layout: product.quickViewLayout ?? [],
-  updated_at: new Date().toISOString(),
-});
+export const fetchDatabaseProducts = () => apiRequest<NewsItem[]>('/products');
 
-const requireSupabase = () => {
-  if (!supabase) {
-    throw new Error('Supabase is not configured. Add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.');
-  }
-  return supabase;
-};
+export const createDatabaseProduct = (product: NewProductInput) =>
+  apiRequest<NewsItem>('/products', {
+    method: 'POST',
+    authenticated: true,
+    body: JSON.stringify(product),
+  });
 
-const productError = (message: string) => {
-  if (message.includes('partner_logo_url')) {
-    return new Error('Supabase is missing products.partner_logo_url. Run the latest supabase/schema.sql, then try again.');
-  }
-  if (message.includes('products_category_check')) {
-    return new Error('Supabase does not allow this product category yet. Run 20260717_add_showreel_category.sql in the Supabase SQL Editor, then save again.');
-  }
-  return new Error(message || 'Supabase could not save this product.');
-};
+export const updateDatabaseProduct = (id: number, product: NewProductInput) =>
+  apiRequest<NewsItem>(`/products/${id}`, {
+    method: 'PUT',
+    authenticated: true,
+    body: JSON.stringify(product),
+  });
 
-const rowToProduct = (row: ProductRow): NewsItem => ({
-  id: row.id,
-  date: row.date,
-  title: row.title,
-  clientInformation: row.client_information,
-  describe: row.describe,
-  imageUrl: row.image_url,
-  partnerLogoUrl: row.partner_logo_url ?? undefined,
-  category: row.category ?? undefined,
-  videoUrl: row.video_url ?? undefined,
-  modelUrl: row.model_url ?? undefined,
-  imageGallery: row.image_gallery ?? undefined,
-  videoGallery: row.video_gallery ?? undefined,
-  quickViewLayout: row.quick_view_layout ?? undefined,
-});
-
-const getProductStoragePaths = (row: ProductRow): string[] => {
-  const mediaUrls = [
-    row.image_url,
-    row.partner_logo_url,
-    ...(row.image_gallery ?? []),
-    ...(row.video_gallery ?? []),
-    ...(row.quick_view_layout ?? []).flatMap((block) => block.items.map((item) => item.url)),
-  ].filter((url): url is string => Boolean(url));
-  const publicObjectMarker = '/storage/v1/object/public/product-media/';
-
-  return [...new Set(mediaUrls.flatMap((mediaUrl) => {
-    try {
-      const parsedUrl = new URL(mediaUrl);
-      const markerIndex = parsedUrl.pathname.indexOf(publicObjectMarker);
-      if (markerIndex < 0) return [];
-      const encodedPath = parsedUrl.pathname.slice(markerIndex + publicObjectMarker.length);
-      return encodedPath ? [decodeURIComponent(encodedPath)] : [];
-    } catch {
-      return [];
-    }
-  }))];
-};
-
-export const fetchDatabaseProducts = async (): Promise<NewsItem[]> => {
-  const client = requireSupabase();
-  const { data, error } = await client
-    .from('products')
-    .select('*')
-    .order('created_at', { ascending: false });
-
-  if (error) throw productError(error.message);
-  return ((data ?? []) as ProductRow[]).map(rowToProduct);
-};
-
-export const createDatabaseProduct = async (product: NewProductInput): Promise<NewsItem> => {
-  const client = requireSupabase();
-  const { data, error } = await client
-    .from('products')
-    .insert(productToRow(product))
-    .select('*')
-    .single();
-
-  if (error) throw productError(error.message);
-  return rowToProduct(data as ProductRow);
-};
-
-export const updateDatabaseProduct = async (id: number, product: NewProductInput): Promise<NewsItem> => {
-  const { data, error } = await requireSupabase()
-    .from('products')
-    .upsert({ id, ...productToRow(product) }, { onConflict: 'id' })
-    .select('*')
-    .single();
-  if (error) throw productError(error.message);
-  return rowToProduct(data as ProductRow);
-};
-
-export const deleteDatabaseProduct = async (id: number): Promise<void> => {
-  const client = requireSupabase();
-  const { data: existingProduct, error: fetchError } = await client
-    .from('products')
-    .select('*')
-    .eq('id', id)
-    .maybeSingle();
-
-  if (fetchError) throw productError(fetchError.message);
-
-  const storagePaths = existingProduct
-    ? getProductStoragePaths(existingProduct as ProductRow)
-    : [];
-  const { error: deleteError } = await client.from('products').delete().eq('id', id);
-  if (deleteError) throw productError(deleteError.message);
-
-  if (storagePaths.length) {
-    const { error: storageError } = await client.storage.from('product-media').remove(storagePaths);
-    if (storageError) {
-      console.warn(`Product ${id} was deleted, but its media cleanup failed:`, storageError.message);
-    }
-  }
-};
+export const deleteDatabaseProduct = (id: number) =>
+  apiRequest<void>(`/products/${id}`, {
+    method: 'DELETE',
+    authenticated: true,
+  });

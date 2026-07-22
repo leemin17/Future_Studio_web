@@ -1,26 +1,17 @@
 import { useEffect, useState } from 'react';
-import { supabase } from '../lib/supabase';
+import { apiRequest } from '../services/apiClient';
 
 export const useSiteContent = <T,>(key: string, fallback: T): T => {
   const [content, setContent] = useState<T>(fallback);
 
   useEffect(() => {
-    if (!supabase) return;
     let active = true;
-
-    void supabase
-      .from('site_content')
-      .select('value')
-      .eq('key', key)
-      .maybeSingle()
-      .then(({ data, error }) => {
-        if (!active || error || !data?.value) return;
-        setContent(data.value as T);
-      });
-
-    return () => {
-      active = false;
-    };
+    void apiRequest<T | null>(`/content/${encodeURIComponent(key)}`)
+      .then((value) => {
+        if (active && value !== null) setContent(value);
+      })
+      .catch((error) => console.warn(`Unable to load site content ${key}:`, error));
+    return () => { active = false; };
   }, [key]);
 
   return content;

@@ -6,7 +6,7 @@ import { navItems as fallbackNavItems } from '@shared/fallbackData';
 import type { NavItem } from '@shared/types';
 import { scrollToTop } from '../utils/scroll';
 import { useSiteContent } from '../hooks/useSiteContent';
-import { supabase } from '../lib/supabase';
+import { useAdminSession } from '../hooks/useAdminSession';
 interface HeaderProps {
   onLogoClick: () => void;
   showFixedHeader: boolean;
@@ -47,7 +47,7 @@ const useScrollSpy = (sectionIds: string[]) => {
 };
 
 const Header: React.FC<HeaderProps> = ({ onLogoClick, showFixedHeader, isAtDetailPage, isMobileMenuOpen, setIsMobileMenuOpen }) => {
-  const [isAdmin, setIsAdmin] = useState(false);
+  const isAdmin = useAdminSession();
   const storedNavItems = useSiteContent<NavItem[]>('navigation', fallbackNavItems);
   const navItems = React.useMemo(
     () => {
@@ -67,13 +67,6 @@ const Header: React.FC<HeaderProps> = ({ onLogoClick, showFixedHeader, isAtDetai
     setIsMobileMenuOpen(false);
     if (target instanceof HTMLElement) target.blur();
   };
-
-  useEffect(() => {
-    if (!supabase) return;
-    void supabase.auth.getSession().then(({ data }) => setIsAdmin(Boolean(data.session)));
-    const { data } = supabase.auth.onAuthStateChange((_event, session) => setIsAdmin(Boolean(session)));
-    return () => data.subscription.unsubscribe();
-  }, []);
 
   const handleScrollTo = (id: string) => {
     setIsMobileMenuOpen(false); // Đóng menu mobile khi người dùng đã chọn mục
