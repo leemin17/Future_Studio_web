@@ -8,23 +8,12 @@ import Preloader from './components/Preloader';
 import RouteMetadata from './components/RouteMetadata';
 import { useAppNavigation } from './hooks/useAppNavigation';
 
-const App: React.FC = () => {
-  const location = useLocation();
-  const { goHome } = useAppNavigation();
-  const isQuickViewRoute = location.pathname.startsWith('/projects/');
-  const skipPreloader = Boolean((location.state as { skipPreloader?: boolean } | null)?.skipPreloader);
+interface RoutePreloaderProps {
+  enabled: boolean;
+}
 
-  // 1. Quản lý trạng thái loading
-  const [isLoading, setIsLoading] = useState(() => !isQuickViewRoute && !skipPreloader);
-
-  // 2. Mỗi khi location.pathname thay đổi, reset lại trạng thái loading
-  useEffect(() => {
-    setIsLoading(!isQuickViewRoute && !skipPreloader);
-  }, [isQuickViewRoute, location.pathname, skipPreloader]);
-
-  useEffect(() => {
-    window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
-  }, [location.pathname]);
+const RoutePreloader: React.FC<RoutePreloaderProps> = ({ enabled }) => {
+  const [isLoading, setIsLoading] = useState(enabled);
 
   useEffect(() => {
     if (isLoading) return;
@@ -32,7 +21,24 @@ const App: React.FC = () => {
     document.body.style.overflow = '';
     document.body.style.position = '';
     document.body.style.height = '';
-  }, [isLoading, location.pathname]);
+  }, [isLoading]);
+
+  return (
+    <AnimatePresence mode="wait">
+      {isLoading && <Preloader onComplete={() => setIsLoading(false)} />}
+    </AnimatePresence>
+  );
+};
+
+const App: React.FC = () => {
+  const location = useLocation();
+  const { goHome } = useAppNavigation();
+  const isQuickViewRoute = location.pathname.startsWith('/projects/');
+  const skipPreloader = Boolean((location.state as { skipPreloader?: boolean } | null)?.skipPreloader);
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+  }, [location.pathname]);
 
   const isAtDetailPage = location.pathname !== '/';
   const showFixedHeader = true;
@@ -40,16 +46,11 @@ const App: React.FC = () => {
 
   return (
     <>
-      {/* Preloader sẽ xuất hiện mỗi khi isLoading = true */}
       <RouteMetadata />
-      <AnimatePresence mode="wait">
-        {isLoading && (
-          <Preloader 
-            key={location.pathname} // Key giúp reset animation mỗi khi chuyển trang
-            onComplete={() => setIsLoading(false)} 
-          />
-        )}
-      </AnimatePresence>
+      <RoutePreloader
+        key={`${location.pathname}:${skipPreloader}`}
+        enabled={!isQuickViewRoute && !skipPreloader}
+      />
 
       <Header
         onLogoClick={goHome}

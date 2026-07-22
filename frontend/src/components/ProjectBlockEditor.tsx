@@ -67,17 +67,19 @@ const ProjectBlockEditor: React.FC<ProjectBlockEditorProps> = ({ blocks, onChang
   const videoInput = useRef<HTMLInputElement>(null);
   const [videoOptionsOpen, setVideoOptionsOpen] = React.useState(false);
   const [videoLink, setVideoLink] = React.useState('');
-  const [previewFileUrls, setPreviewFileUrls] = React.useState<Map<File, string>>(new Map());
   const deferredBlocks = React.useDeferredValue(blocks);
   const [, startPreviewTransition] = React.useTransition();
 
-  React.useEffect(() => {
+  const previewFileUrls = useMemo(() => {
     const files = [...blocks.flatMap((block) => block.files), ...(partnerLogoFile ? [partnerLogoFile] : [])];
     const nextUrls = new Map<File, string>();
     files.forEach((file) => nextUrls.set(file, URL.createObjectURL(file)));
-    setPreviewFileUrls(nextUrls);
-    return () => nextUrls.forEach((url) => URL.revokeObjectURL(url));
+    return nextUrls;
   }, [blocks, partnerLogoFile]);
+
+  React.useEffect(() => (
+    () => previewFileUrls.forEach((url) => URL.revokeObjectURL(url))
+  ), [previewFileUrls]);
 
   const previewData = useMemo(() => {
     const quickViewLayout: NonNullable<NewsItem['quickViewLayout']> = deferredBlocks.flatMap((block): NonNullable<NewsItem['quickViewLayout']> => {
@@ -118,14 +120,21 @@ const ProjectBlockEditor: React.FC<ProjectBlockEditorProps> = ({ blocks, onChang
   };
 
 
-  const tools: { type: ProjectBlockType; icon: React.ReactNode; action: () => void }[] = [
-    { type: 'image', icon: <ImageIcon size={20} />, action: () => imageInput.current?.click() },
-    { type: 'text', icon: <Type size={20} />, action: () => addSimpleBlock('text') },
-    { type: 'grid', icon: <Grid2X2 size={20} />, action: () => gridInput.current?.click() },
-    { type: 'video', icon: <Video size={20} />, action: () => setVideoOptionsOpen((open) => !open) },
-    { type: 'embed', icon: <Code2 size={20} />, action: () => addSimpleBlock('embed') },
-    { type: 'model', icon: <Box size={20} />, action: () => addSimpleBlock('model') },
+  const tools: { type: ProjectBlockType; icon: React.ReactNode }[] = [
+    { type: 'image', icon: <ImageIcon size={20} /> },
+    { type: 'text', icon: <Type size={20} /> },
+    { type: 'grid', icon: <Grid2X2 size={20} /> },
+    { type: 'video', icon: <Video size={20} /> },
+    { type: 'embed', icon: <Code2 size={20} /> },
+    { type: 'model', icon: <Box size={20} /> },
   ];
+
+  const handleToolClick = (type: ProjectBlockType) => {
+    if (type === 'image') imageInput.current?.click();
+    else if (type === 'grid') gridInput.current?.click();
+    else if (type === 'video') setVideoOptionsOpen((open) => !open);
+    else addSimpleBlock(type);
+  };
 
   return (
     <section className="project-editor-shell">
@@ -174,7 +183,7 @@ const ProjectBlockEditor: React.FC<ProjectBlockEditorProps> = ({ blocks, onChang
       <aside className="project-editor-toolbar">
         <span>Add content</span>
         <div>
-          {tools.map((tool) => <button key={tool.type} type="button" onClick={tool.action}>{tool.icon}<strong>{blockLabels[tool.type]}</strong></button>)}
+          {tools.map((tool) => <button key={tool.type} type="button" onClick={() => handleToolClick(tool.type)}>{tool.icon}<strong>{blockLabels[tool.type]}</strong></button>)}
         </div>
         <div className="project-editor-frame-tool">
           <div className="project-editor-frame-tool-title">

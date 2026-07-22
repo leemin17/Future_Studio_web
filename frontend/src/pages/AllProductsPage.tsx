@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState, useEffect } from 'react';
+import React, { useCallback, useMemo, useRef, useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -43,11 +43,10 @@ const ProductCard: React.FC<ProductCardProps> = ({ item, onClick, canManage, onE
   const playerRef = useRef<Player | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isHovering, setIsHovering] = useState(false);
-  const [thumbnailUrl, setThumbnailUrl] = useState(() => getYouTubeThumbnail(item.imageUrl));
-
-  useEffect(() => {
-    setThumbnailUrl(getYouTubeThumbnail(item.imageUrl));
-  }, [item.imageUrl]);
+  const [thumbnailOverride, setThumbnailOverride] = useState<{ source: string; value: string } | null>(null);
+  const thumbnailUrl = thumbnailOverride?.source === item.imageUrl
+    ? thumbnailOverride.value
+    : getYouTubeThumbnail(item.imageUrl);
 
   const isVimeo = useMemo(() => item.videoUrl?.includes('vimeo'), [item.videoUrl]);
   const youtubeId = useMemo(() => item.videoUrl ? getYouTubeId(item.videoUrl) : null, [item.videoUrl]);
@@ -59,14 +58,14 @@ const ProductCard: React.FC<ProductCardProps> = ({ item, onClick, canManage, onE
         .then((response) => response.json())
         .then((data) => {
           if (data && data.thumbnail_url) {
-            setThumbnailUrl(data.thumbnail_url);
+            setThumbnailOverride({ source: item.imageUrl, value: data.thumbnail_url });
           }
         })
         .catch(() => {
           // fallback to local placeholder
         });
     }
-  }, [isVimeo, item.videoUrl]);
+  }, [isVimeo, item.imageUrl, item.videoUrl]);
 
   useEffect(() => {
     if (isVimeo && item.videoUrl && playerContainerRef.current) {
@@ -147,7 +146,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ item, onClick, canManage, onE
           onError={() => {
             const id = thumbnailUrl.match(/img\.youtube\.com\/vi\/([A-Za-z0-9_-]{6,})\//i)?.[1];
             if (id && thumbnailUrl.includes('maxresdefault')) {
-              setThumbnailUrl(`https://img.youtube.com/vi/${id}/hqdefault.jpg`);
+              setThumbnailOverride({ source: item.imageUrl, value: `https://img.youtube.com/vi/${id}/hqdefault.jpg` });
             }
           }}
         />
@@ -197,7 +196,6 @@ const AllProductsPage: React.FC<AllProductsPageProps> = ({ category }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { projectSlug } = useParams<{ projectSlug?: string }>();
-  const [selectedProduct, setSelectedProduct] = useState<NewsItem | null>(null);
   const databaseProducts = useSupabaseProducts();
   const queryClient = useQueryClient();
   const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
@@ -206,6 +204,9 @@ const AllProductsPage: React.FC<AllProductsPageProps> = ({ category }) => {
   const [pendingDelete, setPendingDelete] = useState<NewsItem | null>(null);
   const categoryFilter = category;
   const routeProductId = projectSlug ? getProjectIdFromSlug(projectSlug) : null;
+  const selectedProduct = routeProductId === null
+    ? null
+    : databaseProducts.find((item) => item.id === routeProductId) ?? null;
 
   const allProducts = useMemo(
     () => {
@@ -221,15 +222,8 @@ const AllProductsPage: React.FC<AllProductsPageProps> = ({ category }) => {
     mutationFn: deleteDatabaseProduct,
     onSuccess: (_result, deletedId) => {
       queryClient.setQueryData<NewsItem[]>(productsQueryKey, (current = []) => current.filter((item) => item.id !== deletedId));
-      if (selectedProduct?.id === deletedId) setSelectedProduct(null);
     },
   });
-
-  useEffect(() => {
-    if (routeProductId === null) return;
-    const routeProduct = databaseProducts.find((item) => item.id === routeProductId);
-    if (routeProduct) setSelectedProduct(routeProduct);
-  }, [databaseProducts, routeProductId]);
 
   useEffect(() => {
     if (!selectedProduct || !projectSlug) return;
@@ -249,7 +243,6 @@ const AllProductsPage: React.FC<AllProductsPageProps> = ({ category }) => {
 
   const openEdit = (product: NewsItem) => {
     setEditingProduct(product);
-    setSelectedProduct(null);
     setIsAdminModalOpen(true);
   };
 
@@ -272,8 +265,7 @@ const AllProductsPage: React.FC<AllProductsPageProps> = ({ category }) => {
     });
   };
 
-  const handleCloseQuickView = () => {
-    setSelectedProduct(null);
+  const handleCloseQuickView = useCallback(() => {
     if (projectSlug) {
       const state = location.state as { quickViewFrom?: string } | null;
       navigate(state?.quickViewFrom || '/all-products', {
@@ -281,7 +273,7 @@ const AllProductsPage: React.FC<AllProductsPageProps> = ({ category }) => {
         state: { skipPreloader: true },
       });
     }
-  };
+  }, [location.state, navigate, projectSlug]);
 
   const isQuickViewOpen = Boolean(selectedProduct);
 
@@ -303,7 +295,7 @@ const AllProductsPage: React.FC<AllProductsPageProps> = ({ category }) => {
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [isQuickViewOpen]);
+  }, [handleCloseQuickView, isQuickViewOpen]);
 
   return (
     <div className={`all-products-page ${isQuickViewOpen ? 'all-products-page--modal-open' : ''}`}>

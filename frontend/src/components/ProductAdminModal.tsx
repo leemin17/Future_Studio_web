@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import type { NewsItem } from '@shared/types';
 import { isSupabaseConfigured, supabase } from '../lib/supabase';
 import { createDatabaseProduct, updateDatabaseProduct } from '../services/products';
@@ -197,16 +197,18 @@ const emptyProductForm: ProductFormValues = {
   partnerLogoUrl: '',
 };
 
-const ProductAdminModal: React.FC<ProductAdminModalProps> = ({ open, product, onClose, onSaved }) => {
+type ProductAdminFormProps = Omit<ProductAdminModalProps, 'open'>;
+
+const ProductAdminForm: React.FC<ProductAdminFormProps> = ({ product, onClose, onSaved }) => {
   const [authenticated, setAuthenticated] = useState(false);
-  const [checkingSession, setCheckingSession] = useState(true);
+  const [checkingSession, setCheckingSession] = useState(Boolean(supabase));
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
   const [processingThumbnail, setProcessingThumbnail] = useState(false);
   const [partnerLogoFile, setPartnerLogoFile] = useState<File | null>(null);
-  const [projectBlocks, setProjectBlocks] = useState<ProjectEditorBlock[]>([]);
+  const [projectBlocks, setProjectBlocks] = useState<ProjectEditorBlock[]>(() => product ? blocksFromProduct(product) : []);
   const [submitting, setSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [saveStage, setSaveStage] = useState<'idle' | 'preparing' | 'uploading' | 'saving'>('idle');
@@ -216,20 +218,12 @@ const ProductAdminModal: React.FC<ProductAdminModalProps> = ({ open, product, on
   const saveInFlightRef = useRef(false);
   const {
     register,
-    reset,
-    watch,
+    control,
     handleSubmit: submitForm,
     formState: { errors },
   } = useForm<ProductFormValues>({
     resolver: zodResolver(productFormSchema),
-    defaultValues: emptyProductForm,
-  });
-  const formValues = watch();
-  const { title, clientInformation, imageUrl, partnerLogoUrl } = formValues;
-
-  useEffect(() => {
-    if (!open) return;
-    reset({
+    defaultValues: {
       title: product?.title ?? '',
       clientInformation: product?.clientInformation ?? '',
       category: product?.category ?? 'tvc',
@@ -237,21 +231,20 @@ const ProductAdminModal: React.FC<ProductAdminModalProps> = ({ open, product, on
       describe: product?.describe ?? '',
       imageUrl: product?.imageUrl ?? '',
       partnerLogoUrl: product?.partnerLogoUrl ?? '',
-    });
-    setThumbnailFile(null);
-    setPartnerLogoFile(null);
-    setProjectBlocks(product ? blocksFromProduct(product) : []);
-  }, [open, product, reset]);
+    },
+  });
+  const formValues = useWatch({ control, defaultValue: emptyProductForm });
+  const {
+    title = '',
+    clientInformation = '',
+    imageUrl = '',
+    partnerLogoUrl = '',
+  } = formValues;
 
   useEffect(() => {
-    if (!open) return;
     document.body.style.overflow = 'hidden';
-    setErrorMessage('');
-    setSaveStage('idle');
-    setSaveProgress(0);
 
     if (!supabase) {
-      setCheckingSession(false);
       return () => {
         document.body.style.overflow = '';
       };
@@ -276,9 +269,7 @@ const ProductAdminModal: React.FC<ProductAdminModalProps> = ({ open, product, on
     return () => {
       document.body.style.overflow = '';
     };
-  }, [open]);
-
-  if (!open) return null;
+  }, []);
 
   const handleLogin = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -428,10 +419,6 @@ const ProductAdminModal: React.FC<ProductAdminModalProps> = ({ open, product, on
       );
       onSaved(savedProduct);
       onClose();
-      reset(emptyProductForm);
-      setThumbnailFile(null);
-      setPartnerLogoFile(null);
-      setProjectBlocks([]);
     } catch (error) {
       setErrorMessage(error instanceof Error ? error.message : 'Unable to save this product.');
     } finally {
@@ -551,6 +538,18 @@ const ProductAdminModal: React.FC<ProductAdminModalProps> = ({ open, product, on
         )}
       </section>
     </div>
+  );
+};
+
+const ProductAdminModal: React.FC<ProductAdminModalProps> = ({ open, product, onClose, onSaved }) => {
+  if (!open) return null;
+  return (
+    <ProductAdminForm
+      key={product?.id ?? 'new-product'}
+      product={product}
+      onClose={onClose}
+      onSaved={onSaved}
+    />
   );
 };
 

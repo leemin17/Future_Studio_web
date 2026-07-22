@@ -10,11 +10,13 @@ interface TeamMemberAdminModalProps {
   onSaved: (member: TeamMember) => void;
 }
 
-const TeamMemberAdminModal: React.FC<TeamMemberAdminModalProps> = ({ open, member, onClose, onSaved }) => {
-  const [name, setName] = useState('');
-  const [role, setRole] = useState('');
-  const [bio, setBio] = useState('');
-  const [imageUrl, setImageUrl] = useState('');
+type TeamMemberAdminFormProps = Omit<TeamMemberAdminModalProps, 'open'>;
+
+const TeamMemberAdminForm: React.FC<TeamMemberAdminFormProps> = ({ member, onClose, onSaved }) => {
+  const [name, setName] = useState(member?.name ?? '');
+  const [role, setRole] = useState(member?.role ?? '');
+  const [bio, setBio] = useState(member?.bio ?? '');
+  const [imageUrl, setImageUrl] = useState(member?.image ?? '');
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
@@ -29,19 +31,6 @@ const TeamMemberAdminModal: React.FC<TeamMemberAdminModalProps> = ({ open, membe
       if (previewUrl.startsWith('blob:')) URL.revokeObjectURL(previewUrl);
     };
   }, [previewUrl]);
-
-  useEffect(() => {
-    if (!open) return;
-    setName(member?.name ?? '');
-    setRole(member?.role ?? '');
-    setBio(member?.bio ?? '');
-    setImageUrl(member?.image ?? '');
-    setImageFile(null);
-    setSubmitting(false);
-    setErrorMessage('');
-  }, [open, member]);
-
-  if (!open) return null;
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -106,6 +95,18 @@ const TeamMemberAdminModal: React.FC<TeamMemberAdminModalProps> = ({ open, membe
         </form>
       </section>
     </div>
+  );
+};
+
+const TeamMemberAdminModal: React.FC<TeamMemberAdminModalProps> = ({ open, member, onClose, onSaved }) => {
+  if (!open) return null;
+  return (
+    <TeamMemberAdminForm
+      key={member?.id ?? 'new-member'}
+      member={member}
+      onClose={onClose}
+      onSaved={onSaved}
+    />
   );
 };
 

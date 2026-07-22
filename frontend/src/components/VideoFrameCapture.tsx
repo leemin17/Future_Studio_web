@@ -141,7 +141,7 @@ const VideoFrameCapture: React.FC<VideoFrameCaptureProps> = ({ onUseAsCover, onA
   const frameUrlsRef = useRef<Set<string>>(new Set());
   const analysisRunRef = useRef(0);
   const [videoFile, setVideoFile] = useState<File | null>(null);
-  const [videoUrl, setVideoUrl] = useState('');
+  const videoUrl = useMemo(() => videoFile ? URL.createObjectURL(videoFile) : '', [videoFile]);
   const [duration, setDuration] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
   const [timeInput, setTimeInput] = useState('00:00.000');
@@ -162,15 +162,9 @@ const VideoFrameCapture: React.FC<VideoFrameCaptureProps> = ({ onUseAsCover, onA
   const unsavedFrames = useMemo(() => frames.filter((frame) => !frame.saved), [frames]);
   const selectedFrames = useMemo(() => frames.filter((frame) => selectedIds.has(frame.id)), [frames, selectedIds]);
 
-  useEffect(() => {
-    if (!videoFile) {
-      setVideoUrl('');
-      return;
-    }
-    const nextUrl = URL.createObjectURL(videoFile);
-    setVideoUrl(nextUrl);
-    return () => URL.revokeObjectURL(nextUrl);
-  }, [videoFile]);
+  useEffect(() => () => {
+    if (videoUrl) URL.revokeObjectURL(videoUrl);
+  }, [videoUrl]);
 
   useEffect(() => {
     const preventAccidentalExit = (event: BeforeUnloadEvent) => {
@@ -291,7 +285,7 @@ const VideoFrameCapture: React.FC<VideoFrameCaptureProps> = ({ onUseAsCover, onA
     });
   };
 
-  const useAsCover = (frame: CapturedFrame) => {
+  const handleUseAsCover = (frame: CapturedFrame) => {
     onUseAsCover(frame.file);
     setFrames((current) => current.map((item) => item.id === frame.id ? { ...item, saved: true } : item));
     setActionMessage('Cover image updated.');
@@ -657,7 +651,7 @@ const VideoFrameCapture: React.FC<VideoFrameCaptureProps> = ({ onUseAsCover, onA
                     </button>
                     <div><time>{formatTime(frame.time)}</time><small>{Math.max(1, Math.round(frame.file.size / 1024))} KB</small></div>
                     <footer>
-                      <button type="button" onClick={() => useAsCover(frame)}>Use as cover</button>
+                      <button type="button" onClick={() => handleUseAsCover(frame)}>Use as cover</button>
                       <button type="button" onClick={() => removeFrame(frame.id)} aria-label="Delete captured frame"><Trash2 size={14} /></button>
                     </footer>
                   </article>

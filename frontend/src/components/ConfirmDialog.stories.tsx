@@ -11,6 +11,16 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+const DefaultStory = () => {
+  const [open, setOpen] = useState(false);
+  return (
+    <>
+      <button type="button" className="confirm-dialog-button confirm-dialog-button--primary" onClick={() => setOpen(true)}>Open confirmation</button>
+      <ConfirmDialog open={open} onOpenChange={setOpen} title="Publish this project?" description="The project will appear in the selected product category." confirmLabel="Publish project" onConfirm={() => setOpen(false)} />
+    </>
+  );
+};
+
 export const Default: Story = {
   args: {
     open: false,
@@ -19,13 +29,5 @@ export const Default: Story = {
     onOpenChange: () => undefined,
     onConfirm: () => undefined,
   },
-  render: () => {
-    const [open, setOpen] = useState(false);
-    return (
-      <>
-        <button type="button" className="confirm-dialog-button confirm-dialog-button--primary" onClick={() => setOpen(true)}>Open confirmation</button>
-        <ConfirmDialog open={open} onOpenChange={setOpen} title="Publish this project?" description="The project will appear in the selected product category." confirmLabel="Publish project" onConfirm={() => setOpen(false)} />
-      </>
-    );
-  },
+  render: () => <DefaultStory />,
 };

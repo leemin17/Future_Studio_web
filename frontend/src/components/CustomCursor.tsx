@@ -3,7 +3,10 @@ import { motion, useMotionValue, useSpring } from 'framer-motion';
 
 const CustomCursor = () => {
     // State nhận diện thiết bị cảm ứng
-    const [isTouchDevice, setIsTouchDevice] = useState(false);
+    const [isTouchDevice] = useState(() => (
+        typeof window !== 'undefined'
+        && (window.matchMedia('(pointer: coarse)').matches || 'ontouchstart' in window)
+    ));
 
     // TỐI ƯU HIỆU NĂNG: Dùng useMotionValue thay cho useState 
     // Tránh việc React render lại component hàng nghìn lần gây giật lag
@@ -16,12 +19,7 @@ const CustomCursor = () => {
     const cursorYSpring = useSpring(cursorY, springConfig);
 
     useEffect(() => {
-        // Nhận diện chuẩn xác màn hình cảm ứng (điện thoại, iPad)
-        // Nếu là cảm ứng -> đánh dấu true và thoát ra luôn
-        if (window.matchMedia("(pointer: coarse)").matches || 'ontouchstart' in window) {
-            setIsTouchDevice(true);
-            return;
-        }
+        if (isTouchDevice) return;
 
         const updateMousePosition = (e: MouseEvent) => {
             // Cập nhật tọa độ trực tiếp vào DOM, bỏ qua React Render
@@ -34,7 +32,7 @@ const CustomCursor = () => {
         return () => {
             window.removeEventListener('mousemove', updateMousePosition);
         };
-    }, [cursorX, cursorY]);
+    }, [cursorX, cursorY, isTouchDevice]);
 
     // Nếu người dùng đang xài màn hình cảm ứng -> Ẩn luôn ảnh logo
     if (isTouchDevice) return null;

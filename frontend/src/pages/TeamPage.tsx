@@ -42,8 +42,15 @@ const TeamPage = () => {
 
     // --- LOGIC CAROUSEL & MODAL ---
     const { scrollYProgress } = useScroll();
-    const [memberOrder, setMemberOrder] = useState(() => [...memberIndicesById]);
-    const [selectedMember, setSelectedMember] = useState<any>(null); 
+    const memberOrderKey = memberIndicesById.join(',');
+    const [memberOrderState, setMemberOrderState] = useState(() => ({
+        key: memberOrderKey,
+        order: [...memberIndicesById],
+    }));
+    const memberOrder = memberOrderState.key === memberOrderKey
+        ? memberOrderState.order
+        : memberIndicesById;
+    const [selectedMember, setSelectedMember] = useState<TeamMember | null>(null);
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
     const lastScrollMemberIndex = useRef(0);
     const teamCarouselRef = useRef<HTMLElement>(null);
@@ -78,39 +85,48 @@ const TeamPage = () => {
     }, []);
 
     useEffect(() => {
-        setMemberOrder([...memberIndicesById]);
         lastScrollMemberIndex.current = 0;
-    }, [memberIndicesById]);
+    }, [memberOrderKey]);
 
     const currentIndex = memberOrder[0] ?? 0;
     const memberQueue = memberOrder.slice(1);
 
     const goToMember = useCallback((index: number) => {
-        setMemberOrder(previousOrder => {
+        setMemberOrderState(currentState => {
+            const previousOrder = currentState.key === memberOrderKey
+                ? currentState.order
+                : memberIndicesById;
             const previousCurrentIndex = previousOrder[0];
-            if (index === previousCurrentIndex || !previousOrder.includes(index)) return previousOrder;
+            if (index === previousCurrentIndex || !previousOrder.includes(index)) {
+                return currentState.key === memberOrderKey
+                    ? currentState
+                    : { key: memberOrderKey, order: [...previousOrder] };
+            }
 
-            return [
-                index,
-                ...previousOrder.filter(memberIndex => memberIndex !== index && memberIndex !== previousCurrentIndex),
-                previousCurrentIndex,
-            ];
+            return {
+                key: memberOrderKey,
+                order: [
+                    index,
+                    ...previousOrder.filter(memberIndex => memberIndex !== index && memberIndex !== previousCurrentIndex),
+                    previousCurrentIndex,
+                ],
+            };
         });
-    }, []);
+    }, [memberIndicesById, memberOrderKey]);
 
     const handlePrev = useCallback(() => {
         if (!memberIndicesById.length) return;
         const currentPosition = memberIndicesById.indexOf(currentIndex);
         const previousPosition = Math.max(0, currentPosition - 1);
         goToMember(memberIndicesById[previousPosition]);
-    }, [currentIndex, goToMember]);
+    }, [currentIndex, goToMember, memberIndicesById]);
 
     const handleNext = useCallback(() => {
         if (!memberIndicesById.length) return;
         const currentPosition = memberIndicesById.indexOf(currentIndex);
         const nextPosition = Math.min(memberIndicesById.length - 1, currentPosition + 1);
         goToMember(memberIndicesById[nextPosition]);
-    }, [currentIndex, goToMember]);
+    }, [currentIndex, goToMember, memberIndicesById]);
 
     useMotionValueEvent(teamCarouselScrollProgress, "change", (latest) => {
         if (selectedMember || isMobile || !memberIndicesById.length) return;
@@ -410,7 +426,7 @@ const TeamPage = () => {
                                     <p className="modal-bio">{selectedMember.bio}</p>
                                     
                                     <div className="modal-skills">
-                                        {selectedMember.skills?.map((skill: any, idx: number) => (
+                                        {selectedMember.skills?.map((skill, idx) => (
                                             <div key={idx} className="skill-item">
                                                 <div className="skill-header">
                                                     <span>{skill.name}</span>

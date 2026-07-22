@@ -66,35 +66,27 @@ const getGenericEmbedUrl = (url: string): string => {
 const QuickViewNextThumbnail: React.FC<{ product: NewsItem }> = ({ product }) => {
   const videoUrl = product.videoUrl?.trim() ?? '';
   const youtubeId = getYouTubeId(videoUrl);
-  const [thumbnail, setThumbnail] = useState(() => (
+  const thumbnailKey = `${product.imageUrl}\n${videoUrl}`;
+  const defaultThumbnail = (
     isDefaultProjectThumbnail(product.imageUrl) && youtubeId
       ? `https://img.youtube.com/vi/${youtubeId}/maxresdefault.jpg`
       : product.imageUrl
-  ));
+  );
+  const [thumbnailOverride, setThumbnailOverride] = useState<{ key: string; value: string } | null>(null);
+  const thumbnail = thumbnailOverride?.key === thumbnailKey ? thumbnailOverride.value : defaultThumbnail;
 
   useEffect(() => {
-    if (!isDefaultProjectThumbnail(product.imageUrl)) {
-      setThumbnail(product.imageUrl);
-      return;
-    }
+    if (!isDefaultProjectThumbnail(product.imageUrl) || youtubeId || !videoUrl.includes('vimeo')) return;
 
-    if (youtubeId) {
-      setThumbnail(`https://img.youtube.com/vi/${youtubeId}/maxresdefault.jpg`);
-      return;
-    }
-
-    if (videoUrl.includes('vimeo')) {
-      fetch(`https://vimeo.com/api/oembed.json?url=${encodeURIComponent(videoUrl)}&width=1280`)
-        .then((response) => response.json())
-        .then((data: { thumbnail_url?: string }) => {
-          if (data.thumbnail_url) setThumbnail(data.thumbnail_url);
-        })
-        .catch(() => setThumbnail(product.imageUrl));
-      return;
-    }
-
-    setThumbnail(product.imageUrl);
-  }, [product.imageUrl, videoUrl, youtubeId]);
+    let active = true;
+    fetch(`https://vimeo.com/api/oembed.json?url=${encodeURIComponent(videoUrl)}&width=1280`)
+      .then((response) => response.json())
+      .then((data: { thumbnail_url?: string }) => {
+        if (active && data.thumbnail_url) setThumbnailOverride({ key: thumbnailKey, value: data.thumbnail_url });
+      })
+      .catch(() => undefined);
+    return () => { active = false; };
+  }, [product.imageUrl, thumbnailKey, videoUrl, youtubeId]);
 
   return (
     <img
@@ -102,7 +94,7 @@ const QuickViewNextThumbnail: React.FC<{ product: NewsItem }> = ({ product }) =>
       alt={`${product.title} preview`}
       onError={() => {
         if (youtubeId && thumbnail.includes('maxresdefault')) {
-          setThumbnail(`https://img.youtube.com/vi/${youtubeId}/hqdefault.jpg`);
+          setThumbnailOverride({ key: thumbnailKey, value: `https://img.youtube.com/vi/${youtubeId}/hqdefault.jpg` });
         }
       }}
     />
@@ -219,8 +211,6 @@ const QuickViewVideo: React.FC<QuickViewVideoProps> = ({ item, product }) => {
   const [hasEnded, setHasEnded] = useState(false);
 
   useEffect(() => {
-    setHasEnded(false);
-
     if (!item.isVimeo || !vimeoIframeRef.current) return;
 
     const player = new Player(vimeoIframeRef.current);
@@ -324,7 +314,9 @@ const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, onClose, embed
   const backdropRef = useRef<HTMLDivElement>(null);
   const products = useSupabaseProducts();
   const contactLinks = useSiteContent<ContactLink[]>('contact_links', fallbackContactLinks);
-  const [recommendationOffset, setRecommendationOffset] = useState(0);
+  const productId = product?.id ?? null;
+  const [recommendationState, setRecommendationState] = useState({ productId, offset: 0 });
+  const recommendationOffset = recommendationState.productId === productId ? recommendationState.offset : 0;
   const mediaItems = useMemo(() => buildQuickMedia(product), [product]);
   const mediaLayout = useMemo(() => buildQuickLayout(product, mediaItems, embedded), [embedded, product, mediaItems]);
   const hasCustomLayout = Boolean(product?.quickViewLayout?.length);
@@ -353,14 +345,14 @@ const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, onClose, embed
     backdropRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  useEffect(() => {
-    setRecommendationOffset(0);
-  }, [product?.id]);
-
   const moveRecommendations = (direction: -1 | 1) => {
-    setRecommendationOffset((current) => {
+    setRecommendationState((current) => {
       const count = recommendedProducts.length;
-      return count ? (current + direction + count) % count : 0;
+      const currentOffset = current.productId === productId ? current.offset : 0;
+      return {
+        productId,
+        offset: count ? (currentOffset + direction + count) % count : 0,
+      };
     });
   };
 
@@ -376,7 +368,7 @@ const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, onClose, embed
       );
     }
     if (item.kind === 'video') {
-      return <figure className="quick-view-content-figure"><QuickViewVideo item={item} product={product} />{item.caption && <figcaption>{item.caption}</figcaption>}</figure>;
+      return <figure className="quick-view-content-figure"><QuickViewVideo key={item.url} item={item} product={product} />{item.caption && <figcaption>{item.caption}</figcaption>}</figure>;
     }
     if (item.kind === 'text') {
       const textStyle: Required<QuickViewTextStyle> = {
