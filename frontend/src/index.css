@@ -1715,6 +1715,10 @@ a:not(.header-nav-link):hover,
 
 .quick-view-media-card--image {
   background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(4px, 0.8vw, 12px);
 }
 
 .quick-view-media-strip {
@@ -1825,7 +1829,8 @@ a:not(.header-nav-link):hover,
   position: relative;
   width: 100%;
   height: 100%;
-  background: transparent;
+  overflow: hidden;
+  background: #000000;
 }
 
 .quick-view-replay-overlay {
@@ -1876,12 +1881,23 @@ a:not(.header-nav-link):hover,
   border-radius: 2px;
 }
 
-.quick-view-media-full--video .quick-view-media-card,
-.quick-view-media-full--video .quick-view-vimeo-wrap,
-.quick-view-media-full--video .quick-view-video,
-.quick-view-media-full--video .quick-view-video-shell {
-  border-radius: 2px;
+.quick-view-media-card--video {
+  width: min(1280px, 100%);
+  margin-inline: auto;
+  overflow: hidden;
+  border-radius: clamp(10px, 1.2vw, 18px);
+  background: #000000;
+  box-shadow:
+    0 24px 70px rgba(0, 0, 0, 0.38),
+    0 0 0 1px rgba(255, 255, 255, 0.08);
+  isolation: isolate;
+}
+
+.quick-view-media-card--video .quick-view-vimeo-wrap,
+.quick-view-media-card--video .quick-view-video,
+.quick-view-media-card--video .quick-view-video-shell {
   width: 100%;
+  border-radius: inherit;
 }
 
 .quick-view-floating-actions {
@@ -3802,6 +3818,12 @@ iframe {
     padding: 8px;
   }
 
+  .quick-view-media-card--video {
+    width: 100%;
+    border-radius: 10px;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3);
+  }
+
   .quick-view-media-stack,
   .quick-view-media-stack--cols-2,
   .quick-view-media-stack--cols-3,
@@ -4976,7 +4998,7 @@ iframe {
 
 .project-builder-action--compact:hover>span {
   color: #ffffff;
-  background: transparent;
+  background: #000000;
   transform: none;
 }
 
