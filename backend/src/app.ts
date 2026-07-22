@@ -7,10 +7,19 @@ import memberRoutes from './routes/members.ts';
 import productRoutes from './routes/products.ts';
 import uploadRoutes from './routes/uploads.ts';
 
-const allowedOrigins = () => (process.env.FRONTEND_URL ?? 'http://localhost:3000')
-  .split(',')
-  .map((origin) => origin.trim())
-  .filter(Boolean);
+const toOrigin = (value: string | undefined) => {
+  const host = value?.trim();
+  if (!host) return null;
+  return host.startsWith('http://') || host.startsWith('https://') ? host : `https://${host}`;
+};
+
+const allowedOrigins = () => Array.from(new Set([
+  ...(process.env.FRONTEND_URL ?? 'http://localhost:3000')
+    .split(',')
+    .map((origin) => toOrigin(origin)),
+  toOrigin(process.env.VERCEL_URL),
+  toOrigin(process.env.VERCEL_PROJECT_PRODUCTION_URL),
+].filter((origin): origin is string => Boolean(origin))));
 
 export const createApp = () => {
   const app = express();
