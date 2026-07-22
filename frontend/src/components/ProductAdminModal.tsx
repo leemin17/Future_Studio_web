@@ -16,6 +16,7 @@ interface ProductAdminModalProps {
   product?: NewsItem | null;
   onClose: () => void;
   onSaved: (product: NewsItem) => void;
+  onAuthenticated?: () => void;
 }
 
 const splitUrls = (value: string) =>
@@ -199,7 +200,7 @@ const emptyProductForm: ProductFormValues = {
 
 type ProductAdminFormProps = Omit<ProductAdminModalProps, 'open'>;
 
-const ProductAdminForm: React.FC<ProductAdminFormProps> = ({ product, onClose, onSaved }) => {
+const ProductAdminForm: React.FC<ProductAdminFormProps> = ({ product, onClose, onSaved, onAuthenticated }) => {
   const [authenticated, setAuthenticated] = useState(false);
   const [checkingSession, setCheckingSession] = useState(Boolean(supabase));
   const [email, setEmail] = useState('');
@@ -259,6 +260,7 @@ const ProductAdminForm: React.FC<ProductAdminFormProps> = ({ product, onClose, o
       try {
         const profile = await fetchAdminProfile(data.session.access_token);
         setAuthenticated(profile.isAdmin);
+        if (profile.isAdmin) onAuthenticated?.();
       } catch {
         setAuthenticated(false);
       } finally {
@@ -269,7 +271,7 @@ const ProductAdminForm: React.FC<ProductAdminFormProps> = ({ product, onClose, o
     return () => {
       document.body.style.overflow = '';
     };
-  }, []);
+  }, [onAuthenticated]);
 
   const handleLogin = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -290,6 +292,7 @@ const ProductAdminForm: React.FC<ProductAdminFormProps> = ({ product, onClose, o
         return;
       }
       setAuthenticated(true);
+      onAuthenticated?.();
     } catch (profileError) {
       setErrorMessage(profileError instanceof Error ? profileError.message : 'Unable to verify administrator permission.');
     } finally {
@@ -541,7 +544,7 @@ const ProductAdminForm: React.FC<ProductAdminFormProps> = ({ product, onClose, o
   );
 };
 
-const ProductAdminModal: React.FC<ProductAdminModalProps> = ({ open, product, onClose, onSaved }) => {
+const ProductAdminModal: React.FC<ProductAdminModalProps> = ({ open, product, onClose, onSaved, onAuthenticated }) => {
   if (!open) return null;
   return (
     <ProductAdminForm
@@ -549,6 +552,7 @@ const ProductAdminModal: React.FC<ProductAdminModalProps> = ({ open, product, on
       product={product}
       onClose={onClose}
       onSaved={onSaved}
+      onAuthenticated={onAuthenticated}
     />
   );
 };
