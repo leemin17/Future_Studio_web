@@ -1,3 +1,4 @@
+import { Analytics } from '@vercel/analytics/react';
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
@@ -63,6 +64,7 @@ const App: React.FC = () => {
       <main className={isAtDetailPage ? 'main-content-padding' : ''}>
         <AppRoutes />
       </main>
+      <Analytics />
     </>
   );
 };
