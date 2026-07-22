@@ -1,5 +1,15 @@
-import { createApp } from '../backend/src/app.ts';
+import type { Request, Response } from 'express';
 
-const app = createApp();
+type ExpressApp = ReturnType<(typeof import('../backend/src/app.ts'))['createApp']>;
 
-export default app;
+let appPromise: Promise<ExpressApp> | undefined;
+
+const getApp = () => {
+  appPromise ??= import('../backend/src/app.ts').then(({ createApp }) => createApp());
+  return appPromise;
+};
+
+export default async function handler(request: Request, response: Response) {
+  const app = await getApp();
+  return app(request, response);
+}
