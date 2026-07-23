@@ -16,7 +16,9 @@ const TeamPage = () => {
     const [editingMember, setEditingMember] = useState<TeamMember | null>(null);
     const [deletingMemberId, setDeletingMemberId] = useState<number | null>(null);
     const memberIndicesById = useMemo(() => teamMembers
-        .map((_, index) => index)
+        .map((member, index) => ({ member, index }))
+        .filter(({ member }) => member.id >= 1 && member.id <= 10)
+        .map(({ index }) => index)
         .sort((firstIndex, secondIndex) => teamMembers[firstIndex].id - teamMembers[secondIndex].id), [teamMembers]);
     // --- LOGIC HIỆU ỨNG MOTTO (NATURAL SCROLL) ---
     const mottoRef = useRef<HTMLDivElement>(null);

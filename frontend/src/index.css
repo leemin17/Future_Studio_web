@@ -8630,16 +8630,20 @@ body .product-admin-backdrop .product-admin-session-actions .product-admin-close
 }
 
 .team-showcase-thumb {
-  border-color: rgba(255, 255, 255, .18);
-  opacity: .58;
-  filter: saturate(.72) brightness(.76);
+  border: 0;
+  outline-color: transparent;
+  background: #111315;
+  opacity: 1;
+  filter: saturate(1.04) contrast(1.08) brightness(1.02);
+  box-shadow: 0 14px 30px rgba(0, 0, 0, .42);
 }
 
 .team-showcase-thumb:hover,
 .team-showcase-thumb:focus-visible {
-  opacity: .9;
-  filter: saturate(.95) brightness(.94);
-  outline-color: rgba(255, 255, 255, .62);
+  opacity: 1;
+  filter: saturate(1.08) contrast(1.1) brightness(1.08);
+  outline-color: transparent;
+  box-shadow: 0 18px 38px rgba(0, 0, 0, .54);
 }
 
 .modal-image {
