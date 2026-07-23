@@ -6,9 +6,15 @@ const product = {
   id: 1001,
   date: '2026.07.22',
   title: 'API Product',
-  clientInformation: 'Future Studio',
   describe: 'A valid product returned by the API tests.',
   imageUrl: 'https://example.com/cover.jpg',
+  brandId: 7,
+  brand: {
+    id: 7,
+    name: "Biti's",
+    slug: 'bitis',
+    logoUrl: 'https://example.com/bitis.svg',
+  },
   category: 'tvc' as const,
 };
 
@@ -21,6 +27,17 @@ const member = {
   bio: 'Team member biography.',
   socials: {},
   skills: [],
+};
+
+const brand = {
+  id: 7,
+  name: "Biti's",
+  slug: 'bitis',
+  logoUrl: 'https://example.com/bitis.svg',
+  description: 'A long-term animation collaboration.',
+  websiteUrl: 'https://bitis.com.vn',
+  displayOrder: 0,
+  isVisible: true,
 };
 
 vi.mock('./middleware/auth.ts', () => {
@@ -51,6 +68,14 @@ vi.mock('./services/memberService.ts', () => ({
   createMember: vi.fn(async (input: typeof member) => ({ ...input, id: member.id })),
   updateMember: vi.fn(async (id: number, input: typeof member) => ({ ...input, id })),
   deleteMember: vi.fn(async () => undefined),
+}));
+
+vi.mock('./services/brandService.ts', () => ({
+  getBrands: vi.fn(async () => [brand]),
+  getBrandBySlug: vi.fn(async (slug: string) => slug === brand.slug ? brand : null),
+  createBrand: vi.fn(async (input: typeof brand) => ({ ...input, id: brand.id })),
+  updateBrand: vi.fn(async (id: number, input: typeof brand) => ({ ...input, id })),
+  deleteBrand: vi.fn(async () => undefined),
 }));
 
 vi.mock('./services/contentService.ts', () => ({
@@ -91,6 +116,8 @@ describe('Express API', () => {
     expect(await (await request('/api/health')).json()).toEqual({ status: 'ok' });
     expect(await (await request('/api/products')).json()).toEqual([product]);
     expect(await (await request('/api/members')).json()).toEqual([member]);
+    expect(await (await request('/api/brands')).json()).toEqual([brand]);
+    expect(await (await request('/api/brands/bitis')).json()).toEqual(brand);
     expect(await (await request('/api/content/navigation')).json()).toEqual([{ label: 'Projects', id: 'projects' }]);
   });
 
@@ -127,6 +154,15 @@ describe('Express API', () => {
     expect((await request('/api/members/1', { method: 'DELETE', headers: { Authorization: 'Bearer admin' } })).status).toBe(204);
   });
 
+  it('executes protected brand CRUD', async () => {
+    const input = { ...brand };
+    delete (input as { id?: number }).id;
+    expect((await request('/api/brands', { method: 'POST', headers: jsonHeaders, body: JSON.stringify(input) })).status).toBe(201);
+    expect((await request('/api/brands/7', { method: 'PUT', headers: jsonHeaders, body: JSON.stringify(input) })).status).toBe(200);
+    expect((await request('/api/brands/7', { method: 'DELETE', headers: { Authorization: 'Bearer admin' } })).status).toBe(204);
+    expect((await request('/api/brands', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(input) })).status).toBe(401);
+  });
+
   it('authorizes signed uploads through the backend', async () => {
     const response = await request('/api/uploads/sign', {
       method: 'POST',
@@ -137,5 +173,13 @@ describe('Express API', () => {
     const body = await response.json();
     expect(body.uploads[0].token).toContain('token:demo-project/');
     expect(body.uploads[0].publicUrl).toContain('https://storage.example/demo-project/');
+
+    const brandUpload = await request('/api/uploads/brands/sign', {
+      method: 'POST',
+      headers: jsonHeaders,
+      body: JSON.stringify({ projectTitle: 'Biti’s', files: [{ name: 'logo.svg', contentType: 'image/svg+xml' }] }),
+    });
+    expect(brandUpload.status).toBe(201);
+    expect((await brandUpload.json()).uploads[0].token).toContain('token:biti-s/');
   });
 });

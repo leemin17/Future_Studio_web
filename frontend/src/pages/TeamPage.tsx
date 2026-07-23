@@ -3,6 +3,7 @@ import { motion, useScroll, useTransform, useMotionValueEvent, AnimatePresence, 
 import type { TeamMember } from '@shared/types';
 import ScrollReveal from '../components/ScrollReveal';
 import TeamMemberAdminModal from '../components/TeamMemberAdminModal';
+import PartnersSection from '../components/PartnersSection';
 import { deleteTeamMember, fetchTeamMembers } from '../services/teamMembers';
 import { useAdminSession } from '../hooks/useAdminSession';
 
@@ -254,6 +255,7 @@ const TeamPage = () => {
                         </div>
                     </section>
                 </ScrollReveal>
+            <PartnersSection />
 
                 <ScrollReveal>
                     <section ref={teamCarouselRef} className={`team-carousel-section team-carousel-section--sticky ${isMobile ? 'team-carousel-section--swipe' : ''}`}>

@@ -47,6 +47,10 @@
       "destination": "/projects/:projectSlug/index.html"
     },
     {
+      "source": "/brands/:brandSlug",
+      "destination": "/brands/:brandSlug/index.html"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }

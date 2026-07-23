@@ -25,7 +25,10 @@ export const apiRequest = async <T>(path: string, options: ApiOptions = {}): Pro
   const response = await fetch(`${apiUrl}${path}`, { ...requestOptions, headers });
   const body = response.status === 204 ? null : await response.json().catch(() => null);
   if (!response.ok) {
-    throw new Error(body?.message || `API request failed with status ${response.status}.`);
+    const issue = Array.isArray(body?.issues) ? body.issues[0] : null;
+    const issuePath = Array.isArray(issue?.path) && issue.path.length ? `${issue.path.join('.')}: ` : '';
+    const details = issue?.message ? ` — ${issuePath}${issue.message}` : '';
+    throw new Error(`${body?.message || `API request failed with status ${response.status}.`}${details}`);
   }
   return body as T;
 };

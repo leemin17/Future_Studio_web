@@ -141,7 +141,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ item, onClick, canManage, onE
 
         <img
           src={resolveMediaUrl(thumbnailUrl)}
-          alt={`${item.title} - ${item.clientInformation}`}
+          alt={`${item.title} - ${item.brand.name}`}
           loading="lazy"
           onError={() => {
             const id = thumbnailUrl.match(/img\.youtube\.com\/vi\/([A-Za-z0-9_-]{6,})\//i)?.[1];
@@ -182,7 +182,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ item, onClick, canManage, onE
           </div>
         )}
 
-        <p className="news-text">{item.title} - {item.clientInformation}</p>
+        <p className="news-text">{item.title} - {item.brand.name}</p>
       </div>
     </div>
   );
@@ -229,7 +229,7 @@ const AllProductsPage: React.FC<AllProductsPageProps> = ({ category }) => {
     if (!selectedProduct || !projectSlug) return;
     applySeoMetadata({
       title: `${selectedProduct.title} | Future Studio Vietnam`,
-      description: selectedProduct.describe || `${selectedProduct.title} - dự án của Future Studio Vietnam dành cho ${selectedProduct.clientInformation}.`,
+      description: selectedProduct.describe || `${selectedProduct.title} - dự án của Future Studio Vietnam dành cho ${selectedProduct.brand.name}.`,
       path: getProjectPath(selectedProduct),
       image: getAbsoluteMediaUrl(selectedProduct.imageUrl),
       robots: 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1',

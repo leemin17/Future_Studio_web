@@ -6,16 +6,33 @@ const image = (color: string, label: string) =>
 const tvcOne = image('#1459c7', 'TVC ONE');
 const tvcTwo = image('#c3452d', 'TVC TWO');
 const artOne = image('#25745e', 'ART ONE');
+const brandLogo = image('#f4f3ef', "BITI'S");
+const internalBrand = {
+  id: 8,
+  name: 'Future Studio',
+  slug: 'future-studio',
+  logoUrl: image('#111111', 'FUTURE STUDIO'),
+};
+
+export const brandRows = [{
+  id: 7,
+  name: "Biti's",
+  slug: 'bitis',
+  logoUrl: brandLogo,
+  description: 'A long-term creative partnership.',
+  websiteUrl: 'https://example.com',
+  displayOrder: 0,
+  isVisible: true,
+}];
 
 export const productRows = [
   {
     id: 9001,
     date: '2026.07.19',
     title: 'AUTOMATION TVC ONE',
-    client_information: 'FUTURE CLIENT',
     describe: 'Automated test product one.',
     image_url: tvcOne,
-    partner_logo_url: null,
+    brand_id: 7,
     category: 'tvc',
     video_url: null,
     model_url: null,
@@ -29,10 +46,9 @@ export const productRows = [
     id: 9002,
     date: '2026.07.18',
     title: 'AUTOMATION TVC TWO',
-    client_information: 'FUTURE CLIENT',
     describe: 'Automated test product two.',
     image_url: tvcTwo,
-    partner_logo_url: null,
+    brand_id: 7,
     category: 'tvc',
     video_url: null,
     model_url: null,
@@ -46,10 +62,9 @@ export const productRows = [
     id: 9003,
     date: '2026.07.17',
     title: 'AUTOMATION ART ONE',
-    client_information: 'FUTURE CLIENT',
     describe: 'Automated art test product.',
     image_url: artOne,
-    partner_logo_url: null,
+    brand_id: 8,
     category: 'art',
     video_url: null,
     model_url: null,
@@ -65,10 +80,12 @@ const apiProducts = productRows.map((row) => ({
   id: row.id,
   date: row.date,
   title: row.title,
-  clientInformation: row.client_information,
   describe: row.describe,
   imageUrl: row.image_url,
-  partnerLogoUrl: row.partner_logo_url ?? undefined,
+  brandId: row.brand_id,
+  brand: row.brand_id === 7
+    ? { id: brandRows[0].id, name: brandRows[0].name, slug: brandRows[0].slug, logoUrl: brandRows[0].logoUrl }
+    : internalBrand,
   category: row.category,
   videoUrl: row.video_url ?? undefined,
   modelUrl: row.model_url ?? undefined,
@@ -92,6 +109,10 @@ export const mockSupabase = async (page: Page) => {
 
   await page.route('**/api/members*', async (route) => {
     await route.fulfill({ status: 200, contentType: 'application/json', body: '[]' });
+  });
+
+  await page.route('**/api/brands*', async (route) => {
+    await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(brandRows) });
   });
 };
 

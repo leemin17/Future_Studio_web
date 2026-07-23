@@ -41,4 +41,23 @@ router.post('/sign', ...requireAdmin, async (request, response) => {
   response.status(201).json({ uploads });
 });
 
+router.post('/brands/sign', ...requireAdmin, async (request, response) => {
+  const input = uploadRequestSchema.parse(request.body);
+  if (input.files.some((file) => !file.contentType.startsWith('image/'))) {
+    return response.status(400).json({ message: 'Brand logos must be image files.' });
+  }
+
+  const client = requireSupabaseAdmin();
+  const folder = safeFolder(input.projectTitle);
+  const uploads = await Promise.all(input.files.map(async (file) => {
+    const path = `${folder}/${Date.now()}-${crypto.randomUUID()}-${safeName(file.name)}`;
+    const { data, error } = await client.storage.from('brand-assets').createSignedUploadUrl(path);
+    if (error) throw error;
+    const publicUrl = client.storage.from('brand-assets').getPublicUrl(path).data.publicUrl;
+    return { path, token: data.token, publicUrl };
+  }));
+
+  return response.status(201).json({ uploads });
+});
+
 export default router;

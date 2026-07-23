@@ -10,6 +10,7 @@ import ConfirmDialog from './ConfirmDialog';
 import { productFormSchema, type ProductFormValues } from '../validation/productSchema';
 import { Eye, EyeOff } from 'lucide-react';
 import { fetchAdminProfile } from '../services/auth';
+import { useAdminBrands, useBrands } from '../hooks/useBrands';
 
 interface ProductAdminModalProps {
   open: boolean;
@@ -190,12 +191,11 @@ const blocksFromProduct = (product: NewsItem): ProjectEditorBlock[] =>
 
 const emptyProductForm: ProductFormValues = {
   title: '',
-  clientInformation: '',
   category: 'tvc',
   date: '',
   describe: '',
   imageUrl: '',
-  partnerLogoUrl: '',
+  brandId: '',
 };
 
 type ProductAdminFormProps = Omit<ProductAdminModalProps, 'open'>;
@@ -208,7 +208,6 @@ const ProductAdminForm: React.FC<ProductAdminFormProps> = ({ product, onClose, o
   const [showPassword, setShowPassword] = useState(false);
   const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
   const [processingThumbnail, setProcessingThumbnail] = useState(false);
-  const [partnerLogoFile, setPartnerLogoFile] = useState<File | null>(null);
   const [projectBlocks, setProjectBlocks] = useState<ProjectEditorBlock[]>(() => product ? blocksFromProduct(product) : []);
   const [submitting, setSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
@@ -216,31 +215,41 @@ const ProductAdminForm: React.FC<ProductAdminFormProps> = ({ product, onClose, o
   const [saveProgress, setSaveProgress] = useState(0);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [pendingValues, setPendingValues] = useState<ProductFormValues | null>(null);
+  const { data: publicBrands = [] } = useBrands();
+  const { data: adminBrands = [] } = useAdminBrands(authenticated);
+  const brands = adminBrands.length ? adminBrands : publicBrands;
   const saveInFlightRef = useRef(false);
   const {
     register,
     control,
+    setValue,
     handleSubmit: submitForm,
     formState: { errors },
   } = useForm<ProductFormValues>({
     resolver: zodResolver(productFormSchema),
     defaultValues: {
       title: product?.title ?? '',
-      clientInformation: product?.clientInformation ?? '',
       category: product?.category ?? 'tvc',
       date: product?.date.replaceAll('.', '-') ?? '',
       describe: product?.describe ?? '',
       imageUrl: product?.imageUrl ?? '',
-      partnerLogoUrl: product?.partnerLogoUrl ?? '',
+      brandId: product?.brandId ? String(product.brandId) : '',
     },
   });
   const formValues = useWatch({ control, defaultValue: emptyProductForm });
   const {
     title = '',
-    clientInformation = '',
     imageUrl = '',
-    partnerLogoUrl = '',
+    brandId = '',
   } = formValues;
+  const selectedBrand = brands.find((brand) => String(brand.id) === brandId);
+  const futureStudioBrand = brands.find((brand) => brand.slug === 'future-studio');
+
+  useEffect(() => {
+    if (!brandId && futureStudioBrand) {
+      setValue('brandId', String(futureStudioBrand.id), { shouldValidate: true });
+    }
+  }, [brandId, futureStudioBrand, setValue]);
 
   useEffect(() => {
     document.body.style.overflow = 'hidden';
@@ -363,7 +372,6 @@ const ProductAdminForm: React.FC<ProductAdminFormProps> = ({ product, onClose, o
 
       const filesToUpload = [
         ...(effectiveThumbnailFile ? [effectiveThumbnailFile] : []),
-        ...(partnerLogoFile ? [partnerLogoFile] : []),
         ...projectBlocks.flatMap((block) => block.files),
       ];
       setSaveStage(filesToUpload.length ? 'uploading' : 'saving');
@@ -372,7 +380,6 @@ const ProductAdminForm: React.FC<ProductAdminFormProps> = ({ product, onClose, o
         : [];
       let uploadedIndex = 0;
       const uploadedThumbnail = effectiveThumbnailFile ? uploadedUrls[uploadedIndex++] : undefined;
-      const uploadedPartnerLogo = partnerLogoFile ? uploadedUrls[uploadedIndex++] : undefined;
       const resolvedBlocks = projectBlocks.map((block) => {
         const blockUrls = uploadedUrls.slice(uploadedIndex, uploadedIndex + block.files.length);
         uploadedIndex += block.files.length;
@@ -381,7 +388,6 @@ const ProductAdminForm: React.FC<ProductAdminFormProps> = ({ product, onClose, o
       const rawThumbnailUrl = values.imageUrl.trim();
       const thumbnailFromVideoUrl = getRemoteVideoThumbnail(rawThumbnailUrl);
       const thumbnailUrl = uploadedThumbnail ?? (thumbnailFromVideoUrl || rawThumbnailUrl || automaticRemoteThumbnail);
-      const finalPartnerLogoUrl = uploadedPartnerLogo ?? values.partnerLogoUrl.trim();
       const quickViewLayout: NonNullable<NewsItem['quickViewLayout']> = resolvedBlocks.flatMap((block): NonNullable<NewsItem['quickViewLayout']> => {
         if (block.type === 'text') {
           return block.content.trim() ? [{ type: 'text' as const, items: [{ kind: 'text' as const, content: block.content.trim(), html: block.html, textStyle: block.textStyle }] }] : [];
@@ -400,10 +406,9 @@ const ProductAdminForm: React.FC<ProductAdminFormProps> = ({ product, onClose, o
       const productInput = {
         date: values.date.replaceAll('-', '.'),
         title: values.title.trim(),
-        clientInformation: values.clientInformation.trim(),
         describe: values.describe.trim(),
         imageUrl: thumbnailUrl,
-        partnerLogoUrl: finalPartnerLogoUrl || undefined,
+        brandId: Number(values.brandId),
         category: values.category,
         videoUrl: videos[0] ?? (thumbnailFromVideoUrl ? rawThumbnailUrl : undefined),
         modelUrl: quickViewLayout.flatMap((block) => block.items).find((item) => item.kind === 'model')?.url,
@@ -482,15 +487,15 @@ const ProductAdminForm: React.FC<ProductAdminFormProps> = ({ product, onClose, o
           <>
           <form className="product-admin-form product-admin-workspace-form" onSubmit={submitForm(requestSave)}>
             <main className="product-admin-workspace-canvas">
-              <ProjectBlockEditor blocks={projectBlocks} onChange={setProjectBlocks} title={title} clientInformation={clientInformation} partnerLogoFile={partnerLogoFile} partnerLogoUrl={partnerLogoUrl} onUseFrameAsCover={setThumbnailFile} />
+              <ProjectBlockEditor blocks={projectBlocks} onChange={setProjectBlocks} title={title} brand={selectedBrand} onUseFrameAsCover={setThumbnailFile} />
             </main>
 
             <aside className="product-admin-workspace-sidebar">
               <section>
                 <div className="product-admin-sidebar-title"><span>{product ? 'Edit project' : 'Project details'}</span><small>{product ? `ID ${product.id}` : 'Required information'}</small></div>
                 <label>Project title<input {...register('title')} />{errors.title && <small className="product-admin-field-error">{errors.title.message}</small>}</label>
-                <label>Client<input {...register('clientInformation')} />{errors.clientInformation && <small className="product-admin-field-error">{errors.clientInformation.message}</small>}</label>
                 <label>Category<select id="product-category" {...register('category')}><option value="tvc">TVC</option><option value="cartoon-3d">Cartoon 3D</option><option value="art">Art</option><option value="showreel">Showreel</option></select></label>
+                <label>Collaboration brand<select {...register('brandId')}><option value={futureStudioBrand ? String(futureStudioBrand.id) : ''}>{futureStudioBrand ? 'Future Studio (default)' : 'Choose a brand'}</option>{brands.filter((brand) => brand.slug !== 'future-studio').map((brand) => <option key={brand.id} value={brand.id}>{brand.name}</option>)}</select>{errors.brandId && <small className="product-admin-field-error">{errors.brandId.message}</small>}</label>
                 <label>Project date<input type="date" {...register('date')} />{errors.date && <small className="product-admin-field-error">{errors.date.message}</small>}</label>
                 <label>Description<textarea id="product-description" rows={4} {...register('describe')} />{errors.describe && <small className="product-admin-field-error">{errors.describe.message}</small>}</label>
               </section>
@@ -503,12 +508,6 @@ const ProductAdminForm: React.FC<ProductAdminFormProps> = ({ product, onClose, o
                   <span>{processingThumbnail ? 'Optimizing thumbnail...' : thumbnailFile ? `${thumbnailFile.name} · ${Math.max(1, Math.round(thumbnailFile.size / 1024))} KB` : 'Choose one image'}</span>
                 </label>
                 <label>Or thumbnail / YouTube URL<input type="url" {...register('imageUrl')} placeholder="https://youtube.com/watch?v=..." />{errors.imageUrl && <small className="product-admin-field-error">{errors.imageUrl.message}</small>}</label>
-              </section>
-
-              <section>
-                <div className="product-admin-sidebar-title"><span>Partner logo</span><small>Shown in Quick View</small></div>
-                <label className="product-admin-file-field">Logo from computer<input type="file" accept="image/*" onChange={(event) => setPartnerLogoFile(event.target.files?.[0] ?? null)} /><span>{partnerLogoFile ? partnerLogoFile.name : 'Choose partner logo'}</span></label>
-                <label>Or logo URL<input type="url" {...register('partnerLogoUrl')} placeholder="https://..." />{errors.partnerLogoUrl && <small className="product-admin-field-error">{errors.partnerLogoUrl.message}</small>}</label>
               </section>
 
               <div className="product-admin-sidebar-actions">

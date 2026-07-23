@@ -20,6 +20,21 @@ export interface ContactLink {
 
 export type ProductCategory = 'cartoon-3d' | 'tvc' | 'art' | 'showreel';
 
+export interface Brand {
+  id: number;
+  name: string;
+  slug: string;
+  logoUrl: string;
+  description?: string;
+  websiteUrl?: string;
+  displayOrder: number;
+  isVisible: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export type ProductBrand = Pick<Brand, 'id' | 'name' | 'slug' | 'logoUrl'>;
+
 export interface QuickViewItem {
   kind?: 'image' | 'video' | 'text' | 'embed' | 'model';
   url?: string;
@@ -51,10 +66,10 @@ export interface NewsItem {
   id: number;
   date: string;
   title: string;
-  clientInformation: string;
   describe: string;
   imageUrl: string;
-  partnerLogoUrl?: string;
+  brandId: number;
+  brand: ProductBrand;
   category?: ProductCategory;
   videoUrl?: string;
   modelUrl?: string;

@@ -9,16 +9,16 @@ test('all products renders products returned by Express API', async ({ page }) =
   await openApp(page, '/#/all-products');
 
   await expect(page.locator('.news-card')).toHaveCount(3);
-  await expect(page.getByText('AUTOMATION TVC ONE - FUTURE CLIENT')).toBeVisible();
-  await expect(page.getByText('AUTOMATION ART ONE - FUTURE CLIENT')).toBeVisible();
+  await expect(page.getByText("AUTOMATION TVC ONE - Biti's")).toBeVisible();
+  await expect(page.getByText('AUTOMATION ART ONE - Future Studio')).toBeVisible();
 });
 
 test('category route only renders matching products', async ({ page }) => {
   await openApp(page, '/#/tvc');
 
   await expect(page.locator('.news-card')).toHaveCount(2);
-  await expect(page.getByText('AUTOMATION TVC ONE - FUTURE CLIENT')).toBeVisible();
-  await expect(page.getByText('AUTOMATION ART ONE - FUTURE CLIENT')).toHaveCount(0);
+  await expect(page.getByText("AUTOMATION TVC ONE - Biti's")).toBeVisible();
+  await expect(page.getByText('AUTOMATION ART ONE - Future Studio')).toHaveCount(0);
 });
 
 test('product opens and closes Quick View', async ({ page }) => {

@@ -13,7 +13,7 @@ interface QuickViewBuilderPreviewProps {
   open: boolean;
   onClose: () => void;
   title: string;
-  clientInformation: string;
+  brandName: string;
   thumbnailFile: File | null;
   thumbnailUrl: string;
   imageFiles: File[];
@@ -35,7 +35,7 @@ const QuickViewBuilderPreview: React.FC<QuickViewBuilderPreviewProps> = ({
   open,
   onClose,
   title,
-  clientInformation,
+  brandName,
   thumbnailFile,
   thumbnailUrl,
   imageFiles,
@@ -83,7 +83,7 @@ const QuickViewBuilderPreview: React.FC<QuickViewBuilderPreviewProps> = ({
           <main className="quick-builder-preview-screen">
             <div className="quick-builder-preview-product-header">
               {fallbackThumbnail && <img src={fallbackThumbnail} alt="Project thumbnail" />}
-              <div><strong>{title || 'Project title'}</strong><span>{clientInformation || 'Client'}</span></div>
+              <div><strong>{title || 'Project title'}</strong><span>{brandName || 'Brand'}</span></div>
             </div>
 
             <div className="quick-builder-preview-media">

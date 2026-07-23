@@ -2,6 +2,7 @@ import cors from 'cors';
 import express, { type NextFunction, type Request, type Response } from 'express';
 import { ZodError } from 'zod';
 import authRoutes from './routes/auth.ts';
+import brandRoutes from './routes/brands.ts';
 import contentRoutes from './routes/content.ts';
 import memberRoutes from './routes/members.ts';
 import productRoutes from './routes/products.ts';
@@ -30,6 +31,7 @@ export const createApp = () => {
 
   app.get('/api/health', (_request, response) => response.json({ status: 'ok' }));
   app.use('/api/auth', authRoutes);
+  app.use('/api/brands', brandRoutes);
   app.use('/api/products', productRoutes);
   app.use('/api/members', memberRoutes);
   app.use('/api/content', contentRoutes);

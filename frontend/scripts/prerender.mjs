@@ -115,14 +115,31 @@ const loadProducts = async () => {
   }
 
   try {
-    const fields = 'id,date,title,client_information,describe,image_url,partner_logo_url,category,created_at';
-    const response = await fetch(`${supabaseUrl}/rest/v1/products?select=${fields}&order=created_at.desc`, {
+    const fields = 'id,date,title,describe,image_url,brand_id,category,created_at,brand:brands!products_brand_id_fkey(id,name,slug,logo_url)';
+    const response = await fetch(`${supabaseUrl}/rest/v1/products?select=${encodeURIComponent(fields)}&order=created_at.desc`, {
       headers: { apikey: supabaseKey, Authorization: `Bearer ${supabaseKey}` },
     });
     if (!response.ok) throw new Error(`Supabase returned ${response.status}`);
     return await response.json();
   } catch (error) {
     console.warn(`Prerender: project pages were skipped: ${error instanceof Error ? error.message : error}`);
+    return [];
+  }
+};
+
+const loadBrands = async () => {
+  const supabaseUrl = process.env.VITE_SUPABASE_URL?.trim();
+  const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY?.trim();
+  if (!supabaseUrl || !supabaseKey) return [];
+  try {
+    const fields = 'id,name,slug,logo_url,description,display_order';
+    const response = await fetch(`${supabaseUrl}/rest/v1/brands?select=${fields}&is_visible=eq.true&order=display_order.asc`, {
+      headers: { apikey: supabaseKey, Authorization: `Bearer ${supabaseKey}` },
+    });
+    if (!response.ok) throw new Error(`Supabase returned ${response.status}`);
+    return await response.json();
+  } catch (error) {
+    console.warn(`Prerender: brand pages were skipped: ${error instanceof Error ? error.message : error}`);
     return [];
   }
 };
@@ -179,7 +196,7 @@ const applyDocumentMetadata = (template, page) => {
 const productCards = (products) => products.map((product) => {
   const projectPath = `/projects/${slugify(product.title)}-${product.id}`;
   const imageUrl = absoluteMediaUrl(product.image_url);
-  return `<article><a href="${escapeAttribute(projectPath)}"><img src="${escapeAttribute(imageUrl)}" alt="${escapeAttribute(product.title)}" width="640" height="400" loading="lazy" /><h2>${escapeHtml(product.title)}</h2></a><p>${escapeHtml(product.describe || product.client_information || '')}</p></article>`;
+  return `<article><a href="${escapeAttribute(projectPath)}"><img src="${escapeAttribute(imageUrl)}" alt="${escapeAttribute(product.title)}" width="640" height="400" loading="lazy" /><h2>${escapeHtml(product.title)}</h2></a><p>${escapeHtml(product.describe || product.brand?.name || '')}</p></article>`;
 }).join('');
 
 const createFallbackMarkup = (page, products = []) => `
@@ -203,7 +220,7 @@ const writePrerenderedPage = async (template, page, products = []) => {
 };
 
 const template = await readFile(templatePath, 'utf8');
-const products = await loadProducts();
+const [products, brands] = await Promise.all([loadProducts(), loadBrands()]);
 
 for (const route of staticRoutes) {
   const routeProducts = route.path === '/all-products'
@@ -221,12 +238,24 @@ for (const product of products) {
     title: `${product.title} | Future Studio Vietnam`,
     description: product.describe || `${product.title}, a creative production project by Future Studio Vietnam.`,
     heading: product.title,
-    intro: product.describe || product.client_information || 'Creative production project by Future Studio Vietnam.',
+    intro: product.describe || product.brand?.name || 'Creative production project by Future Studio Vietnam.',
     image: product.image_url,
     date: product.date,
-    client: product.client_information,
+    client: product.brand?.name,
     schemaType: 'CreativeWork',
   });
 }
 
-console.log(`Prerendered ${staticRoutes.length + products.length} page(s), including ${products.length} project page(s).`);
+for (const brand of brands) {
+  await writePrerenderedPage(template, {
+    path: `/brands/${brand.slug}`,
+    title: `${brand.name} × Future Studio | Creative collaborations`,
+    description: brand.description || `Explore creative projects made by Future Studio in collaboration with ${brand.name}.`,
+    heading: `${brand.name} × Future Studio`,
+    intro: brand.description || `A selection of work created together with ${brand.name}.`,
+    image: brand.logo_url,
+    schemaType: 'CollectionPage',
+  }, products.filter((product) => Number(product.brand_id) === Number(brand.id)));
+}
+
+console.log(`Prerendered ${staticRoutes.length + products.length + brands.length} page(s), including ${products.length} project and ${brands.length} brand page(s).`);

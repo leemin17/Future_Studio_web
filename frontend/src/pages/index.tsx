@@ -12,6 +12,9 @@ const TeamPage = React.lazy(() => import('./TeamPage'));
 const ContactPage = React.lazy(() => import('./ContactPage'));
 const AdminPage = React.lazy(() => import('./AdminPage'));
 const ProjectQuickViewRoute = React.lazy(() => import('./ProjectQuickViewRoute'));
+const BrandCollectionPage = React.lazy(() => import('./BrandCollectionPage'));
+const CreateProjectPage = React.lazy(() => import('./CreateProjectPage'));
+const CollaborationsAdminPage = React.lazy(() => import('./CollaborationsAdminPage'));
 
 // Component hiển thị trong lúc chờ tải trang
 const LoadingFallback = () => (
@@ -35,9 +38,12 @@ const AppRoutes: React.FC = () => {
                     <Route path="/art" element={<PageTransition><AllProductsPage category="art" /></PageTransition>} />
                     <Route path="/showreel" element={<PageTransition><AllProductsPage category="showreel" /></PageTransition>} />
                     <Route path="/projects/:projectSlug" element={<PageTransition><AllProductsPage /></PageTransition>} />
+                    <Route path="/brands/:brandSlug" element={<PageTransition><BrandCollectionPage /></PageTransition>} />
                     <Route path="/team" element={<PageTransition><TeamPage /></PageTransition>} />
                     <Route path="/contact" element={<PageTransition><ContactPage /></PageTransition>} />
                     <Route path="/admin" element={<AdminPage />} />
+                    <Route path="/admin/projects/new" element={<CreateProjectPage />} />
+                    <Route path="/admin/collaborations" element={<CollaborationsAdminPage />} />
                 </Routes>
             </AnimatePresence>
             {backgroundLocation && (

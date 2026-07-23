@@ -1,7 +1,7 @@
 import type { NewsItem } from '@shared/types';
 import { apiRequest } from './apiClient';
 
-export type NewProductInput = Omit<NewsItem, 'id'>;
+export type NewProductInput = Omit<NewsItem, 'id' | 'brand'>;
 
 export const fetchDatabaseProducts = () => apiRequest<NewsItem[]>('/products');
 

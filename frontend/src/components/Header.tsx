@@ -7,6 +7,7 @@ import type { NavItem } from '@shared/types';
 import { scrollToTop } from '../utils/scroll';
 import { useSiteContent } from '../hooks/useSiteContent';
 import { useAdminSession } from '../hooks/useAdminSession';
+import { supabase } from '../lib/supabase';
 interface HeaderProps {
   onLogoClick: () => void;
   showFixedHeader: boolean;
@@ -62,6 +63,7 @@ const Header: React.FC<HeaderProps> = ({ onLogoClick, showFixedHeader, isAtDetai
   const activeSection = useScrollSpy(sectionIds);
   const lenis = useLenis(); // Khởi tạo Lenis để dùng cho việc cuộn
   const navigate = useNavigate();
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const closeMobileMenu = (target?: EventTarget | null) => {
     setIsMobileMenuOpen(false);
@@ -88,6 +90,22 @@ const Header: React.FC<HeaderProps> = ({ onLogoClick, showFixedHeader, isAtDetai
   };
 
   // Xác định class CSS dựa trên vị trí cuộn và trang hiện tại
+  const handleLogout = async (target?: EventTarget | null) => {
+    if (!supabase || isLoggingOut) return;
+    setIsLoggingOut(true);
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+      closeMobileMenu(target);
+      navigate('/');
+      scrollToTop();
+    } catch (error) {
+      window.alert(error instanceof Error ? error.message : 'Unable to log out.');
+    } finally {
+      setIsLoggingOut(false);
+    }
+  };
+
   const headerClass = showFixedHeader
     ? 'fixed-active'
     : isAtDetailPage
@@ -126,6 +144,7 @@ const Header: React.FC<HeaderProps> = ({ onLogoClick, showFixedHeader, isAtDetai
           <div key={item.id} className={`nav-item-wrapper ${item.id}`}>
             <button
               className={`header-nav-link ${!isAtDetailPage && activeSection === item.id ? 'active' : ''}`}
+              aria-haspopup={item.id === 'login' && isAdmin ? 'menu' : undefined}
               onClick={(event) => {
                 closeMobileMenu(event.currentTarget);
                 // Nếu item có path riêng (vd: /about), ưu tiên chuyển trang
@@ -144,6 +163,44 @@ const Header: React.FC<HeaderProps> = ({ onLogoClick, showFixedHeader, isAtDetai
             >
               {item.label}
             </button>
+
+            {item.id === 'login' && isAdmin && (
+              <div className="dropdown-menu admin-dropdown-menu" role="menu" aria-label="Admin actions">
+                <button
+                  type="button"
+                  className="dropdown-item"
+                  role="menuitem"
+                  onClick={(event) => {
+                    closeMobileMenu(event.currentTarget);
+                    navigate('/admin/projects/new');
+                  }}
+                >
+                  Create a project
+                </button>
+                <button
+                  type="button"
+                  className="dropdown-item"
+                  role="menuitem"
+                  onClick={(event) => {
+                    closeMobileMenu(event.currentTarget);
+                    navigate('/admin/collaborations');
+                  }}
+                >
+                  Manage collaborations
+                </button>
+              </div>
+            )}
+
+            {item.id === 'login' && isAdmin && (
+              <button
+                type="button"
+                className="header-logout-button"
+                onClick={(event) => void handleLogout(event.currentTarget)}
+                disabled={isLoggingOut}
+              >
+                {isLoggingOut ? 'Logging out…' : 'Logout'}
+              </button>
+            )}
 
             {item.subItems && (
               <div className="dropdown-menu">

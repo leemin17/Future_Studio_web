@@ -77,9 +77,9 @@ export const navItems: NavItem[] = [
     label: 'About',
     id: 'about',
     path: '/team',
-    subItems: [
-      { label: 'Team', id: 'about-team', path: '/team' }
-    ]
+    // subItems: [
+    //   { label: 'Team', id: 'about-team', path: '/team' }
+    // ]
   },
   { label: 'Contact', id: 'contact', path: '/contact' },
   { label: 'Login', id: 'login', path: '/admin' },

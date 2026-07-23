@@ -362,7 +362,7 @@ const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, onClose, embed
     if (item.kind === 'image') {
       return (
         <figure className="quick-view-content-figure">
-          <img src={resolveMediaUrl(item.url)} alt={`${product?.title} - ${product?.clientInformation}`} className="quick-view-image" />
+          <img src={resolveMediaUrl(item.url)} alt={`${product?.title} - ${product?.brand.name}`} className="quick-view-image" />
           {item.caption && <figcaption>{item.caption}</figcaption>}
         </figure>
       );
@@ -423,12 +423,12 @@ const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, onClose, embed
                 <div className="quick-view-header-brand">
                   <img
                     className="quick-view-header-logo"
-                    src={product.partnerLogoUrl ? resolveMediaUrl(product.partnerLogoUrl) : getAssetUrl('images/logo.jpg')}
-                    alt={`${product.clientInformation} logo`}
+                    src={product.brand.logoUrl ? resolveMediaUrl(product.brand.logoUrl) : getAssetUrl('images/logo.jpg')}
+                    alt={`${product.brand.name} logo`}
                   />
                 <div className="quick-view-header-copy">
                   <h3 className="quick-view-header-title">{product.title}</h3>
-                  <span className="quick-view-header-client">{product.clientInformation}</span>
+                  <span className="quick-view-header-client">{product.brand.name}</span>
                 </div>
                 </div>
               </div>
@@ -481,7 +481,7 @@ const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, onClose, embed
                             <span className="quick-view-next-copy">
                               <small>Next project</small>
                               <strong>{nextProduct.title}</strong>
-                              <span>{nextProduct.clientInformation} <i aria-hidden="true">&#8599;</i></span>
+                              <span>{nextProduct.brand.name} <i aria-hidden="true">&#8599;</i></span>
                             </span>
                           </button>
                         ))}
@@ -505,7 +505,7 @@ const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, onClose, embed
               {/* <div className="quick-view-detail">
                 <p className="quick-view-date">{product.date}</p>
                 <h2 className="quick-view-title">{product.title}</h2>
-                <p className="quick-view-client">{product.clientInformation}</p>
+                <p className="quick-view-client">{product.brand.name}</p>
                 {description && <p className="quick-view-description">{description}</p>}
               </div> */}
             </div>

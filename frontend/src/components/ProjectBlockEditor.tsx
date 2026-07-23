@@ -1,7 +1,7 @@
 import React, { useMemo, useRef } from 'react';
 import { arrayMove } from '@dnd-kit/sortable';
 import { Box, Code2, Grid2X2, Image as ImageIcon, Type, Video } from 'lucide-react';
-import type { NewsItem, QuickViewTextStyle } from '@shared/types';
+import type { Brand, NewsItem, QuickViewTextStyle } from '@shared/types';
 import QuickViewModal from './QuickViewModal';
 import VideoFrameCapture from './VideoFrameCapture';
 
@@ -23,9 +23,7 @@ interface ProjectBlockEditorProps {
   blocks: ProjectEditorBlock[];
   onChange: (blocks: ProjectEditorBlock[]) => void;
   title: string;
-  clientInformation: string;
-  partnerLogoFile?: File | null;
-  partnerLogoUrl?: string;
+  brand?: Brand;
   onUseFrameAsCover: (file: File) => void;
 }
 
@@ -61,7 +59,7 @@ const makeBlock = (type: ProjectBlockType, files: File[] = []): ProjectEditorBlo
   };
 };
 
-const ProjectBlockEditor: React.FC<ProjectBlockEditorProps> = ({ blocks, onChange, title, clientInformation, partnerLogoFile, partnerLogoUrl = '', onUseFrameAsCover }) => {
+const ProjectBlockEditor: React.FC<ProjectBlockEditorProps> = ({ blocks, onChange, title, brand, onUseFrameAsCover }) => {
   const imageInput = useRef<HTMLInputElement>(null);
   const gridInput = useRef<HTMLInputElement>(null);
   const videoInput = useRef<HTMLInputElement>(null);
@@ -71,11 +69,11 @@ const ProjectBlockEditor: React.FC<ProjectBlockEditorProps> = ({ blocks, onChang
   const [, startPreviewTransition] = React.useTransition();
 
   const previewFileUrls = useMemo(() => {
-    const files = [...blocks.flatMap((block) => block.files), ...(partnerLogoFile ? [partnerLogoFile] : [])];
+    const files = blocks.flatMap((block) => block.files);
     const nextUrls = new Map<File, string>();
     files.forEach((file) => nextUrls.set(file, URL.createObjectURL(file)));
     return nextUrls;
-  }, [blocks, partnerLogoFile]);
+  }, [blocks]);
 
   React.useEffect(() => (
     () => previewFileUrls.forEach((url) => URL.revokeObjectURL(url))
@@ -100,14 +98,19 @@ const ProjectBlockEditor: React.FC<ProjectBlockEditorProps> = ({ blocks, onChang
       id: 0,
       date: '',
       title: title.trim() || 'Untitled project',
-      clientInformation: clientInformation.trim() || 'Future Studio',
       describe: '',
       imageUrl: '',
-      partnerLogoUrl: (partnerLogoFile ? previewFileUrls.get(partnerLogoFile) : undefined) ?? (partnerLogoUrl.trim() || undefined),
+      brandId: brand?.id ?? 0,
+      brand: {
+        id: brand?.id ?? 0,
+        name: brand?.name ?? 'Choose a brand',
+        slug: brand?.slug ?? '',
+        logoUrl: brand?.logoUrl ?? '',
+      },
       quickViewLayout,
     };
     return product;
-  }, [clientInformation, deferredBlocks, partnerLogoFile, partnerLogoUrl, previewFileUrls, title]);
+  }, [brand, deferredBlocks, previewFileUrls, title]);
   const visibleBlocks = blocks.filter((block) => block.type === 'text' || block.files.length > 0 || block.url.trim());
 
   const addSimpleBlock = (type: ProjectBlockType) => {
