@@ -8583,6 +8583,65 @@ body .product-admin-backdrop .product-admin-session-actions .product-admin-close
   object-position: center top;
 }
 
+/* Team showcase: tighter editorial hierarchy on larger screens */
+@media (min-width: 901px) {
+  .team-showcase {
+    translate: 0 -6vh;
+  }
+
+  .team-showcase-label {
+    color: rgba(255, 255, 255, .74);
+    font-size: clamp(28px, 3vw, 46px);
+  }
+
+  .team-showcase-info {
+    max-width: 760px;
+    padding-bottom: 16px;
+  }
+
+  .team-showcase-info h2 {
+    max-width: 760px;
+    font-size: clamp(38px, 3.6vw, 60px);
+    line-height: .94;
+    letter-spacing: -.035em;
+    text-wrap: balance;
+  }
+
+  .team-showcase-role {
+    margin-top: 15px;
+    color: rgba(255, 255, 255, .86);
+    font-size: clamp(14px, 1vw, 16px);
+    line-height: 1.35;
+  }
+
+  .team-showcase-bio {
+    width: min(640px, 100%);
+    margin-top: 10px;
+    color: rgba(255, 255, 255, .74);
+    font-size: clamp(14px, 1vw, 16px);
+    font-weight: 580;
+    line-height: 1.5;
+  }
+
+  .team-showcase-thumbs {
+    grid-auto-columns: clamp(96px, 6.2vw, 116px);
+    gap: 16px;
+  }
+}
+
+.team-showcase-thumb {
+  border-color: rgba(255, 255, 255, .18);
+  opacity: .58;
+  filter: saturate(.72) brightness(.76);
+}
+
+.team-showcase-thumb:hover,
+.team-showcase-thumb:focus-visible {
+  opacity: .9;
+  filter: saturate(.95) brightness(.94);
+  outline-color: rgba(255, 255, 255, .62);
+}
+
 .modal-image {
   min-width: 0;
   overflow: hidden;

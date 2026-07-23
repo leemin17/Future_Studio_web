@@ -372,7 +372,7 @@ const TeamPage = () => {
                                     <div className="team-showcase-thumbs">
                                         {memberQueue.map((index) => {
                                             const member = teamMembers[index];
-                                            if (!member || index === showcaseIndex) return null;
+                                            if (!member) return null;
 
                                             return (
                                                 <button
